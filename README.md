@@ -224,7 +224,7 @@ terminal" below._
 
 ### Debugging with a J-Link
 
-See the [wiki](https://gitlab.com/aruw/controls/taproot/-/wikis/Software-Tools/Debugging-With-JLink)
+See the [wiki](https://gitlab.com/aruw/controls/taproot/-/wikis/Debugging-With-JLink)
 for an explanation on the difference between an ST-Link and J-Link and a step-by-step procedure on
 how to use the J-Link.
 
