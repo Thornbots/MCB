@@ -58,7 +58,6 @@ namespace ThornBots {
         pidController.runControllerDerivateError(flywheel_speed - flywheel_two.getShaftRPM(), 1);
         flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-        drivers->djiMotorTxHandler.processCanSendData(); //Processes these motor speed changes into can signal
     }
 
     /**
@@ -91,8 +90,6 @@ namespace ThornBots {
         //Flywheel Two
         pidController.runControllerDerivateError(0 - flywheel_two.getShaftRPM(), 1);
         flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-        drivers->djiMotorTxHandler.processCanSendData(); //Processes these motor speed changes into can signal
     }
 
     int TurretController::homemadePID(double value) {

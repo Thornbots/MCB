@@ -12,7 +12,7 @@ tap::arch::PeriodicMilliTimer sendMotorTimeout(2);//(not completley sure, but I 
 tap::arch::PeriodicMilliTimer updateImuTimeout(2); //(not completley sure, but I belive its), the time for the IMU to be considered timed out.
 
 //START General purpose variables / constants
-::Drivers *drivers = ::DoNotUse_getDrivers();
+src::Drivers *drivers = src::DoNotUse_getDrivers();
 bool do_beyblading = false; 
 bool use_exponentional_controlling = false;
 bool useWASD = false;
@@ -28,31 +28,6 @@ double right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz = 0;
 float yaw_encoder_value = 0; //Hopefully, the encoder value for the 6020: https://aruw.gitlab.io/controls/taproot/api/classtap_1_1motor_1_1_dji_motor.html
 //END Sensor / Input variables
 
-
-// int getYawMotorSpeedHelper2() {
-//     angleOffSet = actualAngle - targetedAngle;
-//     if(abs(angleOffSet) > 180) {
-//         if(angleOffSet < 0) { angleOffSet += 360; }
-//         else { angleOffSet -= 360; }
-//     }
-//     return angleOffSet > 0 ? hoemadePID(abs(angleOffSet)) : 
-//     -1.0 * hoemadePID(abs(angleOffSet));
-// }
-
-// float getTargetedAngle1()  {
-//     targetedAngle += (float) right_stick_horz / 100.0f;
-//     if((float) abs(targetedAngle) <= 180.0f) {
-//         return (float) targetedAngle;
-//     }
-//     return (float) abs(targetedAngle <= 180.0f) ? (float) targetedAngle : 
-//         (float) targetedAngle > 0 ? (float) targetedAngle - 360.0f :
-//             (float) targetedAngle + 360.0f;
-// }
-
-// float getTargetedAngle() {
-//     return 45.0f * (float) right_stick_horz;
-// }
-
 /**
  * Used for reading the WASD keys on the keyboard. Updates two strings.
  * WASDstring: A "queue" of characters for intrepreting WASD controls into robot movement
@@ -60,9 +35,9 @@ float yaw_encoder_value = 0; //Hopefully, the encoder value for the 6020: https:
 */
 void updateStrings() {
     //START Reading WASD
-    if(drivers->remote.keyPressed(tap::Remote::Key::W)) {
+    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::W)) {
         if (WASDstring.find('w') == std::string::npos) {
-        WASDstring += 'w';
+            WASDstring += 'w';
         }
     } else {
         size_t pos = WASDstring.find('w');
@@ -70,9 +45,9 @@ void updateStrings() {
             WASDstring.erase(pos, 1);
         }
     }
-    if(drivers->remote.keyPressed(tap::Remote::Key::A)) {
+    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::A)) {
         if (WASDstring.find('a') == std::string::npos) {
-        WASDstring += 'a';
+            WASDstring += 'a';
         }
     } else {
         size_t pos = WASDstring.find('a');
@@ -80,9 +55,9 @@ void updateStrings() {
             WASDstring.erase(pos, 1);
         }
     }
-    if(drivers->remote.keyPressed(tap::Remote::Key::S)) {
+    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::S)) {
         if (WASDstring.find('s') == std::string::npos) {
-        WASDstring += 's';
+            WASDstring += 's';
         }
     } else {
         size_t pos = WASDstring.find('s');
@@ -90,9 +65,9 @@ void updateStrings() {
             WASDstring.erase(pos, 1);
         }
     }
-    if(drivers->remote.keyPressed(tap::Remote::Key::D)) {
+    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::D)) {
         if (WASDstring.find('d') == std::string::npos) {
-        WASDstring += 'd';
+            WASDstring += 'd';
         }
     } else {
         size_t pos = WASDstring.find('d');
@@ -110,67 +85,17 @@ void updateStrings() {
     //STOP Updating the substring
 }
 
-/**
- * Given an int, displays the abs(int) on the onboard LEDs on the type A board in unsigned binary
- * Only has range from 0 to 256
-*/
-void setLEDDebig(int num) {
-    //START Reseting all of the LEDs
-    drivers->leds.set(tap::gpio::Leds::A, true);
-    drivers->leds.set(tap::gpio::Leds::B, true);
-    drivers->leds.set(tap::gpio::Leds::C, true);
-    drivers->leds.set(tap::gpio::Leds::D, true);
-    drivers->leds.set(tap::gpio::Leds::E, true);
-    drivers->leds.set(tap::gpio::Leds::F, true);
-    drivers->leds.set(tap::gpio::Leds::G, true);
-    drivers->leds.set(tap::gpio::Leds::H, true);
-    num = abs(num);
-
-    if(num >= 256) { num = 256; } //Just to be sure there isn't anything weird when given an int > 256
-    if(num >= 128) {
-        num -= 128;
-        drivers->leds.set(tap::gpio::Leds::A, false);
-    }
-    if(num >= 64) {
-        num -= 64;
-        drivers->leds.set(tap::gpio::Leds::B, false);
-    }
-    if(num >= 32) {
-        num -= 32;
-        drivers->leds.set(tap::gpio::Leds::C, false);
-    }
-    if(num >= 16) {
-        num -= 16;
-        drivers->leds.set(tap::gpio::Leds::D, false);
-    }
-    if(num >= 8) {
-        num -= 8;
-        drivers->leds.set(tap::gpio::Leds::E, false);
-    }
-    if(num >= 4) {
-        num -= 4;
-        drivers->leds.set(tap::gpio::Leds::F, false);
-    }
-    if(num >= 2) {
-        num -= 2;
-        drivers->leds.set(tap::gpio::Leds::G, false);
-    }
-    if(num >= 1) {
-        num -= 1;
-        drivers->leds.set(tap::gpio::Leds::H, false);
-    }
-}
-
 int main() {
     /*
      * NOTE: We are using DoNotUse_getDrivers here because in the main
      *      robot loop we must access the singleton drivers to update
      *      IO states and run the scheduler.
      */
-    ::Drivers *drivers = ::DoNotUse_getDrivers();
+    src::Drivers *drivers = src::DoNotUse_getDrivers();
     drivers->can.initialize(); // Initializes the CAN
     Board::initialize(); // Board initiaizing stuff-mo-bobbers
-    drivers->mpu6500.init(); // Initializing for the IMU (Type A)
+    drivers->bmi088.initialize(1600.0f, 1.0f, 1.0f); // Initializing for the IMU (Type C)
+    drivers->bmi088.requestRecalibration(); //Makes sure the IMU is calibrated correctly (Type C)
     drivers->leds.init();
     ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
     ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
@@ -181,32 +106,30 @@ int main() {
         modm::delay_us(2); //Delay so we don't run the board too fast
 
     	drivers->remote.read(); //Read the inputs of the remote
-        drivers->mpu6500.read(); // Read the inputs of the IMU
-        setLEDDebig((int) actualAngle);
 
         //The following if statement is for reading from the IMU (Type A)
         if (updateImuTimeout.execute()) {
-            drivers->mpu6500.periodicIMUUpdate();
+            drivers->bmi088.periodicIMUUpdate();
             IMU_yaw = 0;//drivers->mpu6500.getYaw();
             IMU_yaw_deg_per_sec = 0;//drivers->mpu6500.getGx(); // Gets the IMU's deg/sec reading for the x plane (assuming that is the yaw plane)
-            actualAngle = drivers->mpu6500.getPitch(); // Gets the IMU"s deg reading from the y plane (pitch plane)
+            actualAngle = drivers->bmi088.getPitch(); // Gets the IMU"s deg reading from the y plane (pitch plane)
         } //Stop reading from IMU (Type A)
 
         //The following if statement is for reading from the wireless remote
         if(drivers->remote.isConnected()) {
             //START Reading the Joystick Values
-            left_stick_vert = drivers->remote.getChannel(drivers->remote.Channel::LEFT_VERTICAL);
-            left_stick_horz = drivers->remote.getChannel(drivers->remote.Channel::LEFT_HORIZONTAL);
-            right_stick_horz = drivers->remote.getChannel(drivers->remote.Channel::RIGHT_HORIZONTAL);
-            right_stick_vert = drivers->remote.getChannel(drivers->remote.Channel::RIGHT_VERTICAL);
+            left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
+            left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
+            right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
+            right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
             // allocateSpeeds(right_stick_horz);
             //END Reading the Joystick Values
             //START Reading the Switch Values
-            if(drivers->remote.getSwitch(drivers->remote.Switch::LEFT_SWITCH) == drivers->remote.SwitchState::MID) { 
+            if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
                 do_beyblading = false;
-      	    } else if((drivers->remote.getSwitch(drivers->remote.Switch::LEFT_SWITCH) == drivers->remote.SwitchState::UP)) { 
+      	    } else if((drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::UP)) { 
                 do_beyblading = true;
-            } else if(drivers->remote.getSwitch(drivers->remote.Switch::LEFT_SWITCH) == drivers->remote.SwitchState::DOWN) { 
+            } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
                 //This is an undefined state as of now
             }
             //END Reading the Switch Values
@@ -218,7 +141,7 @@ int main() {
             turretController->setMotorSpeeds(sendMotorTimeout.execute());
             // yaw_encoder_value = 0.01745329251 * yaw_motor.encoderToDegrees(NULL); //The decimal value is Pi/180. (Converting it to radians)
 
-        drivers->canRxHandler.pollCanData(); //Sends the previously processed CAN signal
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
         } //Stop reading from Wireless Remote
 
         else { // Remote is not detected. So we need to tell the motors to turn off.

@@ -231,9 +231,7 @@ namespace ThornBots {
             pidController.runControllerDerivateError(motor_four_speed - motor_four.getShaftRPM(), 1);
             motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-            drivers->djiMotorTxHandler.processCanSendData(); //Processes these motor speed changes into can signal
         } //STOP Updating motor speeds 
-    //    drivers->canRxHandler.pollCanData();
     }
 
     /**
@@ -264,9 +262,7 @@ namespace ThornBots {
             pidController.runControllerDerivateError(0 - motor_four.getShaftRPM(), 1);
             motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-            drivers->djiMotorTxHandler.processCanSendData(); //Processes these motor speed changes into can signal
         } //STOP Updating motor speeds 
-        drivers->canRxHandler.pollCanData();
     }
 
     /**
