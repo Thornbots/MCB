@@ -27,7 +27,7 @@ args = parse_args.parse_args()
 
 #==============================================ADDED BY Jason Heflinger @Thornbots=============================================
 # Grab robot type and modify src path
-valid_types = ["STANDARD", "HERO", "SENTRY"]
+valid_types = ["STANDARD", "HERO", "SENTRY", "TEST"]
 robot_type = args["ROBOT_TYPE"]
 if robot_type == None:
     print("|======================================================================================|")
