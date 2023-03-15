@@ -46,6 +46,7 @@ def parse_args():
         "BUILD_PROFILE": "",
         "PROFILING": "",
         "ROBOT_TYPE": "",
+        "BUILD": "",
     }
     if len(COMMAND_LINE_TARGETS) > CMD_LINE_ARGS:
         raise Exception("You did not enter the correct number of arguments.\n" + USAGE)
@@ -78,6 +79,6 @@ def parse_args():
         raise Exception("You specified an invalid profiling type.\n" + USAGE)
 
     # Extract the robot type from either the command line or robot_type.hpp
-    args["ROBOT_TYPE"] = extract_robot_type.get_robot_type()
+    args["ROBOT_TYPE"] = ARGUMENTS.get("robot") #extract_robot_type.get_robot_type()
 
     return args

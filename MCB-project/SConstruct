@@ -22,13 +22,31 @@ from SCons.Script import *
 
 from build_tools import parse_args
 
+# Parse and validate arguments
+args = parse_args.parse_args()
+
+#==============================================ADDED BY Jason Heflinger @Thornbots=============================================
+# Grab robot type and modify src path
+valid_types = ["STANDARD", "HERO", "SENTRY"]
+robot_type = args["ROBOT_TYPE"]
+if robot_type == None:
+    print("|======================================================================================|")
+    print("|          !!!WARNING!!!: No robot type was specified, defaulting to STANDARD          |") 
+    print("|======================================================================================|")
+    robot_type = valid_types[0]
+    args["ROBOT_TYPE"] = robot_type
+if robot_type not in valid_types:
+    raise Exception("Please specify a valid robot type. The current valid robot types include: " + str(valid_types))
+SRC_PATH = "Code/" + robot_type + "/src"
+print("Building for " + robot_type)
+#=============================================================================================================================
+
 # Define project settings and build paths
 PROJECT_NAME         = "MCB-project"
 BUILD_PATH           = "build"
 TAPROOT_PATH         = "taproot"
-SRC_PATH             = "src"
+#SRC_PATH             = "src"
 TEST_PATH            = "test"
-
 
 TAPROOT_SCRIPTS_TOOLPATH = abspath("../taproot-scripts/scons-tools")
 
@@ -37,11 +55,6 @@ ignored_dirs         = [".lbuild_cache", BUILD_PATH, TAPROOT_PATH]
 ignored_files        = []
 # Don't compile this stuff when testing
 IGNORED_FILES_WHILE_TESTING = ["src/main.cpp"]
-
-
-# Parse and validate arguments
-args = parse_args.parse_args()
-
 
 def _get_hosted_target_name_for_current_platform():
     os_type = platform.system()
