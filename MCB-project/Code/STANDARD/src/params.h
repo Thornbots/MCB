@@ -4,7 +4,19 @@
 
 #pragma once
 namespace ThornBots {
-    static tap::algorithms::SmoothPidConfig pid_config;
+    static tap::algorithms::SmoothPidConfig conf = {
+    20,
+    0,
+    0,
+    0,
+    8000,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0
+};
     
-    #define PID_CONFIG pid_config
+    #define PID_CONFIG conf
 }

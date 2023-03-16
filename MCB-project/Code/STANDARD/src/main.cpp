@@ -141,7 +141,7 @@ int main() {
             turretController->setMotorSpeeds(sendMotorTimeout.execute());
             // yaw_encoder_value = 0.01745329251 * yaw_motor.encoderToDegrees(NULL); //The decimal value is Pi/180. (Converting it to radians)
 
-            drivers->djiMotorTxHandler.encodeAndSendCanData();
+            drivers->canRxHandler.pollCanData();
         } //Stop reading from Wireless Remote
 
         else { // Remote is not detected. So we need to tell the motors to turn off.
