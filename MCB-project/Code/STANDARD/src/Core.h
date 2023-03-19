@@ -20,12 +20,19 @@
 static tap::algorithms::SmoothPidConfig pid_conf = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
 static tap::algorithms::SmoothPid default_pid = tap::algorithms::SmoothPid(pid_conf);
 static tap::arch::PeriodicMilliTimer sendMotorTimeout(2);
+static tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
 static tap::arch::PeriodicMilliTimer sendImuTimeout(2);
 static src::Drivers *drivers = src::DoNotUse_getDrivers();
-static tap::motor::DjiMotor motor_1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, false, "ID1", 0, 0);
-static tap::motor::DjiMotor motor_2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "PURDON'T!", 0, 0);
-static tap::motor::DjiMotor motor_3 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, false, "Put the possum in his room", 0, 0);
-static tap::motor::DjiMotor motor_4 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "Call 858-267-8107 for a good time!", 0, 0);
+static tap::motor::DjiMotor motor_1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, false, "drivetrain FL", 0, 0);
+static tap::motor::DjiMotor motor_2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "drivetrain FR", 0, 0);
+static tap::motor::DjiMotor motor_3 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, false, "drivetrain BL", 0, 0);
+static tap::motor::DjiMotor motor_4 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "drivetrain BR", 0, 0);
+static tap::motor::DjiMotor motor_5 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS1, false, "yaw motor", 0, 0);
+static tap::motor::DjiMotor motor_6 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS2, false, "pitch motor", 0, 0);
+static tap::motor::DjiMotor motor_7 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "indexer", 0, 0);
+static tap::motor::DjiMotor motor_8 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "right flywheel", 0, 0);
+static tap::motor::DjiMotor motor_9 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "left flywheel", 0, 0);
+        
 
 // Global functions
 static void SendMotorData(int speed, tap::motor::DjiMotor* motor, tap::algorithms::SmoothPid pidController = default_pid) {
@@ -86,10 +93,16 @@ static void InitializeCore() {
 #define PI 3.14159f
 #define MOTOR_TIMER sendMotorTimeout
 #define IMU_TIMER sendImuTimeout
+#define TURRET_TIMER sendTurretTimeout
 #define MOTOR_1 motor_1
 #define MOTOR_2 motor_2
 #define MOTOR_3 motor_3
 #define MOTOR_4 motor_4
+#define MOTOR_5 motor_5
+#define MOTOR_6 motor_6
+#define MOTOR_7 motor_7
+#define MOTOR_8 motor_8
+#define MOTOR_9 motor_9
 
 // function macros
 #define SPIN_MOTOR(...) SendMotorData(__VA_ARGS__)
