@@ -125,7 +125,6 @@ namespace ThornBots {
         m_FRSpeed = CalculateMotorSpeed("FR");
         m_BLSpeed = CalculateMotorSpeed("BL");
         m_BRSpeed = CalculateMotorSpeed("BR");
-
         SetMotorSpeeds();
     }
 
