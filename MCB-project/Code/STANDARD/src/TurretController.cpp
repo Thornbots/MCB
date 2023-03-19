@@ -41,22 +41,27 @@ namespace ThornBots {
         //Yaw Motor
         pidController.runControllerDerivateError(motor_yaw_speed - motor_yaw.getShaftRPM(), 1);
         motor_yaw.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Pitch Motor
         pidController.runControllerDerivateError(motor_pitch_speed - motor_pitch.getShaftRPM(), 1);
         motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Indexer Motor
         pidController.runControllerDerivateError(motor_indexer_speed - motor_indexer.getShaftRPM(), 1);
         motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Flywheel One
         pidController.runControllerDerivateError(flywheel_speed - flywheel_one.getShaftRPM(), 1);
         flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Flywheel Two
         pidController.runControllerDerivateError(flywheel_speed - flywheel_two.getShaftRPM(), 1);
         flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
     }
 
@@ -74,22 +79,27 @@ namespace ThornBots {
         //Yaw Motor
         pidController.runControllerDerivateError(0 - motor_yaw.getShaftRPM(), 1);
         motor_yaw.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Pitch Motor
         pidController.runControllerDerivateError(0 - motor_pitch.getShaftRPM(), 1);
         motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Indexer Motor
         pidController.runControllerDerivateError(0 - motor_indexer.getShaftRPM(), 1);
         motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Flywheel One
         pidController.runControllerDerivateError(0 - flywheel_one.getShaftRPM(), 1);
         flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Flywheel Two
         pidController.runControllerDerivateError(0 - flywheel_two.getShaftRPM(), 1);
         flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
     }
 
     int TurretController::homemadePID(double value) {

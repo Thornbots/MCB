@@ -8,7 +8,7 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
-#include "params.h"
+#include "Core.h"
 
 namespace ThornBots {
     class TurretController {
@@ -43,7 +43,6 @@ namespace ThornBots {
         int flywheel_speed = 0;
         int motor_indexer_speed = 0;
         int motor_pitch_speed = 0;
-        static constexpr double PI = 3.14159; //Everyone likes Pi!
         tap::Drivers *drivers;
         int homemadePID(double value);
         int getYawMotorSpeed(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_horz);
