@@ -100,7 +100,7 @@ namespace ThornBots {
         SendMotorSpeeds();
     }
 
-    bool KeyboardEnabled() {
+    bool TurretController::KeyboardEnabled() {
         return false;
     }
 
