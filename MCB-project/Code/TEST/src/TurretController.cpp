@@ -1,156 +1,138 @@
 #include "TurretController.h"
-#include <cmath>
-#include "tap/algorithms/smooth_pid.hpp"
-#include "tap/board/board.hpp"
-#include "drivers_singleton.hpp"
-#include <iostream>
-#include <string>
-#include "tap/architecture/periodic_timer.hpp"
-#include "tap/motor/dji_motor.hpp"
-#include "drivers_singleton.hpp"
 
 namespace ThornBots {
-    TurretController::TurretController(tap::Drivers* m_driver) {
-        this->drivers = m_driver;
-        this->motor_yaw.initialize();
-        this->motor_indexer.initialize();
-        this->motor_pitch.initialize();
-        this->flywheel_one.initialize();
-        this->flywheel_two.initialize();
+    TurretController::TurretController() {
+        m_MotorYaw     = &MOTOR_5;
+        m_MotorPitch   = &MOTOR_6;
+        m_MotorIndexer = &MOTOR_7;
+        m_FlywheelR    = &MOTOR_8;
+        m_FlywheelL    = &MOTOR_9;
     }
 
-    TurretController::~TurretController() {} //Watch this cute video of a cat instead: https://youtu.be/hg3e1KflmC8
-
-    /**
-     * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change
-    */
-    void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz) {
-        motor_yaw_speed = 0.0;//getYawMotorSpeed(useWASD, doBeyblading, angleOffset, right_stick_horz);
-        motor_pitch_speed = 0.0;//useWASD ? getPitchMotorSpeed(useWASD, right_stick_vert, angleOffset) : 0;
-        flywheel_speed = getFlywheelsSpeed();
-        motor_indexer_speed = getIndexerMotorSpeed();
+    void TurretController::Initialize() {
+        m_MotorYaw->initialize();
+        m_MotorPitch->initialize();
+        m_MotorIndexer->initialize();
+        m_FlywheelR->initialize();
+        m_FlywheelL->initialize();
     }
 
-    /**
-     * Tells all the motors to go to their assined speeds
-     * i.e. Tells motor_yaw to to go motor_yaw_speed and so on.
-     * sendMotorTimeout should be the method call sendMotorTimeout.execute() when calling this method
-    */
-    void TurretController::setMotorSpeeds(bool sendMotorTimeout) {
-        if(!sendMotorTimeout) { return; }
-        
-        //Yaw Motor
-        pidController.runControllerDerivateError(motor_yaw_speed - motor_yaw.getShaftRPM(), 1);
-        motor_yaw.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-
-        //Pitch Motor
-        pidController.runControllerDerivateError(motor_pitch_speed - motor_pitch.getShaftRPM(), 1);
-        motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-        pidController.setI(0.0);
-        pidController.setD(0.0);
-        pidController.setP(1.0);
-        //Indexer Motor
-        pidController.runControllerDerivateError(motor_indexer_speed - motor_indexer.getShaftRPM(), 1);
-        motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-        
-        //Flywheel One
-        pidController.runControllerDerivateError(flywheel_speed - flywheel_one.getShaftRPM(), 1);
-        flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-        
-        //Flywheel Two
-        pidController.runControllerDerivateError(flywheel_speed - flywheel_two.getShaftRPM(), 1);
-        flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
+    int TurretController::GetMotorSpeed(const char motor_name) {
+        switch(motor_name) {
+            case 'Y':
+                return m_YawSpeed;
+            case 'P':
+                return m_PitchSpeed;
+            case 'R':
+                return m_FlywheelSpeed;
+            case 'L':
+                return m_FlywheelSpeed;
+            case 'I':
+                return m_IndexerSpeed;
+            default:
+                return -1;
+        }
     }
 
-    /**
-     * Tells all of the motors of the turret to go to 0 RPM.
-     * We are hard coding this as well as updating the values to just ensure that the motors stop.
-     * sendMotorTimeout should be the method call sendMotorTimeout.execute() when calling this method
-    */
-    void TurretController::stopMotors(bool sendMotorTimeout) {
-        if(!sendMotorTimeout) { return; }
-        motor_yaw_speed = 0;
-        motor_pitch_speed = 0;
-        motor_indexer_speed = 0;
-        flywheel_speed = 0;
-        //Yaw Motor
-        pidController.runControllerDerivateError(0 - motor_yaw.getShaftRPM(), 1);
-        motor_yaw.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-
-        //Pitch Motor
-        pidController.runControllerDerivateError(0 - motor_pitch.getShaftRPM(), 1);
-        motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-
-        //Indexer Motor
-        pidController.runControllerDerivateError(0 - motor_indexer.getShaftRPM(), 1);
-        motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-
-        //Flywheel One
-        pidController.runControllerDerivateError(0 - flywheel_one.getShaftRPM(), 1);
-        flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-
-        //Flywheel Two
-        pidController.runControllerDerivateError(0 - flywheel_two.getShaftRPM(), 1);
-        flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-    }
-    void TurretController::startShooting(){
-        isShooting = 1;
-    }
-    void TurretController::stopShooting(){
-        isShooting = 0;
+    int TurretController::GetMaxMotorSpeed(const char motor_name) {
+        switch(motor_name) {
+            case 'Y':
+                return m_MaxYawSpeed;
+            case 'P':
+                return m_MaxPitchSpeed;
+            case 'R':
+                return m_MaxFlywheelSpeed;
+            case 'L':
+                return m_MaxFlywheelSpeed;
+            case 'I':
+                return m_MaxIndexerSpeed;
+            default:
+                return -1;
+        }
     }
 
-    int TurretController::homemadePID(double value) {
+    bool TurretController::SetMotorSpeed(const int speed, const char motor_name) {
+        switch(motor_name) {
+            case 'Y':
+                m_YawSpeed = speed;
+                return true;
+            case 'P':
+                m_PitchSpeed = speed;
+                return true;
+            case 'R':
+                m_FlywheelSpeed = speed;
+                return true;
+            case 'L':
+                m_FlywheelSpeed = speed;
+                return true;
+            case 'I':
+                m_IndexerSpeed = speed;
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    void TurretController::SendMotorSpeeds() {
+        if(TURRET_TIMER.execute()){
+            SPIN_MOTOR(m_YawSpeed,      m_MotorYaw);
+            SPIN_MOTOR(m_PitchSpeed,    m_MotorPitch);
+            SPIN_MOTOR(m_IndexerSpeed,  m_MotorIndexer);
+            SPIN_MOTOR(m_FlywheelSpeed, m_FlywheelL);
+            SPIN_MOTOR(m_FlywheelSpeed, m_FlywheelR);
+        }
+    }
+
+    void TurretController::StopMotors() {
+        m_YawSpeed = 0;
+        m_PitchSpeed = 0;
+        m_IndexerSpeed = 0;
+        m_FlywheelSpeed = 0;
+        SendMotorSpeeds();
+    }
+
+    void TurretController::UpdateTurretController() {
+        m_YawSpeed = CalculateMotorSpeed('Y');
+        m_YawSpeed = CalculateMotorSpeed('I');
+        m_YawSpeed = CalculateMotorSpeed('P');
+        m_YawSpeed = CalculateMotorSpeed('R');
+        m_YawSpeed = CalculateMotorSpeed('L');
+        SendMotorSpeeds();
+    }
+
+    bool TurretController::KeyboardEnabled() {
+        return false;
+    }
+
+    int TurretController::CalculateMotorSpeed(const char motor_name) {
+        if(KeyboardEnabled()) return CalculateMotorSpeedWithKeyboard(motor_name);
+        return CalculateMotorSpeedWithController(motor_name);
+    }
+
+    int TurretController::CalculateMotorSpeedWithKeyboard(const char motor_name) {
+        //TODO
+        return 0;
+    }
+
+    int TurretController::CalculateMotorSpeedWithController(const char motor_name) {
+        switch(motor_name) {
+            case 'Y':
+                return 0;
+            case 'P':
+                return 0;
+            case 'R':
+                return m_MaxFlywheelSpeed;
+            case 'L':
+                return m_MaxFlywheelSpeed;
+            case 'I':
+                return m_MaxIndexerSpeed;
+            default:
+                return -1;
+        }
+    }
+
+    int TurretController::CalculateTurretPID(float value) {
         return (int) (1 * (((value * 100)) / 3)); 
-        //TODO: Make this better (low priority)
     }
 
-    /**
-     * Returns the speed that the yaw motor needs to go to counterbalance the effect of beyblading or turning.
-     * Currently only works when in beyBlading mode.
-     * TODO: Make this spin the yawMotor dependent on mouse(only when NOT using CV)
-    */
-    int TurretController::getYawMotorSpeed(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_horz) {
-       
-        if(doBeyblading) {
-            if(abs(angleOffset) > 180) {
-                angleOffset < 0 ? angleOffset += 360 : angleOffset -= 360;
-            }
-            return angleOffset > (double) 0.0 ? homemadePID(angleOffset) : -1 * homemadePID(abs(angleOffset));
-        }
-        if(useWASD) { 
-            return (int) right_stick_horz * YAW_MOTOR_SCALAR;
-        }
-        return -1; //TODO: Implement this to take into acount WASD control (make it move based on mouse movement)
-    }
-
-    int TurretController::getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet) {
-        return angleOffSet == (double) 0.0 ? 0 : 0; //TODO
-    }
-
-    int TurretController::getIndexerMotorSpeed() {
-        if(isShooting == 1){
-            return motor_indexer_max_speed;
-        }else{
-            return 0;
-        }
-    }
-
-    int TurretController::getFlywheelsSpeed(){
-        if(isShooting == 1){
-            return flywheel_max_speed;
-        }else{
-            return 0.0;
-        }
-    }
 };
