@@ -25,10 +25,10 @@ namespace ThornBots {
      * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change
     */
     void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz) {
-        this->motor_yaw_speed = getYawMotorSpeed(useWASD, doBeyblading, angleOffset, right_stick_horz);
-        this->motor_pitch_speed = useWASD ? getPitchMotorSpeed(useWASD, right_stick_vert, angleOffset) : 0;
-        this->flywheel_speed = this->flywheel_max_speed;
-        this->motor_indexer_speed = getMotorIndexerSpeed();
+        motor_yaw_speed = 0.0;//getYawMotorSpeed(useWASD, doBeyblading, angleOffset, right_stick_horz);
+        motor_pitch_speed = 0.0;//useWASD ? getPitchMotorSpeed(useWASD, right_stick_vert, angleOffset) : 0;
+        flywheel_speed = getFlywheelsSpeed();
+        motor_indexer_speed = getIndexerMotorSpeed();
     }
 
     /**
@@ -38,27 +38,33 @@ namespace ThornBots {
     */
     void TurretController::setMotorSpeeds(bool sendMotorTimeout) {
         if(!sendMotorTimeout) { return; }
+        
         //Yaw Motor
         pidController.runControllerDerivateError(motor_yaw_speed - motor_yaw.getShaftRPM(), 1);
         motor_yaw.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Pitch Motor
         pidController.runControllerDerivateError(motor_pitch_speed - motor_pitch.getShaftRPM(), 1);
         motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
+        pidController.setI(0.0);
+        pidController.setD(0.0);
+        pidController.setP(1.0);
         //Indexer Motor
         pidController.runControllerDerivateError(motor_indexer_speed - motor_indexer.getShaftRPM(), 1);
         motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
+        
         //Flywheel One
         pidController.runControllerDerivateError(flywheel_speed - flywheel_one.getShaftRPM(), 1);
         flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
+        
         //Flywheel Two
         pidController.runControllerDerivateError(flywheel_speed - flywheel_two.getShaftRPM(), 1);
         flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-        drivers->djiMotorTxHandler.processCanSendData(); //Processes these motor speed changes into can signal
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
     }
 
     /**
@@ -75,24 +81,33 @@ namespace ThornBots {
         //Yaw Motor
         pidController.runControllerDerivateError(0 - motor_yaw.getShaftRPM(), 1);
         motor_yaw.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Pitch Motor
         pidController.runControllerDerivateError(0 - motor_pitch.getShaftRPM(), 1);
         motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Indexer Motor
         pidController.runControllerDerivateError(0 - motor_indexer.getShaftRPM(), 1);
         motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Flywheel One
         pidController.runControllerDerivateError(0 - flywheel_one.getShaftRPM(), 1);
         flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
 
         //Flywheel Two
         pidController.runControllerDerivateError(0 - flywheel_two.getShaftRPM(), 1);
         flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-        drivers->djiMotorTxHandler.processCanSendData(); //Processes these motor speed changes into can signal
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
+    }
+    void TurretController::startShooting(){
+        isShooting = 1;
+    }
+    void TurretController::stopShooting(){
+        isShooting = 0;
     }
 
     int TurretController::homemadePID(double value) {
@@ -106,6 +121,7 @@ namespace ThornBots {
      * TODO: Make this spin the yawMotor dependent on mouse(only when NOT using CV)
     */
     int TurretController::getYawMotorSpeed(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_horz) {
+       
         if(doBeyblading) {
             if(abs(angleOffset) > 180) {
                 angleOffset < 0 ? angleOffset += 360 : angleOffset -= 360;
@@ -115,7 +131,6 @@ namespace ThornBots {
         if(useWASD) { 
             return (int) right_stick_horz * YAW_MOTOR_SCALAR;
         }
-
         return -1; //TODO: Implement this to take into acount WASD control (make it move based on mouse movement)
     }
 
@@ -124,7 +139,18 @@ namespace ThornBots {
     }
 
     int TurretController::getIndexerMotorSpeed() {
-        return -1; //TODO
+        if(isShooting == 1){
+            return motor_indexer_max_speed;
+        }else{
+            return 0;
+        }
     }
 
+    int TurretController::getFlywheelsSpeed(){
+        if(isShooting == 1){
+            return flywheel_max_speed;
+        }else{
+            return 0.0;
+        }
+    }
 };

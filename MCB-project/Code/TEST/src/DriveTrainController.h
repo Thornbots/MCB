@@ -8,6 +8,7 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
+#include "params.h"
 
 namespace ThornBots {
     class DriveTrainController {
@@ -61,11 +62,11 @@ namespace ThornBots {
         static constexpr double PI = 3.14159; //Everyone likes Pi!
         bool use_exponentional_controlling = true;
         tap::Drivers *drivers;
-        tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, false, "ID1", 0, 0);
-        tap::motor::DjiMotor motor_two = tap::motor::DjiMotor(::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "PURDON'T!", 0, 0);
-        tap::motor::DjiMotor motor_three = tap::motor::DjiMotor(::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, false, "Put the possum in his room", 0, 0);
-        tap::motor::DjiMotor motor_four = tap::motor::DjiMotor(::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "Call 858-267-8107 for a good time!", 0, 0);
-        tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(20, 0, 0, 0, 8000, 1, 0, 1, 0);
+        tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, false, "ID1", 0, 0);
+        tap::motor::DjiMotor motor_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "PURDON'T!", 0, 0);
+        tap::motor::DjiMotor motor_three = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, false, "Put the possum in his room", 0, 0);
+        tap::motor::DjiMotor motor_four = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "Call 858-267-8107 for a good time!", 0, 0);
+        tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(PID_CONFIG);
 
     };
 }

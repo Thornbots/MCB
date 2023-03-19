@@ -218,22 +218,24 @@ namespace ThornBots {
             //Motor1 (The driver's front wheel)
             pidController.runControllerDerivateError(motor_one_speed - motor_one.getShaftRPM(), 1);
             motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
 
             //Motor2 (The passenger's front wheel)
             pidController.runControllerDerivateError(motor_two_speed - motor_two.getShaftRPM(), 1);
             motor_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
 
             //Motor3 (The driver's back wheel)
             pidController.runControllerDerivateError(motor_three_speed - motor_three.getShaftRPM(), 1);
             motor_three.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
 
             //Motor4 (The passenger's back wheel)
             pidController.runControllerDerivateError(motor_four_speed - motor_four.getShaftRPM(), 1);
             motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
 
-            drivers->djiMotorTxHandler.processCanSendData(); //Processes these motor speed changes into can signal
         } //STOP Updating motor speeds 
-    //    drivers->canRxHandler.pollCanData();
     }
 
     /**
@@ -251,22 +253,24 @@ namespace ThornBots {
             //Motor1 (The driver's front wheel)
             pidController.runControllerDerivateError(0 - motor_one.getShaftRPM(), 1);
             motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
 
             //Motor2 (The passenger's front wheel)
             pidController.runControllerDerivateError(0 - motor_two.getShaftRPM(), 1);
             motor_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
 
             //Motor3 (The driver's back wheel)
             pidController.runControllerDerivateError(0 - motor_three.getShaftRPM(), 1);
             motor_three.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
 
             //Motor4 (The passenger's back wheel)
             pidController.runControllerDerivateError(0 - motor_four.getShaftRPM(), 1);
             motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+            drivers->djiMotorTxHandler.encodeAndSendCanData();
 
-            drivers->djiMotorTxHandler.processCanSendData(); //Processes these motor speed changes into can signal
         } //STOP Updating motor speeds 
-        drivers->canRxHandler.pollCanData();
     }
 
     /**
