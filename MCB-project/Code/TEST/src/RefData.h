@@ -1,7 +1,9 @@
+#pragma once
+#include "Core.h"
 namespace ThornBots{
     class RefData{
     public:
-    RefData::RefData();
+    RefData();
 
     //General
     uint16_t getRobotHP();
@@ -36,5 +38,5 @@ namespace ThornBots{
     uint16_t getBigShooterHeatLimit();
 
     uint16_t getBigShooterBarrelSpeedLimit();
-    }
+    };
 }

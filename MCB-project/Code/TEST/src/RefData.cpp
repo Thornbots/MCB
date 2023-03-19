@@ -5,7 +5,7 @@ namespace ThornBots{
 
     //General
     uint16_t RefData::getRobotHP(){
-        return DRIVERS->refSerial.getRobotData().currentHP;
+        return DRIVERS->refSerial.getRobotData().currentHp;
     }
 
     //Chasis
