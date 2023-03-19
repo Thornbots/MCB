@@ -1,4 +1,6 @@
+#include "RefData.h"
 namespace ThornBots{
+    
     RefData::RefData(){}
 
     //General
@@ -62,4 +64,5 @@ namespace ThornBots{
     uint16_t RefData::getBigShooterBarrelSpeedLimit(){
         return DRIVERS->refSerial.getRobotData().turret.barrelSpeedLimit42;
     }
+    
 }

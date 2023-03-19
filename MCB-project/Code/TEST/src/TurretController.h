@@ -25,7 +25,7 @@ namespace ThornBots {
         //constants
         const int m_MaxYawSpeed = 500;
         const int m_MaxIndexerSpeed = 500;
-        const int m_MaxFlywheelSpeed = 2000;
+        const int m_MaxFlywheelSpeed = 960;
         const int m_MaxPitchSpeed = 500;
         const int m_YawScalar = 500;
 
