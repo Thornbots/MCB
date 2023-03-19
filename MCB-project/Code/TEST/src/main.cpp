@@ -222,70 +222,26 @@ int main() {
     src::Drivers *drivers = src::DoNotUse_getDrivers();
     drivers->can.initialize(); // Initializes the CAN
     Board::initialize(); // Board initiaizing stuff-mo-bobbers
-    drivers->bmi088.initialize(1600.0f, 1.0f, 1.0f); // Initializing for the IMU (Type C)
+    drivers->bmi088.initialize(500, 0.5, 0.1); // Initializing for the IMU (Type C)
     drivers->bmi088.requestRecalibration(); //Makes sure the IMU is calibrated correctly (Type C)
     drivers->leds.init();
-    ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
     ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
-
     drivers->remote.initialize(); //Remote initialization
-    
-    while(1){
-        turretController->setMotorValues(useWASD, do_beyblading, angleOffSet, right_stick_vert, right_stick_horz);
-        turretController->setMotorSpeeds(sendMotorTimeout.execute());
-    }
     
     while (1) {
         modm::delay_us(2); //Delay so we don't run the board too fast
-
     	drivers->remote.read(); //Read the inputs of the remote
-        
-        //The following if statement is for reading from the IMU (Type A)
-        if (updateImuTimeout.execute()) {
-            drivers->bmi088.periodicIMUUpdate();
-            IMU_yaw = 0;//drivers->mpu6500.getYaw();
-            IMU_yaw_deg_per_sec = 0;//drivers->mpu6500.getGx(); // Gets the IMU's deg/sec reading for the x plane (assuming that is the yaw plane)
-            actualAngle = drivers->bmi088.getPitch(); // Gets the IMU"s deg reading from the y plane (pitch plane)
-        } //Stop reading from IMU (Type A)
 
         //The following if statement is for reading from the wireless remote
         if(drivers->remote.isConnected()) {
-            //START Reading the Joystick Values
-            left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
-            left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
-            right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
-            right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
-            // allocateSpeeds(right_stick_horz);
-            //END Reading the Joystick Values
-            //START Reading the Switch Values
-            if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
-                do_beyblading = false;
-                turretController->startShooting();
-      	    } else if((drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::UP)) { 
-                do_beyblading = true;
-                turretController->startShooting();
-            } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
-                //This is an undefined state as of now
-                turretController->startShooting();
-            }
-            //END Reading the Switch Values
-
-            updateStrings();
-            driveTrainController->setMotorValues(sendMotorTimeout.execute(), useWASD, do_beyblading, right_stick_vert, right_stick_horz, controlString); //TODO: Might need to replace controlString with a pointer to controlString to prevent memory leaks
-            driveTrainController->setMotorSpeeds(sendMotorTimeout.execute());
-            /*
-            turretController->setMotorValues(useWASD, do_beyblading, angleOffSet, right_stick_vert, right_stick_horz);
+            turretController->setMotorValues(false, false, 0, 0, 0);
             turretController->setMotorSpeeds(sendMotorTimeout.execute());
-            */
-            // yaw_encoder_value = 0.01745329251 * yaw_motor.encoderToDegrees(NULL); //The decimal value is Pi/180. (Converting it to radians)
-
-            drivers->canRxHandler.pollCanData();
         } //Stop reading from Wireless Remote
-
         else { // Remote is not detected. So we need to tell the motors to turn off.
-            //driveTrainController->stopMotors(sendMotorTimeout.execute());
-           // turretController->stopMotors(sendMotorTimeout.execute());
+            turretController->stopMotors(sendMotorTimeout.execute());
         }
+
+        drivers->canRxHandler.pollCanData();
     } //End of main loop
     return 0;
 }
