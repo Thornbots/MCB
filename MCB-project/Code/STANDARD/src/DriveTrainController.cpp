@@ -32,7 +32,7 @@ namespace ThornBots {
         return -1;
     }
     
-    bool DrivetrainController::SetMotorSpeed(int speed, std::string motor_name) {
+    bool DrivetrainController::SetMotorSpeed(int speed, const char* motor_name) {
         if(motor_name[0] == 'F') {
             if(motor_name[1] == 'R') {
                 m_FRSpeed = speed;
@@ -125,10 +125,10 @@ namespace ThornBots {
         m_FRSpeed = CalculateMotorSpeed("FR");
         m_BLSpeed = CalculateMotorSpeed("BL");
         m_BRSpeed = CalculateMotorSpeed("BR");
-        SetMotorSpeeds();
+        SendMotorSpeeds();
     }
 
-    void DrivetrainController::SetMotorSpeeds() {
+    void DrivetrainController::SendMotorSpeeds() {
         if(MOTOR_TIMER.execute()){
             SPIN_MOTOR(m_FLSpeed, m_MotorFL);
             SPIN_MOTOR(m_FRSpeed, m_MotorFR);
@@ -142,6 +142,6 @@ namespace ThornBots {
         m_BLSpeed = 0;
         m_FRSpeed = 0;
         m_BRSpeed = 0;
-        SetMotorSpeeds();
+        SendMotorSpeeds();
     }
 }

@@ -7,20 +7,20 @@ namespace ThornBots {
         DrivetrainController();
         void Initialize();
         void UpdateDrivetrain();
-        void SetMotorSpeeds();
+        void SendMotorSpeeds();
         void StopMotors();
         int GetMotorSpeed(const char* motor_name);
-        bool SetMotorSpeed(int speed, std::string motor_name);
+        bool SetMotorSpeed(int speed, const char* motor_name);
         inline int GetTranslationSpeed() { return m_TranslationSpeed; }
         inline int GetRotationSpeed() { return m_RotationSpeed; }
         inline int GetBeybladingSpeed() { return m_BeybladingSpeed; }
         inline void SetTranslationSpeed(int speed) { m_TranslationSpeed = speed; }
         inline void SetRotationSpeed(int speed) { m_RotationSpeed = speed; }
-        inline void SetBeybladingSpeed(int speed) { m_BeybladingSpeed = speed; } 
-        int CalculateMotorSpeed(const char* motor_name);
+        inline void SetBeybladingSpeed(int speed) { m_BeybladingSpeed = speed; }
     private:
         bool KeyboardEnabled();
-        bool BeybladingEnabled();
+        bool BeybladingEnabled(); 
+        int CalculateMotorSpeed(const char* motor_name);
         int CalculateMotorSpeedWithKeyboard(const char* motor_name);
         int CalculateMotorSpeedWithController(const char* motor_name);
         int CalculateTranslatingSpeed(const char* motor_name);
