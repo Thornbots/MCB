@@ -103,9 +103,11 @@ namespace ThornBots {
         flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
         drivers->djiMotorTxHandler.encodeAndSendCanData();
     }
+
     void TurretController::startShooting(){
         isShooting = true;
     }
+    
     void TurretController::stopShooting(){
         isShooting = false;
     }

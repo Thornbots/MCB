@@ -40,10 +40,6 @@ namespace ThornBots {
         inline int getMaxSpeed() { return max_speed; }
         //STOP getters and setters
 
-        int getMotorOneSpeedWithWASD(bool doBeyblading);
-        int getMotorTwoSpeedWithWASD(bool doBeyblading);
-        int getMotorThreeSpeedWithWASD(bool doBeyblading);
-        int getMotorFourSpeedWithWASD(bool doBeyblading);
         int getMotorOneSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz);
         int getMotorTwoSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz);
         int getMotorThreeSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz);

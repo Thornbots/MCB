@@ -119,8 +119,10 @@ int main() {
             driveTrainController->setMotorSpeeds(sendMotorTimeout.execute());
             turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz);
             turretController->setMotorSpeeds(sendMotorTimeout.execute());
-            //STOP the main code for the robot
             
+            drivers->canRxHandler.pollCanData();
+            //STOP the main code for the robot
+
         } else { //Remote not connected, so have everything turn off (Saftey features!)
             driveTrainController->stopMotors(sendMotorTimeout.execute());
             turretController->stopMotors(sendMotorTimeout.execute());
