@@ -18,7 +18,8 @@
 #include "DriveTrainController.h"
 #include "TurretController.h"
 
-tap::arch::PeriodicMilliTimer sendMotorTimeout(2);
+tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
+tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
 tap::arch::PeriodicMicroTimer updateIMUTimeout(2);
 std::string WASDstring = ""; //Going to be the actual input string
 std::string controlString = ""; //Will be the last two chars in the "WASDstring" string. (What we're actually going to be looking at)
@@ -97,6 +98,7 @@ int main() {
     ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
     
     while (1) {
+        drivers->canRxHandler.pollCanData();
         drivers->remote.read(); //Reading the remote before we check if it is connected yet or not.
         updateStrings();
 
@@ -108,24 +110,27 @@ int main() {
         if(drivers->remote.isConnected()) { //Doing stuff for the remote every loop
             if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
                 doBeyblading = false;
+                turretController->stopShooting();
       	    } else if((drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::UP)) { 
                 doBeyblading = true;
+                turretController->stopShooting();
             } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
-                //This is an undefined state as of now
+                turretController->startShooting();
+                doBeyblading = false;
             }
+            right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
+            right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
+            left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
+            left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
 
-            //START the main code for the robot
             driveTrainController->setMotorValues(useWASD, doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, controlString);
-            driveTrainController->setMotorSpeeds(sendMotorTimeout.execute());
+            driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
             turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz);
-            turretController->setMotorSpeeds(sendMotorTimeout.execute());
-            
-            drivers->canRxHandler.pollCanData();
-            //STOP the main code for the robot
+            turretController->setMotorSpeeds(sendTurretTimeout.execute());            
 
         } else { //Remote not connected, so have everything turn off (Saftey features!)
-            driveTrainController->stopMotors(sendMotorTimeout.execute());
-            turretController->stopMotors(sendMotorTimeout.execute());
+            driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
+            turretController->stopMotors(sendTurretTimeout.execute());
         }
     }
     return 0;

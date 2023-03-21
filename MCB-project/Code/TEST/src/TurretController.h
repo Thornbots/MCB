@@ -38,8 +38,8 @@ namespace ThornBots {
         //STOP getters and setters
 
         static constexpr int motor_yaw_max_speed = 500;
-        static constexpr int motor_indexer_max_speed = 20;
-        static constexpr int flywheel_max_speed = 800;
+        static constexpr int motor_indexer_max_speed = 6000;
+        static constexpr int flywheel_max_speed = 6700;
         static constexpr int motor_pitch_max_speed = 500;
         static constexpr int YAW_MOTOR_SCALAR = 500;
         bool isShooting = false;
@@ -54,7 +54,7 @@ namespace ThornBots {
         int getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet);
         int getIndexerMotorSpeed();
         int getFlywheelsSpeed();
-        tap::motor::DjiMotor motor_yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS1, false, "Have you seen The Bee Movie?", 0, 0);
+        tap::motor::DjiMotor motor_yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Have you seen The Bee Movie?", 0, 0);
         tap::motor::DjiMotor motor_pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS2, false, "Yellow black, yellow black. Ohhh lets spice things up a bit. Black yellow", 0, 0);
         tap::motor::DjiMotor motor_indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "He has a pudding-bowl haircut, brown eyes and a sharp nose", 0, 0);
         tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "right flywheel", 0, 0);

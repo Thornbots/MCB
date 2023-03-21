@@ -205,10 +205,10 @@ namespace ThornBots {
                 
             } //End switch/case
         }
-        motor_one_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, right_stick_vert, right_stick_horz);
-        motor_two_speed = getMotorTwoSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, right_stick_vert, right_stick_horz);
-        motor_three_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, right_stick_vert, right_stick_horz);
-        motor_four_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, right_stick_vert, right_stick_horz);
+        motor_one_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        motor_two_speed = getMotorTwoSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        motor_three_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        motor_four_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
 
     }
 
@@ -308,7 +308,7 @@ namespace ThornBots {
     
     int DriveTrainController::getMotorOneSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
         if(doBeyblading) {
-            double tmp = -1 * beyblading_factor * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double tmp = beyblading_factor * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         } else {
             double tmp = right_stick_horz * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
@@ -321,7 +321,7 @@ namespace ThornBots {
             double tmp = -1 * beyblading_factor * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         } else {
-            double tmp = right_stick_horz * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double tmp = -1 * right_stick_horz * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1* max_speed;
         }
     }
@@ -331,17 +331,17 @@ namespace ThornBots {
             double tmp = beyblading_factor * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         } else {
-            double tmp = -1 * right_stick_horz * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double tmp = right_stick_horz * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         }
     }
     
     int DriveTrainController::getMotorFourSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
         if(doBeyblading) {
-            double tmp = beyblading_factor * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double tmp = -1.0 * beyblading_factor * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         } else {
-            double tmp = -1 * right_stick_horz * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double tmp = -1.0 * right_stick_horz * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         }
     }

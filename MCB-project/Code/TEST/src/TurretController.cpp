@@ -12,11 +12,11 @@
 namespace ThornBots {
     TurretController::TurretController(tap::Drivers* m_driver) {
         this->drivers = m_driver;
-        this->motor_yaw.initialize();
-        this->motor_indexer.initialize();
-        this->motor_pitch.initialize();
-        this->flywheel_one.initialize();
-        this->flywheel_two.initialize();
+        motor_yaw.initialize();
+        motor_indexer.initialize();
+        motor_pitch.initialize();
+        flywheel_one.initialize();
+        flywheel_two.initialize();
     }
 
     TurretController::~TurretController() {} //Watch this cute video of a cat instead: https://youtu.be/hg3e1KflmC8
@@ -25,7 +25,7 @@ namespace ThornBots {
      * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change
     */
     void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz) {
-        motor_yaw_speed = 0.0;//getYawMotorSpeed(useWASD, doBeyblading, angleOffset, right_stick_horz);
+        motor_yaw_speed = getYawMotorSpeed(useWASD, doBeyblading, angleOffset, right_stick_horz);
         motor_pitch_speed = 0.0;//useWASD ? getPitchMotorSpeed(useWASD, right_stick_vert, angleOffset) : 0;
         flywheel_speed = getFlywheelsSpeed();
         motor_indexer_speed = getIndexerMotorSpeed();
@@ -38,6 +38,7 @@ namespace ThornBots {
     */
     void TurretController::setMotorSpeeds(bool sendMotorTimeout) {
         if(!sendMotorTimeout) { return; }
+        drivers->canRxHandler.pollCanData();
         
         //Yaw Motor
         pidController.runControllerDerivateError(motor_yaw_speed - motor_yaw.getShaftRPM(), 1);
@@ -48,9 +49,7 @@ namespace ThornBots {
         pidController.runControllerDerivateError(motor_pitch_speed - motor_pitch.getShaftRPM(), 1);
         motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
         drivers->djiMotorTxHandler.encodeAndSendCanData();
-        pidController.setI(0.0);
-        pidController.setD(0.0);
-        pidController.setP(1.0);
+
         //Indexer Motor
         pidController.runControllerDerivateError(motor_indexer_speed - motor_indexer.getShaftRPM(), 1);
         motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
@@ -74,10 +73,12 @@ namespace ThornBots {
     */
     void TurretController::stopMotors(bool sendMotorTimeout) {
         if(!sendMotorTimeout) { return; }
+        drivers->canRxHandler.pollCanData();
         motor_yaw_speed = 0;
         motor_pitch_speed = 0;
         motor_indexer_speed = 0;
         flywheel_speed = 0;
+
         //Yaw Motor
         pidController.runControllerDerivateError(0 - motor_yaw.getShaftRPM(), 1);
         motor_yaw.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
@@ -123,17 +124,10 @@ namespace ThornBots {
      * TODO: Make this spin the yawMotor dependent on mouse(only when NOT using CV)
     */
     int TurretController::getYawMotorSpeed(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_horz) {
-       
-        if(doBeyblading) {
-            if(abs(angleOffset) > 180) {
-                angleOffset < 0 ? angleOffset += 360 : angleOffset -= 360;
-            }
-            return angleOffset > (double) 0.0 ? homemadePID(angleOffset) : -1 * homemadePID(abs(angleOffset));
+        if(abs(angleOffset) > 180) {
+            angleOffset < 0 ? angleOffset += 360 : angleOffset -= 360;
         }
-        if(useWASD) { 
-            return (int) right_stick_horz * YAW_MOTOR_SCALAR;
-        }
-        return -1; //TODO: Implement this to take into acount WASD control (make it move based on mouse movement)
+        return angleOffset > (double) 0.0 ? homemadePID(angleOffset) : -1 * homemadePID(abs(angleOffset));
     }
 
     int TurretController::getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet) {
@@ -152,7 +146,7 @@ namespace ThornBots {
         if(isShooting){
             return flywheel_max_speed;
         }else{
-            return flywheel_max_speed / 2; //So we don't have to rev it up to 100% to start firing the next time (Maybe change dependent on power consumption)
+            return 0; //So we don't have to rev it up to 100% to start firing the next time (Maybe change dependent on power consumption)
         }
     }
 };
