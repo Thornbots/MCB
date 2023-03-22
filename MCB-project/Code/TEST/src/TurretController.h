@@ -9,13 +9,14 @@
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
 static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
 
 namespace ThornBots {
     class TurretController {
     public:
         TurretController(tap::Drivers* driver);
         ~TurretController();
-        void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz);
+        void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed);
         void setMotorSpeeds(bool sendMotorTimeout);
         void stopMotors(bool sendMotorTimeout);
         void startShooting();
@@ -37,7 +38,7 @@ namespace ThornBots {
         inline void setFlywheelSpeed(int speed) { flywheel_speed = speed; }
         //STOP getters and setters
 
-        static constexpr int motor_yaw_max_speed = 500;
+        static constexpr int motor_yaw_max_speed = 500; //Not sure if this is the absolute maximum. need to test. Motor documentation says 320, but it can def spin faster than taproot's 320 rpm.
         static constexpr int motor_indexer_max_speed = 6000;
         static constexpr int flywheel_max_speed = 6700;
         static constexpr int motor_pitch_max_speed = 500;
@@ -47,10 +48,13 @@ namespace ThornBots {
         int flywheel_speed = 0;
         int motor_indexer_speed = 0;
         int motor_pitch_speed = 0;
+
+        int tmp = 0;
+
         static constexpr double PI = 3.14159; //Everyone likes Pi!
         tap::Drivers *drivers;
         int homemadePID(double value);
-        int getYawMotorSpeed(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_horz);
+        int getYawMotorSpeed(int desiredAngle, int actualAngle, int motor_one_speed, int motor_two_speed);
         int getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet);
         int getIndexerMotorSpeed();
         int getFlywheelsSpeed();
@@ -60,5 +64,6 @@ namespace ThornBots {
         tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "right flywheel", 0, 0);
         tap::motor::DjiMotor flywheel_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "left flywheel", 0, 0);
         tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_turret);
+        tap::algorithms::SmoothPid yawPidController = tap::algorithms::SmoothPid(pid_yaw_conf);        
     };
 }

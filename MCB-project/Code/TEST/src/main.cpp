@@ -20,7 +20,7 @@
 
 tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
 tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
-tap::arch::PeriodicMicroTimer updateIMUTimeout(2);
+tap::arch::PeriodicMilliTimer updateIMUTimeout(2);
 std::string WASDstring = ""; //Going to be the actual input string
 std::string controlString = ""; //Will be the last two chars in the "WASDstring" string. (What we're actually going to be looking at)
 src::Drivers *drivers;
@@ -92,7 +92,7 @@ int main() {
     Board::initialize();
     drivers->can.initialize();
     drivers->remote.initialize();
-    drivers->bmi088.initialize(500, 0.5, 0.1);
+    drivers->bmi088.initialize(500, 0.0, 0.0);
     drivers->bmi088.requestRecalibration();
     ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
     ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
@@ -117,6 +117,7 @@ int main() {
             } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
                 turretController->startShooting();
                 doBeyblading = false;
+                // drivers->bmi088.requestRecalibration();
             }
             right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
             right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
@@ -125,8 +126,10 @@ int main() {
 
             driveTrainController->setMotorValues(useWASD, doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, controlString);
             driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz);
-            turretController->setMotorSpeeds(sendTurretTimeout.execute());            
+            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz, driveTrainController->motor_one.getShaftRPM(), driveTrainController->motor_four.getShaftRPM());
+            turretController->setMotorSpeeds(sendTurretTimeout.execute()); 
+            // drivers->djiMotorTxHandler.encodeAndSendCanData(); //Processes these motor speed changes into can signal
+           
 
         } else { //Remote not connected, so have everything turn off (Saftey features!)
             driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
