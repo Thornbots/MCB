@@ -11,6 +11,7 @@
 #include <cmath>
 static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
 static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
 
 namespace ThornBots {
     class TurretController {
@@ -67,6 +68,7 @@ namespace ThornBots {
         tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "right flywheel", 0, 0);
         tap::motor::DjiMotor flywheel_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "left flywheel", 0, 0);
         tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_turret);
-        tap::algorithms::SmoothPid yawPidController = tap::algorithms::SmoothPid(pid_yaw_conf);        
+        tap::algorithms::SmoothPid yawPidController = tap::algorithms::SmoothPid(pid_yaw_conf);      
+        tap::algorithms::SmoothPid pitchPidController = tap::algorithms::SmoothPid(pid_pitch_conf);     
     };
 }

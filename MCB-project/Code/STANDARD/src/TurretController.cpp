@@ -148,6 +148,9 @@ namespace ThornBots {
     }
 
     int TurretController::getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet) {
+        float pitch_position = tap::motor::DjiMotor::encoderToDegrees(motor_pitch.getEncoderWrapped());
+        float desired_position = 90.0f;
+        pitchPidController.runControllerDerivateError(desired_position - pitch_position, 1);
         return 0; //TODO
     }
 
