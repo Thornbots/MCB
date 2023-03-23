@@ -9,6 +9,7 @@
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
 #include "DriveTrainController.h"
+#include <cmath>
 
 namespace ThornBots {
     TurretController::TurretController(tap::Drivers* m_driver) {
@@ -26,8 +27,9 @@ namespace ThornBots {
      * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change
     */
     void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed) {
-        motor_yaw_speed = getYawMotorSpeed(0, angleOffset, motor_one_speed, motor_four_speed);
-        motor_pitch_speed = 0.0;//useWASD ? getPitchMotorSpeed(useWASD, right_stick_vert, angleOffset) : 0;
+        current_yaw_angle -= .002*15*right_stick_horz;
+        motor_yaw_speed = getYawMotorSpeed(current_yaw_angle, angleOffset, motor_one_speed, motor_four_speed);
+        motor_pitch_speed = getPitchMotorSpeed(useWASD, right_stick_vert, angleOffset);
         flywheel_speed = getFlywheelsSpeed();
         motor_indexer_speed = getIndexerMotorSpeed();
     }
@@ -118,7 +120,7 @@ namespace ThornBots {
      * Currently only works when in beyBlading mode.
      * TODO: Make this spin the yawMotor dependent on mouse(only when NOT using CV)
     */
-    int TurretController::getYawMotorSpeed(int desiredAngle, int actualAngle, int motor_one_speed, int motor_four_speed) {
+    int TurretController::getYawMotorSpeed(double desiredAngle, double actualAngle, int motor_one_speed, int motor_four_speed) {
         // if(abs(angleOffset) > 180) {
         //     angleOffset < 0 ? angleOffset += 360 : angleOffset -= 360;
         // }
@@ -126,19 +128,27 @@ namespace ThornBots {
         // if(abs(speed) <= motor_yaw_max_speed) { return speed; }
         // return speed < 0 ? -1.0 * motor_yaw_max_speed : motor_yaw_max_speed; 
         double kF = 0.42;
+        /*
         if(abs(desiredAngle) > 180) {
             desiredAngle < 0 ? desiredAngle += 360 : desiredAngle -= 360;
         }
         if(abs(actualAngle) > 180) {
             actualAngle < 0 ? actualAngle += 360 : actualAngle -= 360;
         }
-        yawPidController.runControllerDerivateError(desiredAngle - actualAngle, 1);
+        */
+        while(actualAngle-desiredAngle > 180){
+            actualAngle -= 360;
+        }
+        while(desiredAngle-actualAngle > 180){
+            actualAngle += 360;
+        }
+        yawPidController.runControllerDerivateError(desiredAngle-actualAngle, 1);
         tmp = actualAngle;
         return ((motor_one_speed - motor_four_speed) *kF) + yawPidController.getOutput();
     }
 
     int TurretController::getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet) {
-        return angleOffSet == (double) 0.0 ? 0 : 0; //TODO
+        return 0; //TODO
     }
 
     int TurretController::getIndexerMotorSpeed() {
@@ -155,5 +165,9 @@ namespace ThornBots {
         }else{
             return 0; //So we don't have to rev it up to 100% to start firing the next time (Maybe change dependent on power consumption)
         }
+    }
+
+    void TurretController::reZero(){
+        current_yaw_angle = 180;
     }
 };
