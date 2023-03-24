@@ -87,6 +87,44 @@ void updateStrings() {
     //STOP Updating the substring
 }
 
+/**
+ * Reads inputs from the mouse and handles what do do with that information
+ * This function assumes that we are already in WASD mode (useWASD == true)
+*/
+void micky() {
+    //TODO;
+    return;
+}
+
+/**
+ * Reads inputs from the keyboard and mouse and habdkes what do do with that information
+*/
+void readKeyboardAndMicky() {
+    useWASD = false;
+    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL)) {
+        if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT)) {
+            if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) {
+                useWASD = true; //Toggling between keyboard/mouse and controller input
+            } //End R
+        } //End shift
+    } //End CTRL
+
+    if(useWASD) {
+        if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Q)) {
+            //TODO: Make this rotate the robot to the left (CCW)
+        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::E)) {
+            //TODO: Make this rotate the robot to the right (CW)
+        }
+        if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::F)) {
+            doBeyblading = true;
+        } else { doBeyblading = false; }
+        micky();
+    } else {
+        //we are not using WASD. So pee pee poo poo. Enjoy the crap that is my code
+    }
+    return;
+}
+
 int main() {
     src::Drivers *drivers = src::DoNotUse_getDrivers();
     Board::initialize();
@@ -100,7 +138,6 @@ int main() {
     while (1) {
         drivers->canRxHandler.pollCanData();
         drivers->remote.read(); //Reading the remote before we check if it is connected yet or not.
-        updateStrings();
 
         if(updateIMUTimeout.execute()) {
             drivers->bmi088.periodicIMUUpdate();
@@ -108,6 +145,8 @@ int main() {
         } //Stop reading from the IMU
 
         if(drivers->remote.isConnected()) { //Doing stuff for the remote every loop
+            updateStrings();
+            readKeyboardAndMicky();
             if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
                 doBeyblading = false;
                 turretController->stopShooting();
@@ -117,11 +156,15 @@ int main() {
             } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
                 turretController->startShooting();
                 doBeyblading = false;
-                // drivers->bmi088.requestRecalibration();
             }
-            if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN){
+            if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
+                //Nothing as of now
+      	    } else if((drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::UP)) { 
+                //Nothing as of now
+            } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
                 turretController->reZero();
             }
+
             right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
             right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
             left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
