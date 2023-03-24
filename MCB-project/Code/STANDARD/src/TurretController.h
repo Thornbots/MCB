@@ -11,19 +11,20 @@
 #include <cmath>
 static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
 static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
-static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 500, 0, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
 
 namespace ThornBots {
     class TurretController {
     public:
         TurretController(tap::Drivers* driver);
         ~TurretController();
-        void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed);
+        void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, float target_angle);
         void setMotorSpeeds(bool sendMotorTimeout);
         void stopMotors(bool sendMotorTimeout);
         void startShooting();
         void stopShooting();
         void reZero();
+        float getYawEncoderAngle();
         
     private:
         //START getters and setters
@@ -63,12 +64,12 @@ namespace ThornBots {
         int getIndexerMotorSpeed();
         int getFlywheelsSpeed();
         tap::motor::DjiMotor motor_yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Have you seen The Bee Movie?", 0, 0);
-        tap::motor::DjiMotor motor_pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS2, false, "Yellow black, yellow black. Ohhh lets spice things up a bit. Black yellow", 0, 0);
+        tap::motor::DjiMotor motor_pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS2, false, "Yellow black, yellow black. Ohhh lets spice things up a bit. Black yellow", 0, 0);
         tap::motor::DjiMotor motor_indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "He has a pudding-bowl haircut, brown eyes and a sharp nose", 0, 0);
         tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "right flywheel", 0, 0);
         tap::motor::DjiMotor flywheel_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "left flywheel", 0, 0);
         tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_turret);
-        tap::algorithms::SmoothPid yawPidController = tap::algorithms::SmoothPid(pid_yaw_conf);      
-        tap::algorithms::SmoothPid pitchPidController = tap::algorithms::SmoothPid(pid_pitch_conf);     
+        tap::algorithms::SmoothPid yawPidController = tap::algorithms::SmoothPid(pid_yaw_conf);
+        tap::algorithms::SmoothPid pitchPidController = tap::algorithms::SmoothPid(pid_pitch_conf);    
     };
 }

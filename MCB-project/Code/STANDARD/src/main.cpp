@@ -127,9 +127,9 @@ int main() {
             left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
             left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
 
-            driveTrainController->setMotorValues(useWASD, doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, controlString);
+            driveTrainController->setMotorValues(useWASD, doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, controlString, turretController->getYawEncoderAngle());
             driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz, driveTrainController->motor_one.getShaftRPM(), driveTrainController->motor_four.getShaftRPM());
+            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz, driveTrainController->motor_one.getShaftRPM(), driveTrainController->motor_four.getShaftRPM(), 0.0f);
             turretController->setMotorSpeeds(sendTurretTimeout.execute()); 
             // drivers->djiMotorTxHandler.encodeAndSendCanData(); //Processes these motor speed changes into can signal
            

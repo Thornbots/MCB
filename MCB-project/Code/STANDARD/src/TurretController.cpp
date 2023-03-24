@@ -21,15 +21,19 @@ namespace ThornBots {
         flywheel_two.initialize();
     }
 
+    float TurretController::getYawEncoderAngle() {
+        return tap::motor::DjiMotor::encoderToDegrees(motor_yaw.getEncoderWrapped());
+    }
+
     TurretController::~TurretController() {} //Watch this cute video of a cat instead: https://youtu.be/hg3e1KflmC8
 
     /**
      * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change
     */
-    void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed) {
+    void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, float target_angle) {
         current_yaw_angle -= .002*15*right_stick_horz;
         motor_yaw_speed = getYawMotorSpeed(current_yaw_angle, angleOffset, motor_one_speed, motor_four_speed);
-        motor_pitch_speed = getPitchMotorSpeed(useWASD, right_stick_vert, angleOffset);
+        motor_pitch_speed = getPitchMotorSpeed(useWASD, right_stick_vert, (right_stick_vert*20.0f)-10.0f);
         flywheel_speed = getFlywheelsSpeed();
         motor_indexer_speed = getIndexerMotorSpeed();
     }
@@ -47,8 +51,7 @@ namespace ThornBots {
         motor_yaw.setDesiredOutput(static_cast<int32_t>(motor_yaw_speed));
 
         //Pitch Motor
-        pidController.runControllerDerivateError(motor_pitch_speed - motor_pitch.getShaftRPM(), 1);
-        motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+        motor_pitch.setDesiredOutput(static_cast<int32_t>(motor_pitch_speed));
 
         //Indexer Motor
         pidController.runControllerDerivateError(motor_indexer_speed - motor_indexer.getShaftRPM(), 1);
@@ -147,11 +150,11 @@ namespace ThornBots {
         return ((motor_one_speed - motor_four_speed) *kF) + yawPidController.getOutput();
     }
 
-    int TurretController::getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet) {
-        float pitch_position = tap::motor::DjiMotor::encoderToDegrees(motor_pitch.getEncoderWrapped());
-        float desired_position = 90.0f;
-        pitchPidController.runControllerDerivateError(desired_position - pitch_position, 1);
-        return 0; //TODO
+    int TurretController::getPitchMotorSpeed(bool useWASD, double right_stick_vert, double target_angle) {
+        float position = tap::motor::DjiMotor::encoderToDegrees(motor_pitch.getEncoderWrapped());
+        float desired = 270.0f + target_angle;
+        pitchPidController.runControllerDerivateError(desired - position, 1);
+        return pitchPidController.getOutput(); //TODO
     }
 
     int TurretController::getIndexerMotorSpeed() {

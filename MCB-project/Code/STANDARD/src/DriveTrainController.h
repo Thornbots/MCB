@@ -16,7 +16,7 @@ namespace ThornBots {
     public:
         DriveTrainController(tap::Drivers* driver);
         ~DriveTrainController();
-        void setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input);
+        void setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle);
         void setMotorSpeeds(bool sendMotorTimeout);
         void stopMotors(bool sendMotorTimeout);
         tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
@@ -52,6 +52,7 @@ namespace ThornBots {
         double getMagnitude(double xPosition, double yPosition);
         double getScaledQuadratic(double magnitude);
         
+        float yaw_motor_angle = 0.0f;
         int motor_one_speed = 0; //Driver's front
         int motor_two_speed = 0; //Passenger's front
         int motor_three_speed = 0; //Driver's back
