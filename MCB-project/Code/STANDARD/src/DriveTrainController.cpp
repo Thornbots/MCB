@@ -285,7 +285,7 @@ namespace ThornBots {
      * speed of the MotorSetOne is sin(angle + pi/4) * MaxSpeed * magnitude
     */
     int DriveTrainController::getMotorSetOneTranslatingSpeed(double xPosition, double yPosition) {
-        float refined_angle = yaw_motor_angle + 110.0f;
+        float refined_angle = yaw_motor_angle + REFINED_ANGLE_OFFSET;
         if (refined_angle < 0) refined_angle += 360.0f;
         double angle = getAngle(xPosition, yPosition) + (PI*refined_angle/180.0f);
         double magnitude = getMagnitude(xPosition, yPosition);
@@ -301,7 +301,7 @@ namespace ThornBots {
      * If you want a visual intrepretation, it's the red wheels at https://seamonsters-2605.github.io/archive/mecanum/
     */
     int DriveTrainController::getMotorSetTwoTranslatingSpeed(double xPosition, double yPosition) {
-        float refined_angle = yaw_motor_angle + 110.0f;
+        float refined_angle = yaw_motor_angle + REFINED_ANGLE_OFFSET;
         if (refined_angle < 0) refined_angle += 360.0f;
         double angle = getAngle(xPosition, yPosition) + (PI*refined_angle/180.0f);
         double magnitude = getMagnitude(xPosition, yPosition);

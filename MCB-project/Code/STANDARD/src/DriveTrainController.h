@@ -9,6 +9,7 @@
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
 static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
+static constexpr float REFINED_ANGLE_OFFSET = 110.0f;
 
 
 namespace ThornBots {
