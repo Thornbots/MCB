@@ -17,6 +17,7 @@ namespace ThornBots {
         motor_two.initialize();
         motor_three.initialize();
         motor_four.initialize();
+        //power_limit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
     }
     
     DriveTrainController::~DriveTrainController() {} //Not going to use this. So look at a cool video of a doggie instead: https://youtu.be/dQw4w9WgXcQ
@@ -206,10 +207,72 @@ namespace ThornBots {
                 
             } //End switch/case
         }
-        motor_one_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-        motor_two_speed = getMotorTwoSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-        motor_three_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-        motor_four_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+
+        int motor_one_new_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        int motor_two_new_speed = getMotorTwoSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        int motor_three_new_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        int motor_four_new_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+
+        int slew_rate = 1;
+
+        if(abs(motor_one_new_speed - motor_one_speed) > slew_rate){
+            if(motor_one_new_speed > motor_one_speed){
+                motor_one_speed += slew_rate;
+            }else{
+                motor_one_speed -= slew_rate;
+            }
+        }else{
+            motor_one_speed = motor_one_new_speed;
+        }
+
+        
+        if(abs(motor_two_new_speed - motor_two_speed) > slew_rate){
+            if(motor_two_new_speed > motor_two_speed){
+                motor_two_speed += slew_rate;
+            }else{
+                motor_two_speed -= slew_rate;
+            }
+        }else{
+            motor_two_speed = motor_two_new_speed;
+        }
+
+        
+        if(abs(motor_three_new_speed - motor_three_speed) > slew_rate){
+            if(motor_three_new_speed > motor_three_speed){
+                motor_three_speed += slew_rate;
+            }else{
+                motor_three_speed -= slew_rate;
+            }
+        }else{
+            motor_three_speed = motor_three_new_speed;
+        }
+
+        
+        if(abs(motor_four_new_speed - motor_four_speed) > slew_rate){
+            if(motor_four_new_speed > motor_four_speed){
+                motor_four_speed += slew_rate;
+            }else{
+                motor_four_speed -= slew_rate;
+            }
+        }else{
+            motor_four_speed = motor_four_new_speed;
+        }
+        /*
+        Power Limiting w/Receiver
+        power_limit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
+        float current_power = drivers->refSerial.getRobotData().chassis.power;
+        if(current_power + (.05 * power_limit) > power_limit){
+            motor_one_speed = power_limit/(current_power + (.05 * power_limit)) * motor_one_speed;
+            motor_two_speed = power_limit/(current_power + (.05 * power_limit)) * motor_two_speed;
+            motor_three_speed = power_limit/(current_power + (.05 * power_limit)) * motor_three_speed;
+            motor_four_speed = power_limit/(current_power + (.05 * power_limit)) * motor_four_speed;
+        }else if(current_power < power_limit){
+            motor_one_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+            motor_two_speed = getMotorTwoSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+            motor_three_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+            motor_four_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        }
+        */
 
     }
 

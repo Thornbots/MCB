@@ -53,6 +53,7 @@ namespace ThornBots {
         double getMagnitude(double xPosition, double yPosition);
         double getScaledQuadratic(double magnitude);
         
+        //float power_limit;
         float yaw_motor_angle = 0.0f;
         int motor_one_speed = 0; //Driver's front
         int motor_two_speed = 0; //Passenger's front
