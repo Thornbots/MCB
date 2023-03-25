@@ -213,7 +213,7 @@ namespace ThornBots {
         int motor_three_new_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
         int motor_four_new_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
 
-        int slew_rate = 1;
+        int slew_rate = 2;
 
         if(abs(motor_one_new_speed - motor_one_speed) > slew_rate){
             if(motor_one_new_speed > motor_one_speed){
