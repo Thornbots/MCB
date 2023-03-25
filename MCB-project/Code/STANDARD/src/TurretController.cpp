@@ -30,12 +30,14 @@ namespace ThornBots {
     /**
      * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change
     */
-    void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, float target_angle) {
+    void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, float target_angle, int16_t wheel_value) {
         current_yaw_angle -= .002*15*right_stick_horz;
         motor_yaw_speed = getYawMotorSpeed(current_yaw_angle, angleOffset, motor_one_speed, motor_four_speed);
         motor_pitch_speed = getPitchMotorSpeed(useWASD, right_stick_vert, (right_stick_vert * 20.0f));
-        flywheel_speed = getFlywheelsSpeed();
-        motor_indexer_speed = getIndexerMotorSpeed();
+        //flywheel_speed = getFlywheelsSpeed();
+        if (wheel_value != 0) flywheel_speed = flywheel_max_speed;
+        //motor_indexer_speed = getIndexerMotorSpeed();
+        motor_indexer_speed = motor_indexer_max_speed * wheel_value;
     }
 
     /**

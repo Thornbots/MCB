@@ -27,6 +27,7 @@ src::Drivers *drivers;
 bool useWASD = false;
 bool doBeyblading = false;
 double right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz = 0.0;
+int16_t wheel_value = 0;
 double angleOffset = 0.0;
 
 
@@ -149,13 +150,13 @@ int main() {
             readKeyboardAndMicky();
             if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
                 doBeyblading = false;
-                turretController->stopShooting();
+                //turretController->stopShooting();
       	    } else if((drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::UP)) { 
-                doBeyblading = true;
-                turretController->stopShooting();
-            } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
-                turretController->startShooting();
                 doBeyblading = false;
+                //turretController->stopShooting();
+            } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
+                //turretController->startShooting();
+                doBeyblading = true;
             }
             if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
                 //Nothing as of now
@@ -169,10 +170,11 @@ int main() {
             right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
             left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
             left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
+            wheel_value = drivers->remote.getWheel();
 
             driveTrainController->setMotorValues(useWASD, doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, controlString, turretController->getYawEncoderAngle());
             driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz, driveTrainController->motor_one.getShaftRPM(), driveTrainController->motor_four.getShaftRPM(), 0.0f);
+            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz, driveTrainController->motor_one.getShaftRPM(), driveTrainController->motor_four.getShaftRPM(), 0.0f, wheel_value);
             turretController->setMotorSpeeds(sendTurretTimeout.execute()); 
             // drivers->djiMotorTxHandler.encodeAndSendCanData(); //Processes these motor speed changes into can signal
            
