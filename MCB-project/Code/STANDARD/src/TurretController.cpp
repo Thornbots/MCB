@@ -33,7 +33,7 @@ namespace ThornBots {
     void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, float target_angle) {
         current_yaw_angle -= .002*15*right_stick_horz;
         motor_yaw_speed = getYawMotorSpeed(current_yaw_angle, angleOffset, motor_one_speed, motor_four_speed);
-        motor_pitch_speed = getPitchMotorSpeed(useWASD, right_stick_vert, (right_stick_vert*20.0f)-10.0f);
+        motor_pitch_speed = getPitchMotorSpeed(useWASD, right_stick_vert, (right_stick_vert * 20.0f));
         flywheel_speed = getFlywheelsSpeed();
         motor_indexer_speed = getIndexerMotorSpeed();
     }
@@ -51,7 +51,7 @@ namespace ThornBots {
         motor_yaw.setDesiredOutput(static_cast<int32_t>(motor_yaw_speed));
 
         //Pitch Motor
-        motor_pitch.setDesiredOutput(static_cast<int32_t>(motor_pitch_speed));
+        motor_pitch.setDesiredOutput(static_cast<int32_t>(motor_pitch_speed - 6000.0f)); //The ~6000.0f is the feed forward (counters gravity for the pitch motor)
 
         //Indexer Motor
         pidController.runControllerDerivateError(motor_indexer_speed - motor_indexer.getShaftRPM(), 1);

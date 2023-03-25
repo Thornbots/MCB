@@ -10,8 +10,8 @@
 #include "drivers_singleton.hpp"
 #include <cmath>
 static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
-static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
-static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 500, 0, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 130, 0, -25000, 0, 1000000, 1, 0, 1, 0, 0, 0 };    //{ 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 400, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0 };
 
 namespace ThornBots {
     class TurretController {
