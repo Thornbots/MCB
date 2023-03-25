@@ -62,8 +62,8 @@ namespace ThornBots {
         bool lockRotation = true;
         bool lockDrivetrain = true;
         int translation_speed, rotation_speed, beyblading_speed = 0;
-        int max_speed = 9500; //The abs(maximum speed) we want the drivetrain motors to go to
-        double beyblading_factor = 0.5; //How much of the max_speed beyblading will eat up while robot is not translating range this from [0, 1]
+        int max_speed = 5000; //The abs(maximum speed) we want the drivetrain motors to go to
+        double beyblading_factor = 0.7; //How much of the max_speed beyblading will eat up while robot is not translating range this from [0, 1]
         static constexpr double PI = 3.14159; //Everyone likes Pi!
         bool use_exponentional_controlling = true;
         tap::Drivers *drivers;
