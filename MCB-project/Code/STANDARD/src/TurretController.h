@@ -18,7 +18,7 @@ namespace ThornBots {
     public:
         TurretController(tap::Drivers* driver);
         ~TurretController();
-        void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, int16_t wheel_value, bool isRightStickUp, bool isLeftStickUp, int rightSwitchValue);
+        void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, int16_t wheel_value, bool isRightStickUp, bool isLeftStickUp, int rightSwitchValue, int leftSwitchValue);
         void setMotorSpeeds(bool sendMotorTimeout);
         void stopMotors(bool sendMotorTimeout);
         void startShooting();

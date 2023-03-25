@@ -82,10 +82,19 @@ namespace ThornBots {
     /**
      * Calls all the necessary methods to set the drive train motors to their appropiate speeds. (Taking into acount turning, WASD or conroller input,  beyblading, and translating)
     */
-    void DriveTrainController::setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle, bool isRightStickMid, int rightSwitchState) {
+    void DriveTrainController::setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle, bool isRightStickMid, int rightSwitchState, int leftSwitchValue) {
         yaw_motor_angle = yaw_angle;
         lockRotation = isRightStickMid;
         lockDrivetrain = (rightSwitchState == 2);
+        bool beybladepls = false;
+        if (leftSwitchValue == 2 || leftSwitchValue == 1) {
+            beybladepls = true;
+            if (leftSwitchValue == 1) {
+                beyblading_factor = 0.3;
+            }else {
+                beyblading_factor = 0.7;
+            }
+        }
         if(useWASD) {
             char prev = '\0';
             if(input.length() >= 2) {
@@ -210,10 +219,10 @@ namespace ThornBots {
             } //End switch/case
         }
 
-        int motor_one_new_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-        int motor_two_new_speed = getMotorTwoSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-        int motor_three_new_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-        int motor_four_new_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        int motor_one_new_speed = getMotorOneSpeedWithCont(beybladepls, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        int motor_two_new_speed = getMotorTwoSpeedWithCont(beybladepls, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        int motor_three_new_speed = getMotorThreeSpeedWithCont(beybladepls, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+        int motor_four_new_speed = getMotorFourSpeedWithCont(beybladepls, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
 
         int slew_rate = 3;
 

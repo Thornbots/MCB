@@ -34,6 +34,7 @@ bool isLeftStickUp = false;
 bool isLeftStickDown = false;
 bool turretIndependent = false;
 int rightSwitchValue = 1;
+int leftSwitchValue = 0;
 
 
 /**
@@ -159,17 +160,19 @@ int main() {
                 isLeftStickDown = false;
                 doBeyblading = false;
                 turretIndependent = true;
-
+                leftSwitchValue = 1;
       	    } else if((drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::UP)) { 
                 isLeftStickDown = false;
                 isLeftStickUp = true;
                 doBeyblading = true;
                 turretIndependent = false;
+                leftSwitchValue = 2;
             } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
                 isLeftStickDown = true;
                 isLeftStickUp = false;
                 doBeyblading = false;
                 turretIndependent = false;
+                leftSwitchValue = 0;
             }
             if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
                 //TODO: Make the drivebase allign with the turret. I.e. if the anglfoffset is negative make it spin CW or vice versus
@@ -192,9 +195,9 @@ int main() {
             left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
             wheel_value = drivers->remote.getWheel();
 
-            driveTrainController->setMotorValues(useWASD, doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, controlString, turretController->getYawEncoderAngle(), isRightStickMid, rightSwitchValue);
+            driveTrainController->setMotorValues(useWASD, doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, controlString, turretController->getYawEncoderAngle(), isRightStickMid, rightSwitchValue, leftSwitchValue);
             driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, -right_stick_vert, right_stick_horz, driveTrainController->motor_one.getShaftRPM(), driveTrainController->motor_four.getShaftRPM(), wheel_value, isRightStickMid, isLeftStickUp, rightSwitchValue);
+            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, -right_stick_vert, right_stick_horz, driveTrainController->motor_one.getShaftRPM(), driveTrainController->motor_four.getShaftRPM(), wheel_value, isRightStickMid, isLeftStickUp, rightSwitchValue, leftSwitchValue);
             turretController->setMotorSpeeds(sendTurretTimeout.execute()); 
             // drivers->djiMotorTxHandler.encodeAndSendCanData(); //Processes these motor speed changes into can signal
            
