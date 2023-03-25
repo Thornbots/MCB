@@ -30,14 +30,12 @@ namespace ThornBots {
     /**
      * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change
     */
-    void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, float target_angle, int16_t wheel_value) {
+    void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, int16_t wheel_value, bool isRightStickUp, bool isLeftStickUp, int rightSwitchValue) {
         current_yaw_angle -= .002*15*right_stick_horz;
-        motor_yaw_speed = getYawMotorSpeed(current_yaw_angle, angleOffset, motor_one_speed, motor_four_speed);
+        motor_yaw_speed = getYawMotorSpeed(angleOffset, motor_one_speed, motor_four_speed, isRightStickUp, isLeftStickUp, right_stick_horz, right_stick_vert, rightSwitchValue);
         motor_pitch_speed = getPitchMotorSpeed(useWASD, right_stick_vert, (right_stick_vert * 20.0f));
-        //flywheel_speed = getFlywheelsSpeed();
-        if (wheel_value != 0) flywheel_speed = flywheel_max_speed;
-        //motor_indexer_speed = getIndexerMotorSpeed();
-        motor_indexer_speed = wheel_value;
+        flywheel_speed = getFlywheelsSpeed(wheel_value);
+        motor_indexer_speed = getIndexerMotorSpeed(wheel_value);
     }
 
     /**
@@ -125,26 +123,18 @@ namespace ThornBots {
      * Currently only works when in beyBlading mode.
      * TODO: Make this spin the yawMotor dependent on mouse(only when NOT using CV)
     */
-    int TurretController::getYawMotorSpeed(double desiredAngle, double actualAngle, int motor_one_speed, int motor_four_speed) {
-        // if(abs(angleOffset) > 180) {
-        //     angleOffset < 0 ? angleOffset += 360 : angleOffset -= 360;
-        // }
-        // int speed = homemadePID(angleOffset);
-        // if(abs(speed) <= motor_yaw_max_speed) { return speed; }
-        // return speed < 0 ? -1.0 * motor_yaw_max_speed : motor_yaw_max_speed; 
+    int TurretController::getYawMotorSpeed(double actualAngle, int motor_one_speed, int motor_four_speed, bool isRightStickUp, bool isLeftStickUp, double right_stick_horz, double right_stick_vert, int rightSwitchValue) {
+        if(rightSwitchValue == 1 || rightSwitchValue == 2) {
+            desiredAngle -= right_stick_horz * 0.03;
+        } else if (rightSwitchValue == 0) {
+            float position = getYawEncoderAngle();
+            desiredAngle = actualAngle - position - 110.0;
+        }
         double kF = 0.42;
-        /*
-        if(abs(desiredAngle) > 180) {
-            desiredAngle < 0 ? desiredAngle += 360 : desiredAngle -= 360;
-        }
-        if(abs(actualAngle) > 180) {
-            actualAngle < 0 ? actualAngle += 360 : actualAngle -= 360;
-        }
-        */
-        while(actualAngle-desiredAngle > 180){
+        while(actualAngle - desiredAngle > 180){
             actualAngle -= 360;
         }
-        while(desiredAngle-actualAngle > 180){
+        while(desiredAngle - actualAngle > 180){
             actualAngle += 360;
         }
         yawPidController.runControllerDerivateError(desiredAngle-actualAngle, 1);
@@ -159,20 +149,20 @@ namespace ThornBots {
         return pitchPidController.getOutput(); //TODO
     }
 
-    int TurretController::getIndexerMotorSpeed() {
-        if(isShooting){
-            return motor_indexer_max_speed;
-        }else{
-            return 0; //No firing, so no spinny spin spin =)
+    int TurretController::getIndexerMotorSpeed(int16_t wheel_value) {
+        if(wheel_value > 1.0) {
+            return 2400;
+        } else if(wheel_value < -1.0) {
+            return 4000;
         }
+        return 0;
     }
 
-    int TurretController::getFlywheelsSpeed(){
-        if(isShooting){
+    int TurretController::getFlywheelsSpeed(int16_t wheel_value){
+        if(wheel_value > 1 || wheel_value < -1) {
             return flywheel_max_speed;
-        }else{
-            return 0; //So we don't have to rev it up to 100% to start firing the next time (Maybe change dependent on power consumption)
         }
+        return 0;
     }
 
     void TurretController::reZero(){

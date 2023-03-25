@@ -8,7 +8,7 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
-static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 200, 0 };
 static constexpr float REFINED_ANGLE_OFFSET = 110.0f;
 
 
@@ -17,7 +17,7 @@ namespace ThornBots {
     public:
         DriveTrainController(tap::Drivers* driver);
         ~DriveTrainController();
-        void setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle);
+        void setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle, bool isRightStickMid, int rightSwitchState);
         void setMotorSpeeds(bool sendMotorTimeout);
         void stopMotors(bool sendMotorTimeout);
         tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
@@ -59,6 +59,8 @@ namespace ThornBots {
         int motor_two_speed = 0; //Passenger's front
         int motor_three_speed = 0; //Driver's back
         int motor_four_speed = 0; //Passenger's back
+        bool lockRotation = true;
+        bool lockDrivetrain = true;
         int translation_speed, rotation_speed, beyblading_speed = 0;
         int max_speed = 9500; //The abs(maximum speed) we want the drivetrain motors to go to
         double beyblading_factor = 0.5; //How much of the max_speed beyblading will eat up while robot is not translating range this from [0, 1]

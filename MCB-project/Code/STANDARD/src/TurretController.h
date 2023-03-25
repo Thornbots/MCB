@@ -9,7 +9,7 @@
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
 #include <cmath>
-static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 69, 0 };
 static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 130, 0, -25000, 0, 1000000, 1, 0, 1, 0, 0, 0 };    //{ 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
 static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 400, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0 };
 
@@ -18,7 +18,7 @@ namespace ThornBots {
     public:
         TurretController(tap::Drivers* driver);
         ~TurretController();
-        void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, float target_angle, int16_t wheel_value);
+        void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, int16_t wheel_value, bool isRightStickUp, bool isLeftStickUp, int rightSwitchValue);
         void setMotorSpeeds(bool sendMotorTimeout);
         void stopMotors(bool sendMotorTimeout);
         void startShooting();
@@ -53,16 +53,17 @@ namespace ThornBots {
         int motor_indexer_speed = 0;
         int motor_pitch_speed = 0;
         double current_yaw_angle = 180;
+        float desiredAngle = 0.0f;
 
         int tmp = 0;
 
         static constexpr double PI = 3.14159; //Everyone likes Pi!
         tap::Drivers *drivers;
         int homemadePID(double value);
-        int getYawMotorSpeed(double desiredAngle, double actualAngle, int motor_one_speed, int motor_two_speed);
+        int getYawMotorSpeed(double actualAngle, int motor_one_speed, int motor_two_speed, bool isRightStickUp, bool isLeftStickUp, double right_stick_horz, double right_stick_vert, int rightSwitchValue);
         int getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet);
-        int getIndexerMotorSpeed();
-        int getFlywheelsSpeed();
+        int getIndexerMotorSpeed(int16_t wheel_value);
+        int getFlywheelsSpeed(int16_t wheel_value);
         tap::motor::DjiMotor motor_yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Have you seen The Bee Movie?", 0, 0);
         tap::motor::DjiMotor motor_pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS2, false, "Yellow black, yellow black. Ohhh lets spice things up a bit. Black yellow", 0, 0);
         tap::motor::DjiMotor motor_indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "He has a pudding-bowl haircut, brown eyes and a sharp nose", 0, 0);

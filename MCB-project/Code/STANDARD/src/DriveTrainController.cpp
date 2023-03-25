@@ -82,8 +82,10 @@ namespace ThornBots {
     /**
      * Calls all the necessary methods to set the drive train motors to their appropiate speeds. (Taking into acount turning, WASD or conroller input,  beyblading, and translating)
     */
-    void DriveTrainController::setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle) {
+    void DriveTrainController::setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle, bool isRightStickMid, int rightSwitchState) {
         yaw_motor_angle = yaw_angle;
+        lockRotation = isRightStickMid;
+        lockDrivetrain = (rightSwitchState == 2);
         if(useWASD) {
             char prev = '\0';
             if(input.length() >= 2) {
@@ -213,7 +215,7 @@ namespace ThornBots {
         int motor_three_new_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
         int motor_four_new_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
 
-        int slew_rate = 1;
+        int slew_rate = 3;
 
         if(abs(motor_one_new_speed - motor_one_speed) > slew_rate){
             if(motor_one_new_speed > motor_one_speed){
@@ -351,10 +353,9 @@ namespace ThornBots {
         float refined_angle = yaw_motor_angle + REFINED_ANGLE_OFFSET;
         if (refined_angle < 0) refined_angle += 360.0f;
         double angle = getAngle(xPosition, yPosition) + (PI*refined_angle/180.0f);
+        if (lockDrivetrain) angle = yaw_motor_angle;
         double magnitude = getMagnitude(xPosition, yPosition);
-        if(use_exponentional_controlling) {
-            magnitude = getScaledQuadratic(magnitude);
-        }
+        //if (lockDrivetrain) magnitude = 0.5;
         return (max_speed * magnitude * sin(angle + (PI / (double) 4.0)));
     }
 
@@ -367,10 +368,9 @@ namespace ThornBots {
         float refined_angle = yaw_motor_angle + REFINED_ANGLE_OFFSET;
         if (refined_angle < 0) refined_angle += 360.0f;
         double angle = getAngle(xPosition, yPosition) + (PI*refined_angle/180.0f);
+        if (lockDrivetrain) angle = yaw_motor_angle;
         double magnitude = getMagnitude(xPosition, yPosition);
-        if(use_exponentional_controlling) {
-            magnitude = getScaledQuadratic(magnitude);
-        }
+        //if (lockDrivetrain) magnitude = 0.5;
         return (max_speed * magnitude * sin(angle - (PI / (double) 4.0)));
     }
     
@@ -379,7 +379,9 @@ namespace ThornBots {
             double tmp = beyblading_factor * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         } else {
-            double tmp = right_stick_horz * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double rotation_speed = right_stick_horz * max_speed;
+            if (lockRotation) rotation_speed = 0;
+            double tmp = rotation_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         }
     }
@@ -389,7 +391,9 @@ namespace ThornBots {
             double tmp = -1 * beyblading_factor * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         } else {
-            double tmp = -1 * right_stick_horz * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double rotation_speed = -1 * right_stick_horz * max_speed;
+            if (lockRotation) rotation_speed = 0;
+            double tmp = rotation_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1* max_speed;
         }
     }
@@ -399,7 +403,9 @@ namespace ThornBots {
             double tmp = beyblading_factor * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         } else {
-            double tmp = right_stick_horz * max_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double rotation_speed = right_stick_horz * max_speed;
+            if (lockRotation) rotation_speed = 0;
+            double tmp = rotation_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         }
     }
@@ -409,7 +415,9 @@ namespace ThornBots {
             double tmp = -1.0 * beyblading_factor * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         } else {
-            double tmp = -1.0 * right_stick_horz * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
+            double rotation_speed = -1 * right_stick_horz * max_speed;
+            if (lockRotation) rotation_speed = 0;
+            double tmp = rotation_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
             return ((int) abs(tmp) <= max_speed) ? tmp : ((int) tmp > 0) ? max_speed : -1 * max_speed;
         }
     }
