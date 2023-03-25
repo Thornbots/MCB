@@ -37,7 +37,7 @@ namespace ThornBots {
         //flywheel_speed = getFlywheelsSpeed();
         if (wheel_value != 0) flywheel_speed = flywheel_max_speed;
         //motor_indexer_speed = getIndexerMotorSpeed();
-        motor_indexer_speed = motor_indexer_max_speed * wheel_value;
+        motor_indexer_speed = wheel_value;
     }
 
     /**
