@@ -151,7 +151,10 @@ namespace ThornBots {
         //if (desiredPitch < -20.0f) desiredPitch = -20.0f;
         //if (desiredPitch > 20.0f) desiredPitch = 20.0f;
         float position = tap::motor::DjiMotor::encoderToDegrees(motor_pitch.getEncoderWrapped());
-        float desired = 270.0f + target_angle;
+        float temp_target_angle = target_angle + 6.5f;
+        if (temp_target_angle < -20.0f) temp_target_angle = -20.0f;
+        if (temp_target_angle > 20.0f) temp_target_angle = 20.0f;
+        float desired = 270.0f + temp_target_angle;
         pitchPidController.runControllerDerivateError(desired - position, 1);
         return pitchPidController.getOutput(); //TODO
     }
