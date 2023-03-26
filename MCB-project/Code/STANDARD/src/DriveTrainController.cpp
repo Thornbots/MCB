@@ -85,7 +85,7 @@ namespace ThornBots {
     void DriveTrainController::setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle, bool isRightStickMid, int rightSwitchState, int leftSwitchValue) {
         yaw_motor_angle = yaw_angle;
         lockRotation = isRightStickMid;
-        lockDrivetrain = (rightSwitchState == 2);
+        lockDrivetrain = false;// (rightSwitchState == 2);
         bool beybladepls = false;
         if (leftSwitchValue == 2 || leftSwitchValue == 1) {
             beybladepls = true;
@@ -224,7 +224,7 @@ namespace ThornBots {
         int motor_three_new_speed = getMotorThreeSpeedWithCont(beybladepls, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
         int motor_four_new_speed = getMotorFourSpeedWithCont(beybladepls, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
 
-        int slew_rate = 3;
+        int slew_rate = 4;
 
         if(abs(motor_one_new_speed - motor_one_speed) > slew_rate){
             if(motor_one_new_speed > motor_one_speed){

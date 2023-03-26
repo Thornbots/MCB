@@ -10,7 +10,7 @@
 #include "drivers_singleton.hpp"
 #include <cmath>
 static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 69, 0 };
-static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 130, 0, -25000, 0, 1000000, 1, 0, 1, 0, 0, 0 };    //{ 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 90, 0, -15000, 0, 1000000, 1, 0, 1, 0, 0, 0 };    //{ 90, 10, -15000, 1, 1000000, 1, 0, 1, 0, 0, 0 };
 static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 400, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0 };
 
 namespace ThornBots {
@@ -44,7 +44,7 @@ namespace ThornBots {
 
         static constexpr int motor_yaw_max_speed = 500; //Not sure if this is the absolute maximum. need to test. Motor documentation says 320, but it can def spin faster than taproot's 320 rpm.
         static constexpr int motor_indexer_max_speed = 6000;
-        static constexpr int flywheel_max_speed = 6700;
+        static constexpr int flywheel_max_speed = 5000;
         static constexpr int motor_pitch_max_speed = 900;
         static constexpr int YAW_MOTOR_SCALAR = 500;
         bool isShooting = false;
@@ -54,6 +54,7 @@ namespace ThornBots {
         int motor_pitch_speed = 0;
         double current_yaw_angle = 180;
         float desiredAngle = 0.0f;
+        float desiredPitch = 0.0f;
 
         int tmp = 0;
 

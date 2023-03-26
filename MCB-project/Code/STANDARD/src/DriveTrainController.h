@@ -8,7 +8,7 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
-static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 200, 0 };
+static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 500, 0 };
 static constexpr float REFINED_ANGLE_OFFSET = 110.0f;
 
 
@@ -62,7 +62,7 @@ namespace ThornBots {
         bool lockRotation = true;
         bool lockDrivetrain = true;
         int translation_speed, rotation_speed, beyblading_speed = 0;
-        int max_speed = 5000; //The abs(maximum speed) we want the drivetrain motors to go to
+        int max_speed = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
         double beyblading_factor = 0.7; //How much of the max_speed beyblading will eat up while robot is not translating range this from [0, 1]
         static constexpr double PI = 3.14159; //Everyone likes Pi!
         bool use_exponentional_controlling = true;

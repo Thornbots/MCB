@@ -147,15 +147,18 @@ namespace ThornBots {
     }
 
     int TurretController::getPitchMotorSpeed(bool useWASD, double right_stick_vert, double target_angle) {
+        desiredPitch += right_stick_vert * 0.01;
+        if (desiredPitch < -20.0f) desiredPitch = -20.0f;
+        if (desiredPitch > 20.0f) desiredPitch = 20.0f;
         float position = tap::motor::DjiMotor::encoderToDegrees(motor_pitch.getEncoderWrapped());
-        float desired = 270.0f + target_angle;
+        float desired = 270.0f + desiredPitch;
         pitchPidController.runControllerDerivateError(desired - position, 1);
         return pitchPidController.getOutput(); //TODO
     }
 
     int TurretController::getIndexerMotorSpeed(int16_t wheel_value) {
         if(wheel_value > 1.0) {
-            return 2400;
+            return 1500;
         } else if(wheel_value < -1.0) {
             return 4000;
         }
