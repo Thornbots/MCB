@@ -151,7 +151,7 @@ namespace ThornBots {
         //if (desiredPitch < -20.0f) desiredPitch = -20.0f;
         //if (desiredPitch > 20.0f) desiredPitch = 20.0f;
         float position = tap::motor::DjiMotor::encoderToDegrees(motor_pitch.getEncoderWrapped());
-        float temp_target_angle = target_angle + 6.5f;
+        float temp_target_angle = target_angle + 6.0f;
         if (temp_target_angle < -20.0f) temp_target_angle = -20.0f;
         if (temp_target_angle > 20.0f) temp_target_angle = 20.0f;
         float desired = 270.0f + temp_target_angle;
