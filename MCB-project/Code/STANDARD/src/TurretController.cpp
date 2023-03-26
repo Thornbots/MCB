@@ -132,7 +132,7 @@ namespace ThornBots {
             desiredAngle -= right_stick_horz * 0.03;
         } else if (rightSwitchValue == 0) {
             float position = getYawEncoderAngle();
-            desiredAngle = actualAngle - position - 110.0;
+            desiredAngle = actualAngle - position - 210.0;
         }
         double kF = 0.42;
         while(actualAngle - desiredAngle > 180){
@@ -151,8 +151,8 @@ namespace ThornBots {
         //if (desiredPitch < -20.0f) desiredPitch = -20.0f;
         //if (desiredPitch > 20.0f) desiredPitch = 20.0f;
         float position = tap::motor::DjiMotor::encoderToDegrees(motor_pitch.getEncoderWrapped());
-        //float desired = 270.0f + desiredPitch;
-        pitchPidController.runControllerDerivateError(target_angle - position, 1);
+        float desired = 270.0f + target_angle;
+        pitchPidController.runControllerDerivateError(desired - position, 1);
         return pitchPidController.getOutput(); //TODO
     }
 
