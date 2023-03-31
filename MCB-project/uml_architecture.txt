@@ -1,5 +1,4 @@
 @startuml
-
 class EntryPoint{
 RobotController* m_RobotController
 int main()
@@ -132,17 +131,16 @@ float GetIMUAngle()
 bool GetIsIMUCalibrated
 }
 
-RobotController-up->EntryPoint
-TurretController-up->RobotController 
-DrivetrainController-up->RobotController 
-CommunicationHandler-up->DrivetrainController
-CommunicationHandler-up->TurretController
-HardwareHandler-up->DrivetrainController
-HardwareHandler-up->TurretController
-RefereeSystem-up->DrivetrainController
-RefereeSystem-up->TurretController
-Core-up->CommunicationHandler 
-Core-up->RefereeSystem
-Core-up->HardwareHandler
-
+EntryPoint-up->RobotController
+RobotController-up->TurretController
+RobotController-up->DrivetrainController
+DrivetrainController-up->CommunicationHandler
+TurretController-up->CommunicationHandler
+DrivetrainController-up->HardwareHandler
+TurretController-up->HardwareHandler
+DrivetrainController-up->RefereeSystem
+TurretController-up->RefereeSystem
+CommunicationHandler -up->Core
+RefereeSystem-up->Core
+HardwareHandler-up->Core
 @enduml
