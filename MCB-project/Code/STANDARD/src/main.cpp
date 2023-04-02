@@ -17,13 +17,13 @@
 //Our .h's
 #include "DriveTrainController.h"
 #include "TurretController.h"
+#include "Core.h"
 
 tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
 tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
 tap::arch::PeriodicMilliTimer updateIMUTimeout(2);
 std::string WASDstring = ""; //Going to be the actual input string
 std::string controlString = ""; //Will be the last two chars in the "WASDstring" string. (What we're actually going to be looking at)
-src::Drivers *drivers;
 bool useWASD = false;
 bool doBeyblading = false;
 double right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz = 0.0;
@@ -126,7 +126,6 @@ void readKeyboardAndMicky() {
 }
 
 int main() {
-    src::Drivers *drivers = src::DoNotUse_getDrivers();
     Board::initialize();
     drivers->can.initialize();
     drivers->remote.initialize();
