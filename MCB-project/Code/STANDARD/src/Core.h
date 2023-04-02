@@ -8,14 +8,13 @@
 #include <string>
 
 src::Drivers *drivers;
+src::Drivers *drivers = src::DoNotUse_getDrivers();
 
 void initialize() {
-    src::Drivers *drivers = src::DoNotUse_getDrivers();
     Board::initialize();
     drivers->can.initialize();
     drivers->remote.initialize();
     drivers->bmi088.initialize(500, 0.0, 0.0);
-    drivers->bmi088.requestRecalibration();
 
     //TODO: Include ThornBots classes and initialize them
 }
