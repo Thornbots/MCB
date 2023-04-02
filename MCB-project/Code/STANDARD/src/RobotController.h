@@ -1,13 +1,17 @@
 
+#include "Core.h"
+#include "DriveTrainController.h"
+#include "TurretController.h"
 
 namespace ThornBots{
     class RobotController{
         public:
-            bool initialize();
-            void update();
-            void emergencyStop();
+            RobotController();
+            bool Initialize();
+            void Update();
+            void EmergencyStop();
         private:
-            ThornBots::DriveTrainController* m_DriveTrainController;
-            ThornBots::TurretController* m_TurretController;
-    }
+            ThornBots::DriveTrainController *s_DriveTrainController = new ThornBots::DriveTrainController(drivers);
+            ThornBots::TurretController *s_TurretController = new ThornBots::TurretController(drivers);
+    };
 }

@@ -1,11 +1,13 @@
+#include "RobotController.h"
+
 namespace ThornBots{
     class EntryPoint{
         public:
             int main();
-            bool initialize();
-            void update(uint23_t cycleTimeInUS, bool runRobot);
-            void destroy();
+            bool Initialize();
+            void Update(uint32_t cycleTimeInUS, bool runRobot);
+            void Destroy();
         private:
-            ThornBots::RobotController* m_RobotController;
-    }
+            ThornBots::RobotController *m_RobotController = new ThornBots::RobotController();
+    };
 }
