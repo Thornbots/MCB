@@ -7,7 +7,6 @@
 #include <iostream>
 #include <string>
 
-src::Drivers *drivers;
 src::Drivers *drivers = src::DoNotUse_getDrivers();
 
 void initialize() {
