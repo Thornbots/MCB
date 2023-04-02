@@ -20,7 +20,7 @@
 
 tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
 tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
-tap::arch::P eriodicMilliTimer updateIMUTimeout(2);
+tap::arch::PeriodicMilliTimer updateIMUTimeout(2);
 std::string WASDstring = ""; //Going to be the actual input string
 std::string controlString = ""; //Will be the last two chars in the "WASDstring" string. (What we're actually going to be looking at)
 src::Drivers *drivers;
