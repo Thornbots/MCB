@@ -1,186 +1,120 @@
-// General library includes
-#include <cmath>
+/*
+ * Copyright (c) 2020-2021 Advanced Robotics at the University of Washington <robomstr@uw.edu>
+ *
+ * This file is part of taproot-template-project.
+ *
+ * taproot-template-project is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * taproot-template-project is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with taproot-template-project.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#ifdef PLATFORM_HOSTED
+/* hosted environment (simulator) includes --------------------------------- */
 #include <iostream>
-#include <string>
 
-// Drivers
-#include "drivers_singleton.hpp"
-#include "drivers_singleton.hpp"
-#include "drivers_singleton.hpp"
+#include "tap/communication/tcp-server/tcp_server.hpp"
+#include "tap/motor/motorsim/sim_handler.hpp"
+#endif
 
-// Taproot
-#include "tap/architecture/periodic_timer.hpp"
-#include "tap/algorithms/smooth_pid.hpp"
-#include "tap/motor/dji_motor.hpp"
 #include "tap/board/board.hpp"
 
-//Our .h's
-#include "DriveTrainController.h"
-#include "TurretController.h"
+#include "modm/architecture/interface/delay.hpp"
 
-tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
-tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
-tap::arch::PeriodicMilliTimer updateIMUTimeout(2);
-std::string WASDstring = ""; //Going to be the actual input string
-std::string controlString = ""; //Will be the last two chars in the "WASDstring" string. (What we're actually going to be looking at)
-src::Drivers *drivers;
-bool useWASD = false;
-bool doBeyblading = false;
-double right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz = 0.0;
-double angleOffset = 0.0;
+/* arch includes ------------------------------------------------------------*/
+#include "tap/architecture/periodic_timer.hpp"
+#include "tap/architecture/profiler.hpp"
 
+/* communication includes ---------------------------------------------------*/
+#include "drivers.hpp"
+#include "drivers_singleton.hpp"
 
-/**
- * Used for reading the WASD keys on the keyboard. Updates two strings.
- * WASDstring: A "queue" of characters for intrepreting WASD controls into robot movement
- * controlString: The last (at most) two characters in the WASDString.
-*/
-void updateStrings() {
-    //START Reading WASD
-    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::W)) {
-        if (WASDstring.find('w') == std::string::npos) {
-        WASDstring += 'w';
+/* error handling includes --------------------------------------------------*/
+#include "tap/errors/create_errors.hpp"
+
+/* control includes ---------------------------------------------------------*/
+#include "tap/architecture/clock.hpp"
+
+/* define timers here -------------------------------------------------------*/
+tap::arch::PeriodicMilliTimer sendMotorTimeout(2);
+
+// Place any sort of input/output initialization here. For example, place
+// serial init stuff here.
+// static void initializeIo(src::Drivers *drivers);
+
+// Anything that you would like to be called place here. It will be called
+// very frequently. Use PeriodicMilliTimers if you don't want something to be
+// called as frequently.
+// static void updateIo(src::Drivers *drivers);
+
+#define RX_BUFFER_LEN 128
+uint8_t readBuff[RX_BUFFER_LEN];
+size_t readBuffNumBytes = 0;
+size_t read = 0;
+
+char *processRx(src::Drivers *drivers)
+{
+    read = drivers->uart.read(
+        tap::communication::serial::Uart::UartPort::Uart1,
+        &(readBuff[readBuffNumBytes]),
+        RX_BUFFER_LEN - readBuffNumBytes);
+
+    char *arr;  // = new char[4];
+    // char *arr = new char[read];
+
+    if (read > 0)
+    {
+        arr = new char[read];
+        for (size_t i = 0; i < read; i++)
+        {
+            arr[i] = readBuff[readBuffNumBytes + i];
         }
-    } else {
-        size_t pos = WASDstring.find('w');
-        if (pos != std::string::npos) {
-            WASDstring.erase(pos, 1);
-        }
+        readBuffNumBytes += read;
     }
-    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::A)) {
-        if (WASDstring.find('a') == std::string::npos) {
-        WASDstring += 'a';
-        }
-    } else {
-        size_t pos = WASDstring.find('a');
-        if (pos != std::string::npos) {
-            WASDstring.erase(pos, 1);
-        }
+    else
+    {
+        return NULL;
     }
-    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::S)) {
-        if (WASDstring.find('s') == std::string::npos) {
-        WASDstring += 's';
-        }
-    } else {
-        size_t pos = WASDstring.find('s');
-        if (pos != std::string::npos) {
-            WASDstring.erase(pos, 1);
-        }
+    if (readBuffNumBytes >= RX_BUFFER_LEN)
+    {
+        readBuffNumBytes = 0;
     }
-    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::D)) {
-        if (WASDstring.find('d') == std::string::npos) {
-        WASDstring += 'd';
-        }
-    } else {
-        size_t pos = WASDstring.find('d');
-        if (pos != std::string::npos) {
-            WASDstring.erase(pos, 1);
-        }
-    }
-    //STOP Reading WASD
-    //START Updating the substring
-    if (WASDstring.size() >= 2) {
-        controlString = WASDstring.substr(WASDstring.size() - 2);
-    } else {
-        controlString = WASDstring;
-    }
-    //STOP Updating the substring
+    return arr;
 }
 
-/**
- * Reads inputs from the mouse and handles what do do with that information
- * This function assumes that we are already in WASD mode (useWASD == true)
-*/
-void micky() {
-    
-    return;
-}
-
-/**
- * Reads inputs from the keyboard and mouse and habdkes what do do with that information
-*/
-void readKeyboardAndMicky() {
-    useWASD = false;
-    if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL)) {
-        if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT)) {
-            if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) {
-                useWASD = true; //Toggling between keyboard/mouse and controller input
-            } //End R
-        } //End shift
-    } //End CTRL
-
-    if(useWASD) {
-        if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Q)) {
-            //TODO: Make this rotate the robot to the left (CCW)
-        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::E)) {
-            //TODO: Make this rotate the robot to the right (CW)
-        }
-        if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::F)) {
-            doBeyblading = true;
-        } else { doBeyblading = false; }
-        micky();
-    } else {
-        //we are not using WASD. So pee pee poo poo. Enjoy the crap that is my code
-    }
-    return;
-}
-
-int main() {
+int main()
+{
     src::Drivers *drivers = src::DoNotUse_getDrivers();
+
     Board::initialize();
-    drivers->can.initialize();
-    drivers->remote.initialize();
-    drivers->bmi088.initialize(500, 0.0, 0.0);
-    drivers->bmi088.requestRecalibration();
-    ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
-    ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
-    
-    while (1) {
-        drivers->canRxHandler.pollCanData();
-        drivers->remote.read(); //Reading the remote before we check if it is connected yet or not.
+    // initializeIo(drivers);
+    // wsrc::control::initSubsystemCommands(drivers);
 
-        if(updateIMUTimeout.execute()) {
-            drivers->bmi088.periodicIMUUpdate();
-            angleOffset = drivers->bmi088.getYaw(); //TODO: Make this calculate the AngleOffset and not the raw angle.
-        } //Stop reading from the IMU
+    drivers->uart.init<tap::communication::serial::Uart::UartPort::Uart1, 115200>();
 
-        if(drivers->remote.isConnected()) { //Doing stuff for the remote every loop
-            updateStrings();
-            readKeyboardAndMicky();
-            if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
-                doBeyblading = false;
-                turretController->stopShooting();
-      	    } else if((drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::UP)) { 
-                doBeyblading = true;
-                turretController->stopShooting();
-            } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
-                turretController->startShooting();
-                doBeyblading = false;
-            }
-            if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::MID) { 
-                //Nothing as of now
-      	    } else if((drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::UP)) { 
-                //Nothing as of now
-            } else if(drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH) == tap::communication::serial::Remote::SwitchState::DOWN) { 
-                turretController->reZero();
-            }
+    while (1)
+    {
+        modm::delay_us(1000);
+        char *msg = processRx(drivers);
 
-            right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
-            right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
-            left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
-            left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
+        // char msg[8] = "hello\n\0"; //to just send msg
+        if (msg == NULL) continue;  // dont del
 
-            driveTrainController->setMotorValues(useWASD, doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, controlString, turretController->getYawEncoderAngle());
-            driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-            turretController->setMotorValues(useWASD, doBeyblading, angleOffset, right_stick_vert, right_stick_horz, driveTrainController->motor_one.getShaftRPM(), driveTrainController->motor_four.getShaftRPM(), 0.0f);
-            turretController->setMotorSpeeds(sendTurretTimeout.execute()); 
-            // drivers->djiMotorTxHandler.encodeAndSendCanData(); //Processes these motor speed changes into can signal
-           
+        char *ans = reinterpret_cast<char *>(msg);
+        if (strcmp(ans, "bc\n\0") == 0) drivers->leds.set(tap::gpio::Leds::Green, true);
 
-        } else { //Remote not connected, so have everything turn off (Saftey features!)
-            driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
-            turretController->stopMotors(sendTurretTimeout.execute());
-        }
+        drivers->uart.write(
+            tap::communication::serial::Uart::UartPort::Uart1,
+            reinterpret_cast<uint8_t *>(msg),
+            read);
     }
     return 0;
 }
