@@ -4,11 +4,11 @@ namespace ThornBots {
     class CommunicationHandler {
         public:
         CommunicationHandler();
-        ~CommunicationHandler();
+        ~CommunicationHandler() = default;
         bool Initialize();                              // WHAT THE HELL AM I INITIALIZING (controllers, keyboard, uart)
         void Update();                                  // Assuming this updates uart values and stuff? 
         uint8_t GetSwitchState(const char switchID);   // Returns state of specified switch
-        float GetStickValue(const char stickID);        // Returns value of specified stick
+        float GetStickValue(const char* stickID);        // Returns value of specified stick
         float GetWheelValue();                          // Returns value of specified wheel
         bool GetIsInitialized();                        // Returns whether or not the CommunicationHandler is initialized
         char* GetKeysPressed();                         // Returns a list of the keys being pressed

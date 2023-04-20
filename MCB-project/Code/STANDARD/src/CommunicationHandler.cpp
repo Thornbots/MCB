@@ -5,18 +5,66 @@ namespace ThornBots {
 
     char* m_UartOutput;
 
+    CommunicationHandler::CommunicationHandler() {
+        //TODO
+    }
+
     bool CommunicationHandler::Initialize() {
         drivers->remote.initialize();
         return true;
     }
 
-    uint8_t CommunicationHandler::GetSwitchState(const char switchID) {
-        tap::communication::serial::Remote::Switch::LEFT_SWITCH
-        return drivers->remote.getSwitch();
+    void CommunicationHandler::Update() {
+        //TODO
     }
 
-    float CommunicationHandler::GetStickValue(const char stickID) {
-        return drivers->remote.getSwitch(stickID);
+    uint8_t CommunicationHandler::GetSwitchState(const char switchID) {
+        switch (switchID)
+        {
+        case 'R':
+            return (uint8_t) drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH);
+        case 'L':
+            return (uint8_t) drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH);
+        default:
+            return NULL;
+        }
+        
+    }
+
+    float CommunicationHandler::GetStickValue(const char* stickID) {
+        
+     }
+
+    float CommunicationHandler::GetWheelValue() {
+        //TODO
+    }
+
+    bool CommunicationHandler::GetIsInitialized() {
+        //TODO
+    }
+
+    char* CommunicationHandler::GetKeysPressed() {
+        //TODO
+    }
+
+    bool CommunicationHandler::GetRightMouseClicked() {
+        //TODO
+    }
+
+    bool CommunicationHandler::GetLeftMouseClicked() {
+        //TODO
+    }
+
+    std::pair<int, int> CommunicationHandler::GetMouseCoords() {
+        //TODO
+    }
+
+    char* CommunicationHandler::GetUartOutput() {
+        //TODO
+    }
+
+    void CommunicationHandler::SendUart(const char* message) {
+        //TODO
     }
 
 };
