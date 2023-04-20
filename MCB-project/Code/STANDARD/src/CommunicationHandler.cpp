@@ -19,6 +19,8 @@ namespace ThornBots {
         return drivers->remote.getSwitch(stickID);
     }
 
+    char* CommunicationHandler::GetUartOutput(){
+    }
     void CommunicationHandler::SendUart(const char* message) {
 
     }
