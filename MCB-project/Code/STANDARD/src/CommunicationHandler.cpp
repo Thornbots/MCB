@@ -1,6 +1,8 @@
 #include "Core.h"
 #include "CommunicationHandler.h"
 
+#define RX_BUFFER_LEN 128
+
 namespace ThornBots {
 
     char* m_UartOutput;
@@ -60,17 +62,39 @@ namespace ThornBots {
     }
 
     char* CommunicationHandler::GetUartOutput() {
-        //TODO
+        size_t readBuffNumBytes = 0;
+        uint8_t readBuff[RX_BUFFER_LEN];
+        size_t read = drivers->uart.read(
+            tap::communication::serial::Uart::UartPort::Uart1,
+            &(readBuff[readBuffNumBytes]),
+            RX_BUFFER_LEN - readBuffNumBytes);
+
+        char *arr;
+
+        if (read > 0)
+        {
+            arr = new char[read];
+            for (size_t i = 0; i < read; i++)
+            {
+                arr[i] = readBuff[readBuffNumBytes + i];
+            }
+            readBuffNumBytes += read;
+        }
+        else
+        {
+            return NULL;
+        }
+        if (readBuffNumBytes >= RX_BUFFER_LEN)
+        {
+            readBuffNumBytes = 0;
+        }
+        return arr;
     }
 
     void CommunicationHandler::SendUart(const char* message) {
-        //TODO
+        drivers->uart.write(
+            tap::communication::serial::Uart::UartPort::Uart1,
+            reinterpret_cast<uint8_t *>(message),
+            0);
     }
-
-    char* CommunicationHandler::GetUartOutput(){
-    }
-    void CommunicationHandler::SendUart(const char* message) {
-
-    }
-
 };
