@@ -77,6 +77,7 @@ void updateStrings() {
             WASDstring.erase(pos, 1);
         }
     }
+    
     //STOP Reading WASD
     //START Updating the substring
     if (WASDstring.size() >= 2) {

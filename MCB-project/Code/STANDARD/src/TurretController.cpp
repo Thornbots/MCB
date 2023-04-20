@@ -12,133 +12,58 @@
 #include <cmath>
 
 namespace ThornBots {
-    TurretController::TurretController(tap::Drivers* m_driver) {
-        this->drivers = m_driver;
-        motor_yaw.initialize();
-        motor_indexer.initialize();
-        motor_pitch.initialize();
-        flywheel_one.initialize();
-        flywheel_two.initialize();
-    }
-
-    float TurretController::getYawEncoderAngle() {
-        return tap::motor::DjiMotor::encoderToDegrees(motor_yaw.getEncoderWrapped());
-    }
-
-    TurretController::~TurretController() {} //Watch this cute video of a cat instead: https://youtu.be/hg3e1KflmC8
-
-    /**
-     * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change
-    */
-    void TurretController::setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, float target_angle) {
-        current_yaw_angle -= .002*15*right_stick_horz;
-        motor_yaw_speed = getYawMotorSpeed(current_yaw_angle, angleOffset, motor_one_speed, motor_four_speed);
-        motor_pitch_speed = getPitchMotorSpeed(useWASD, right_stick_vert, (right_stick_vert * 20.0f));
-        flywheel_speed = getFlywheelsSpeed();
-        motor_indexer_speed = getIndexerMotorSpeed();
-    }
-
-    /**
-     * Tells all the motors to go to their assined speeds
-     * i.e. Tells motor_yaw to to go motor_yaw_speed and so on.
-     * sendMotorTimeout should be the method call sendMotorTimeout.execute() when calling this method
-    */
-    void TurretController::setMotorSpeeds(bool sendMotorTimeout) {
-        if(!sendMotorTimeout) { return; }
-        drivers->canRxHandler.pollCanData();
-        
-        //Yaw Motor
-        motor_yaw.setDesiredOutput(static_cast<int32_t>(motor_yaw_speed));
-
-        //Pitch Motor
-        motor_pitch.setDesiredOutput(static_cast<int32_t>(motor_pitch_speed - 6000.0f)); //The ~6000.0f is the feed forward (counters gravity for the pitch motor)
-
-        //Indexer Motor
-        pidController.runControllerDerivateError(motor_indexer_speed - motor_indexer.getShaftRPM(), 1);
-        motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        
-        //Flywheel One
-        pidController.runControllerDerivateError(flywheel_speed - flywheel_one.getShaftRPM(), 1);
-        flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        
-        //Flywheel Two
-        pidController.runControllerDerivateError(flywheel_speed - flywheel_two.getShaftRPM(), 1);
-        flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-    }
-
-    /**
-     * Tells all of the motors of the turret to go to 0 RPM.
-     * We are hard coding this as well as updating the values to just ensure that the motors stop.
-     * sendMotorTimeout should be the method call sendMotorTimeout.execute() when calling this method
-    */
-    void TurretController::stopMotors(bool sendMotorTimeout) {
-        if(!sendMotorTimeout) { return; }
-        motor_yaw_speed = 0;
-        motor_pitch_speed = 0;
-        motor_indexer_speed = 0;
-        flywheel_speed = 0;
-
-        //Yaw Motor
-        pidController.runControllerDerivateError(0 - motor_yaw.getShaftRPM(), 1);
-        motor_yaw.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-        //Pitch Motor
-        pidController.runControllerDerivateError(0 - motor_pitch.getShaftRPM(), 1);
-        motor_pitch.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-        //Indexer Motor
-        pidController.runControllerDerivateError(0 - motor_indexer.getShaftRPM(), 1);
-        motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-        //Flywheel One
-        pidController.runControllerDerivateError(0 - flywheel_one.getShaftRPM(), 1);
-        flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-        //Flywheel Two
-        pidController.runControllerDerivateError(0 - flywheel_two.getShaftRPM(), 1);
-        flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-    }
-
-    void TurretController::startShooting(){
-        isShooting = true;
-    }
     
-    void TurretController::stopShooting(){
-        isShooting = false;
+    TurretController::TurretController() {
     }
 
-    /**
-     * TODO: Make this functional!
-     * Want an exponentional growth as the value is around 2-3, but also want a very weak response around 0-2. (ish. these numbers are *magical* numbers)
-    */
-    int TurretController::homemadePID(double value) {
-        // if(abs(value) < 45) { return 0; }
-        return (350 * log((pow(value, 2) / 30) + 1));
+    bool TurretController::Initialize(){
+        this->m_CommunicationHandler = std::make_shared<CommunicationHandler>(new CommunicationHandler());
+        this->m_HardwareHandler = std::make_shared<HardwareHandler>(new HardwareHandler());
+        this->m_RefereeSystem = std::make_shared<RefereeSystem>(new RefereeSystem());
     }
 
-    /**
-     * Returns the speed that the yaw motor needs to go to counterbalance the effect of beyblading or turning.
-     * Currently only works when in beyBlading mode.
-     * TODO: Make this spin the yawMotor dependent on mouse(only when NOT using CV)
-    */
-    int TurretController::getYawMotorSpeed(double desiredAngle, double actualAngle, int motor_one_speed, int motor_four_speed) {
-        // if(abs(angleOffset) > 180) {
-        //     angleOffset < 0 ? angleOffset += 360 : angleOffset -= 360;
-        // }
-        // int speed = homemadePID(angleOffset);
-        // if(abs(speed) <= motor_yaw_max_speed) { return speed; }
-        // return speed < 0 ? -1.0 * motor_yaw_max_speed : motor_yaw_max_speed; 
+    void TurretController::Rotate(float angle){
+        this->m_YawAngle += angle;
+    }
+
+    void TurretController::Update(){  
+        m_HardwareHandler.get()->SetMotorOutput(motor_pitch, getPitchMotorSpeed(GetPitchAngle()));
+        m_HardwareHandler.get()->SetMotorOutput(motor_indexer, getIndexerMotorSpeed());
+
+        float motor_one_speed  = m_HardwareHandler.get()->GetMotorShaftRPM("11");
+        float motor_four_speed = m_HardwareHandler.get()->GetMotorShaftRPM("14");
+        m_HardwareHandler.get()->SetMotorOutput(motor_pitch, getYawMotorSpeed(GetYawAngle(), motor_one_speed, motor_four_speed));
+    
+        UpdateMotor(motor_indexer);
+        UpdateMotor(flywheel_right);
+        UpdateMotor(flywheel_left);
+        UpdateMotor(motor_yaw);
+        UpdateMotor(motor_pitch);
+    }
+
+    void TurretController::UpdateMotor(char* motorID) {
+        pidController.runControllerDerivateError(0 - m_HardwareHandler.get()->GetMotorShaftRPM(motorID), 1);
+        m_HardwareHandler.get()->SetMotorOutput(motorID, pidController.getOutput());
+    }
+
+    void TurretController::EmergencyStop(){
+        char* motors[] = {motor_indexer, motor_pitch, motor_yaw, flywheel_left, flywheel_right};
+        for(char* motor : motors){
+            m_HardwareHandler.get()->SetMotorOutput(motor, 0);
+        }
+        
+    }
+
+    int TurretController::getPitchMotorSpeed(double target_angle) {
+        float position = tap::motor::DjiMotor::encoderToDegrees(this->m_HardwareHandler.get()->getMotorAngle(26));
+        float desired = 270.0f + target_angle;
+        this->pitchPidController.runControllerDerivateError(desired - position, 1);
+        return pitchPidController.getOutput();
+    }
+
+    int TurretController::getYawMotorSpeed(double desiredAngle, int motor_one_speed, int motor_four_speed) {
         double kF = 0.42;
-        /*
-        if(abs(desiredAngle) > 180) {
-            desiredAngle < 0 ? desiredAngle += 360 : desiredAngle -= 360;
-        }
-        if(abs(actualAngle) > 180) {
-            actualAngle < 0 ? actualAngle += 360 : actualAngle -= 360;
-        }
-        */
+        float actualAngle = m_HardwareHandler.get()->getMotorAngle(17);
         while(actualAngle-desiredAngle > 180){
             actualAngle -= 360;
         }
@@ -146,15 +71,8 @@ namespace ThornBots {
             actualAngle += 360;
         }
         yawPidController.runControllerDerivateError(desiredAngle-actualAngle, 1);
-        tmp = actualAngle;
+        double tmp = actualAngle;
         return ((motor_one_speed - motor_four_speed) *kF) + yawPidController.getOutput();
-    }
-
-    int TurretController::getPitchMotorSpeed(bool useWASD, double right_stick_vert, double target_angle) {
-        float position = tap::motor::DjiMotor::encoderToDegrees(motor_pitch.getEncoderWrapped());
-        float desired = 270.0f + target_angle;
-        pitchPidController.runControllerDerivateError(desired - position, 1);
-        return pitchPidController.getOutput(); //TODO
     }
 
     int TurretController::getIndexerMotorSpeed() {
@@ -173,7 +91,51 @@ namespace ThornBots {
         }
     }
 
-    void TurretController::reZero(){
-        current_yaw_angle = 180;
+
+    void TurretController::OverrideWithController(){
+        this->m_OverrideStatus = 'c';
     }
+
+    void TurretController::OverrideWithKeyboard(){
+        this->m_OverrideStatus = 'k';
+    }
+
+    void TurretController::SetShooting(bool isShooting){
+        this->isShooting = isShooting;
+    }
+
+    void TurretController::SetPitchAngle(float angle){
+        this->m_PitchAngle = angle;
+    }
+
+    void TurretController::SetYawAngle(float angle){
+        this->m_YawAngle = angle;
+    }
+
+    bool TurretController::GetShooting(){
+        return isShooting;
+    }
+
+    char TurretController::GetOverride(){
+        return m_OverrideStatus;
+    }
+
+    float TurretController::GetYawAngle(){
+        return m_YawAngle;
+    }
+
+    float TurretController::GetPitchAngle(){
+        return m_PitchAngle;
+    }
+
+    int TurretController::getIndexerMotorSpeed() {
+        if(this->isShooting){
+            return motor_indexer_max_speed;
+        }else{
+            return 0; //No firing, so no spinny spin spin =)
+        }
+    }
+
+    
+    
 };
