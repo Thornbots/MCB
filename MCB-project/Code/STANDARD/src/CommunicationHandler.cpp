@@ -3,6 +3,8 @@
 
 #define RX_BUFFER_LEN 128
 
+size_t readBuffNumBytes = 0;
+
 namespace ThornBots {
 
     char* m_UartOutput;
@@ -62,7 +64,6 @@ namespace ThornBots {
     }
 
     char* CommunicationHandler::GetUartOutput() {
-        size_t readBuffNumBytes = 0;
         uint8_t readBuff[RX_BUFFER_LEN];
         size_t read = drivers->uart.read(
             tap::communication::serial::Uart::UartPort::Uart1,
