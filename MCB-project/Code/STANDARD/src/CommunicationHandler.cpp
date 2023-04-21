@@ -3,23 +3,22 @@
 
 #define RX_BUFFER_LEN 128
 
-size_t readBuffNumBytes = 0;
+
 
 namespace ThornBots {
 
-    char* m_UartOutput;
-
     CommunicationHandler::CommunicationHandler() {
-        //TODO
+        
     }
 
     bool CommunicationHandler::Initialize() {
         drivers->remote.initialize();
-        return true;
+        isInitialized = true;
+        return isInitialized;
     }
 
     void CommunicationHandler::Update() {
-        //TODO
+        drivers->remote.read();
     }
 
     uint8_t CommunicationHandler::GetSwitchState(const char switchID) {
@@ -62,11 +61,11 @@ namespace ThornBots {
      }
 
     float CommunicationHandler::GetWheelValue() {
-        //TODO
+        return drivers->remote.getWheel();
     }
 
     bool CommunicationHandler::GetIsInitialized() {
-        //TODO
+        return isInitialized;
     }
 
     char* CommunicationHandler::GetKeysPressed() {
