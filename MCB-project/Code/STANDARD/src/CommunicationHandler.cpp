@@ -1,19 +1,12 @@
-#include "Core.h"
 #include "CommunicationHandler.h"
 
 #define RX_BUFFER_LEN 128
 
-
-
 namespace ThornBots {
 
     CommunicationHandler::CommunicationHandler() {
-<<<<<<< HEAD
-        
-=======
         // initialization code for uart
         drivers->uart.init<tap::communication::serial::Uart::UartPort::Uart1, 115200>();
->>>>>>> 728fc5f04a290bcc77da277ed868157ffe2ab465
     }
 
     bool CommunicationHandler::Initialize() {
@@ -74,19 +67,36 @@ namespace ThornBots {
     }
 
     char* CommunicationHandler::GetKeysPressed() {
-        //TODO
+        std::vector<char> charVector;
+
+        for (int i = 0; i < intToKey.size(); i++) {
+            if (drivers->remote.keyPressed(static_cast<tap::communication::serial::Remote::Key>(i))) {
+                charVector.push_back(intToKey.at(i));
+            };
+        }
+
+        char returnArray[charVector.size()];
+
+
+        for (int i = 0; i < intToKey.size(); i++) {
+            returnArray[i] = charVector.at(i);
+        } 
+
+        return returnArray;
     }
 
     bool CommunicationHandler::GetRightMouseClicked() {
-        //TODO
+        return drivers->remote.getMouseR();
     }
 
     bool CommunicationHandler::GetLeftMouseClicked() {
-        //TODO
+        return drivers->remote.getMouseL();
     }
 
     std::pair<int, int> CommunicationHandler::GetMouseCoords() {
-        //TODO
+        int16_t xCoord = drivers->remote.getMouseX();
+        int16_t yCoord = drivers->remote.getMouseY();
+        return std::pair<int, int>(xCoord, yCoord);
     }
 
     char* CommunicationHandler::GetUartOutput() {

@@ -22,5 +22,23 @@ namespace ThornBots {
         char* m_UartOutput;
         size_t readBuffNumBytes = 0;
         bool isInitialized = false;
+        std::map<int8_t, char> intToKey = {
+            {0, 'W'},
+            {1, 'S'},
+            {2, 'A'},
+            {3, 'D'},
+            {4, '*'},
+            {5, '^'},
+            {6, 'Q'},
+            {7, 'E'},
+            {8, 'R'},
+            {9, 'F'},
+            {10, 'G'},
+            {11, 'Z'},
+            {12, 'X'},
+            {13, 'C'},
+            {14, 'V'},
+            {15, 'B'}
+        };
     };
 };
