@@ -8,7 +8,12 @@
 namespace ThornBots {
 
     CommunicationHandler::CommunicationHandler() {
+<<<<<<< HEAD
         
+=======
+        // initialization code for uart
+        drivers->uart.init<tap::communication::serial::Uart::UartPort::Uart1, 115200>();
+>>>>>>> 728fc5f04a290bcc77da277ed868157ffe2ab465
     }
 
     bool CommunicationHandler::Initialize() {
