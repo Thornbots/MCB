@@ -37,7 +37,29 @@ namespace ThornBots {
     }
 
     float CommunicationHandler::GetStickValue(const char* stickID) {
-        
+        tap::communication::serial::Remote::Channel;
+        if (stickID[0] == 'R') {
+            switch (stickID[1])
+            {
+            case 'H':
+                drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
+            case 'V':
+                drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
+            default:
+                return NULL;
+            }
+        } else if (stickID[0] == 'L') {
+            switch (stickID[1])
+            {
+            case 'H':
+                drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
+            case 'V':
+                drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
+            default:
+                return NULL;
+            }
+        }
+        return NULL;
      }
 
     float CommunicationHandler::GetWheelValue() {
