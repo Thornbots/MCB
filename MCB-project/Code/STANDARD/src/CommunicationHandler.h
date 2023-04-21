@@ -20,5 +20,7 @@ namespace ThornBots {
 
         private:
         char* m_UartOutput;
+        size_t readBuffNumBytes = 0;
+        bool isInitialized = false;
     };
 };
