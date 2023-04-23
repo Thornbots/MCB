@@ -129,9 +129,12 @@ namespace ThornBots {
     }
 
     void CommunicationHandler::SendUart(const char* message) {
+        char* messageCopy;
+        std::memcpy(messageCopy, message, sizeof message);
+
         drivers->uart.write(
             tap::communication::serial::Uart::UartPort::Uart1,
-            reinterpret_cast<uint8_t *>(message),
+            reinterpret_cast<uint8_t *>(messageCopy),
             0);
     }
 };
