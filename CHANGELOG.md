@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file as of MCB 0.
 - Core initialized some hardware components that should be left up to the respective classes so cleaned that up
 - Core did not declare everything statically, so it would get cloned every time it was included
 
-## Fixed
+### Fixed
 
 - Multiple declarations of initialization functions were removed
 
