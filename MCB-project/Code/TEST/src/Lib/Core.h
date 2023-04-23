@@ -7,11 +7,8 @@
 #include <iostream>
 #include <string>
 
-src::Drivers *drivers = src::DoNotUse_getDrivers();
+static src::Drivers *drivers = src::DoNotUse_getDrivers();
 
-void initialize() {
+static void InitializeCore() {
     Board::initialize();
-    drivers->can.initialize();
-    drivers->remote.initialize();
-    drivers->bmi088.initialize(500, 0.0, 0.0);
 }
