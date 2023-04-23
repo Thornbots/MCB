@@ -74,13 +74,9 @@ namespace ThornBots {
                 charVector.push_back(intToKey.at(i));
             };
         }
-
+        
         char returnArray[charVector.size()];
-
-
-        for (int i = 0; i < intToKey.size(); i++) {
-            returnArray[i] = charVector.at(i);
-        } 
+        std::copy(charVector.begin(), charVector.end(), returnArray);
 
         return returnArray;
     }
