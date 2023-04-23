@@ -54,11 +54,9 @@ namespace ThornBots {
     }
 
     bool HardwareHandler::Initialize() {
-        //TODO
-        //drivers->bmi088.initialize(500, 0.0, 0.0);
+        drivers->bmi088.initialize(500, 0.0, 0.0);
         CalibrateIMU();
-        //Board::initialize();
-        //drivers->remote.initialize();
+        Board::initialize();
         
         //Initializing all of the motors (One that we aren't using (or don't even have plugged in) shouldn't affect anything outside of taking up a bit of extra memory)
         for(int k = 0; k < sizeof(MotorArray), k++;) {
