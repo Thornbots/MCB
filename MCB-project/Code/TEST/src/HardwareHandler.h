@@ -67,8 +67,8 @@ namespace ThornBots {
         private:
             static constexpr int NUM_MOTORS = 8;
             tap::motor::DjiMotor* MotorArray[1][NUM_MOTORS - 1];
-            int getRow(Motor MotorID);
-            int getColumn(Motor MotorID);
-            tap::motor::DjiMotor* getMotor(Motor MotorID);
+            int GetRow(Motor MotorID);
+            int GetColumn(Motor MotorID);
+            tap::motor::DjiMotor* GetMotor(Motor MotorID);
     };
 }

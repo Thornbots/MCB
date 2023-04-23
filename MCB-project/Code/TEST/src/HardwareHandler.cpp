@@ -41,16 +41,16 @@ namespace ThornBots {
 
     }
 
-    int HardwareHandler::getRow(Motor MotorID) {
+    int HardwareHandler::GetRow(Motor MotorID) {
         return (int) MotorID % 10 == 1 ? 1 : 0;
     }
 
-    int HardwareHandler::getColumn(Motor MotorID) {
+    int HardwareHandler::GetColumn(Motor MotorID) {
         return (int) MotorID - 10 > 0 ? (int) MotorID - 10 : (int) MotorID;
     }
 
-    tap::motor::DjiMotor* HardwareHandler::getMotor(Motor MotorID) {
-        return this->MotorArray[getRow(MotorID)][getColumn(MotorID)];
+    tap::motor::DjiMotor* HardwareHandler::GetMotor(Motor MotorID) {
+        return this->MotorArray[GetRow(MotorID)][GetColumn(MotorID)];
     }
 
     bool HardwareHandler::Initialize() {
@@ -76,7 +76,7 @@ namespace ThornBots {
     }
 
     void HardwareHandler::SetMotorPowerOutput(Motor MotorID, int32_t Output) {
-        getMotor(MotorID)->setDesiredOutput(Output);
+        GetMotor(MotorID)->setDesiredOutput(Output);
     }
 
     void HardwareHandler::PollCanData() {
@@ -88,7 +88,7 @@ namespace ThornBots {
     }
 
     int32_t HardwareHandler::GetMotorShaftRPM(Motor MotorID) {
-        return getMotor(MotorID)->getShaftRPM();
+        return GetMotor(MotorID)->getShaftRPM();
     }
 
     float HardwareHandler::GetIMUAngle(IMU_Radial Axis) {
@@ -134,6 +134,6 @@ namespace ThornBots {
     }
 
     float HardwareHandler::GetMotorAngle(Motor MotorID) {
-        return tap::motor::DjiMotor::encoderToDegrees(getMotor(MotorID)->getEncoderWrapped());               
+        return tap::motor::DjiMotor::encoderToDegrees(GetMotor(MotorID)->getEncoderWrapped());               
     }
 };
