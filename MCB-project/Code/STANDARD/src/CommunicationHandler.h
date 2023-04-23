@@ -5,18 +5,47 @@ namespace ThornBots {
         public:
         CommunicationHandler();
         ~CommunicationHandler() = default;
-        bool Initialize();                              // WHAT THE HELL AM I INITIALIZING (controllers, keyboard, uart)
-        void Update();                                  // Assuming this updates uart values and stuff? 
-        uint8_t GetSwitchState(const char switchID);   // Returns state of specified switch
-        float GetStickValue(const char* stickID);        // Returns value of specified stick
-        float GetWheelValue();                          // Returns value of specified wheel
-        bool GetIsInitialized();                        // Returns whether or not the CommunicationHandler is initialized
-        char* GetKeysPressed();                         // Returns a list of the keys being pressed
-        bool GetRightMouseClicked();                    // Returns true if the RMB was clicked
-        bool GetLeftMouseClicked();                     // Returns true if the LMB was clicked
-        std::pair<int, int> GetMouseCoords();           // Returns an integer pair of the mouse's coordinates
-        char* GetUartOutput();                          // wat
-        void SendUart(const char* message);             // Sends messages to uart
+
+        // Initializes remote
+        bool Initialize();                              
+
+        // Reads the remote, should be run every cycle
+        void Update();                                  
+
+        // Returns state of specified switch 
+        // Parameter should be either be 'R' or 'L'
+        uint8_t GetSwitchState(const char switchID);    
+
+        // Returns value of specified stick
+        // Parameter should be a character array where the 0th item is either 'R' or 'L' and the 1st item is either 'H' or 'V'
+        // e.g. {'R', 'H'} for right stick, horizontal axis
+        float GetStickValue(const char* stickID);       
+
+        // Returns value of specified wheel
+        float GetWheelValue();                    
+
+        // Returns whether or not the CommunicationHandler is initialized      
+        bool GetIsInitialized();       
+
+        // Returns a list of the keys being pressed
+        // Refer to the intToKey dictionary at the bottom of this header for available keys
+        // ^ is Ctrl    * is Shift       
+        char* GetKeysPressed();              
+
+        // Returns true if the RMB was clicked           
+        bool GetRightMouseClicked();              
+
+        // Returns true if the LMB was clicked      
+        bool GetLeftMouseClicked();      
+
+        // Returns an integer pair of the mouse's coordinates               
+        std::pair<int, int> GetMouseCoords();
+
+        // Returns a character array of Uart's output 
+        char* GetUartOutput();                      
+
+        // Sends messages to uart   
+        void SendUart(const char* message);             
 
         private:
         char* m_UartOutput;
