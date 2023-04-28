@@ -69,14 +69,7 @@
         "valarray": "cpp",
         "variant": "cpp",
         "SConstruct": "python",
-        "SConscript": "python",
-        "bit": "cpp",
-        "compare": "cpp",
-        "concepts": "cpp",
-        "numbers": "cpp",
-        "ranges": "cpp",
-        "span": "cpp",
-        "stop_token": "cpp"
+        "SConscript": "python"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "C_Cpp.default.includePath": [
