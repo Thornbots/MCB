@@ -11,8 +11,8 @@ namespace ThornBots {
 
     bool CommunicationHandler::Initialize() {
         drivers->remote.initialize();
-        isInitialized = true;
-        return isInitialized;
+        m_IsInitialized = true;
+        return m_IsInitialized;
     }
 
     void CommunicationHandler::Update() {
@@ -63,15 +63,15 @@ namespace ThornBots {
     }
 
     bool CommunicationHandler::GetIsInitialized() {
-        return isInitialized;
+        return m_IsInitialized;
     }
 
     char* CommunicationHandler::GetKeysPressed() {
         std::vector<char> charVector;
 
-        for (int i = 0; i < intToKey.size(); i++) {
+        for (int i = 0; i < m_IntToKey.size(); i++) {
             if (drivers->remote.keyPressed(static_cast<tap::communication::serial::Remote::Key>(i))) {
-                charVector.push_back(intToKey.at(i));
+                charVector.push_back(m_IntToKey.at(i));
             };
         }
         
@@ -99,8 +99,8 @@ namespace ThornBots {
         uint8_t readBuff[RX_BUFFER_LEN];
         size_t read = drivers->uart.read(
             tap::communication::serial::Uart::UartPort::Uart1,
-            &(readBuff[readBuffNumBytes]),
-            RX_BUFFER_LEN - readBuffNumBytes);
+            &(readBuff[m_ReadBuffNumBytes]),
+            RX_BUFFER_LEN - m_ReadBuffNumBytes);
 
         char *arr;
 
@@ -109,17 +109,17 @@ namespace ThornBots {
             arr = new char[read];
             for (size_t i = 0; i < read; i++)
             {
-                arr[i] = readBuff[readBuffNumBytes + i];
+                arr[i] = readBuff[m_ReadBuffNumBytes + i];
             }
-            readBuffNumBytes += read;
+            m_ReadBuffNumBytes += read;
         }
         else
         {
             return NULL;
         }
-        if (readBuffNumBytes >= RX_BUFFER_LEN)
+        if (m_ReadBuffNumBytes >= RX_BUFFER_LEN)
         {
-            readBuffNumBytes = 0;
+            m_ReadBuffNumBytes = 0;
         }
         return arr;
     }

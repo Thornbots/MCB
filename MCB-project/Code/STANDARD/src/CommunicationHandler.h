@@ -49,9 +49,9 @@ namespace ThornBots {
 
         private:
         char* m_UartOutput;
-        size_t readBuffNumBytes = 0;
-        bool isInitialized = false;
-        std::map<int8_t, char> intToKey = {
+        size_t m_ReadBuffNumBytes = 0;
+        bool m_IsInitialized = false;
+        std::map<int8_t, char> m_IntToKey = {
             {0, 'W'},
             {1, 'S'},
             {2, 'A'},
