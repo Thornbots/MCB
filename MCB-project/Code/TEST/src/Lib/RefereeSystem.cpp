@@ -1,4 +1,5 @@
 #include "RefereeSystem.h"
+#include <stdint.h>
 
 namespace ThornBots{
     RefereeSystem::RefereeSystem(){

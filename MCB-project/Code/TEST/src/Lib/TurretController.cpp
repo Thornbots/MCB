@@ -1,3 +1,4 @@
+#pragma once
 #include "TurretController.h"
 #include <cmath>
 #include "tap/algorithms/smooth_pid.hpp"
@@ -16,9 +17,9 @@ namespace ThornBots {
 
     bool TurretController::Initialize(){
         // TODO: Replace me! Pass a reference to these classes into some function
-        this->m_CommunicationHandler = std::make_shared<CommunicationHandler>(new CommunicationHandler());
-        this->m_HardwareHandler = std::make_shared<HardwareHandler>(new HardwareHandler());
-        this->m_RefereeSystem = std::make_shared<RefereeSystem>(new RefereeSystem());
+        // this->m_CommunicationHandler = std::make_shared<CommunicationHandler>(new CommunicationHandler());
+        // this->m_HardwareHandler = std::make_shared<HardwareHandler>(new HardwareHandler());
+        // this->m_RefereeSystem = std::make_shared<RefereeSystem>(new RefereeSystem());
     }
 
     void TurretController::Rotate(float angle){
@@ -52,15 +53,19 @@ namespace ThornBots {
         }
     }
 
-    int TurretController::getPitchMotorSpeed(double target_angle) {
-        float position = tap::motor::DjiMotor::encoderToDegrees(this->m_HardwareHandler.get()->GetMotorAngle(Motor::MOTOR_PITCH));
-        float desired = 270.0f + target_angle;
+    uint32_t TurretController::getPitchMotorSpeed(double target_angle) {
+        const float ENC_RESOLUTION = 8192;
+
+        float encoder = (this->m_HardwareHandler.get()->GetMotorAngle(Motor::MOTOR_PITCH));
+        float position = (360.0f * (encoder)) / ENC_RESOLUTION; 
+        float desired = 270.0 + target_angle;
+        
         this->pitchPidController.runControllerDerivateError(desired - position, 1);
-        int speed = pitchPidController.getOutput();
+        uint32_t speed = pitchPidController.getOutput();
         return std::min(speed, motor_pitch_max_speed);
     }
 
-    int TurretController::getYawMotorSpeed(double desiredAngle, int motor_one_speed, int motor_four_speed) {
+    uint32_t TurretController::getYawMotorSpeed(double desiredAngle, uint32_t motor_one_speed, uint32_t motor_four_speed) {
         double kF = 0.42;
         float actualAngle = m_HardwareHandler.get()->GetMotorAngle(Motor::MOTOR_YAW);
         while(actualAngle-desiredAngle > 180){
@@ -72,19 +77,11 @@ namespace ThornBots {
         yawPidController.runControllerDerivateError(desiredAngle-actualAngle, 1);
         double tmp = actualAngle;
         // TODO: Should I constrain this value to [0, motor_yaw_max_speed]?
-        int speed = ((motor_one_speed - motor_four_speed) *kF) + yawPidController.getOutput();
+        uint32_t speed = ((motor_one_speed - motor_four_speed) *kF) + yawPidController.getOutput();
         return std::min(speed, motor_yaw_max_speed);
     }
 
-    int TurretController::getIndexerMotorSpeed() {
-        if(isShooting){
-            return motor_indexer_max_speed;
-        }else{
-            return 0; //No firing, so no spinny spin spin =)
-        }
-    }
-
-    int TurretController::getFlywheelsSpeed(){
+    uint32_t TurretController::getFlywheelsSpeed(){
         if(isShooting){
             return flywheel_max_speed;
         }else{
@@ -128,7 +125,7 @@ namespace ThornBots {
         return m_PitchAngle;
     }
 
-    int TurretController::getIndexerMotorSpeed() {
+    uint32_t TurretController::getIndexerMotorSpeed() {
         if(this->isShooting){
             return motor_indexer_max_speed;
         }else{

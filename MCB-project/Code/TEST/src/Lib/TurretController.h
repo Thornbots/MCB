@@ -14,6 +14,7 @@
 
 #include <chrono>
 #include <memory>
+#include <stdint.h>
 
 static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
 static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 130, 0, -25000, 0, 1000000, 1, 0, 1, 0, 0, 0 };    //{ 90, 10, 30, 1, 1000000, 1, 0, 1, 0, 0, 0 };
@@ -55,19 +56,19 @@ namespace ThornBots {
         tap::algorithms::SmoothPid yawPidController = tap::algorithms::SmoothPid(pid_yaw_conf);
         tap::algorithms::SmoothPid pitchPidController = tap::algorithms::SmoothPid(pid_pitch_conf);    
 
-        static constexpr int motor_yaw_max_speed = 500; //Not sure if this is the absolute maximum. need to test. Motor documentation says 320, but it can def spin faster than taproot's 320 rpm.
-        static constexpr int motor_indexer_max_speed = 6000;
-        static constexpr int flywheel_max_speed = 6700;
-        static constexpr int motor_pitch_max_speed = 900;
-        static constexpr int YAW_MOTOR_SCALAR = 500;
+        static constexpr uint32_t motor_yaw_max_speed = 500; //Not sure if this is the absolute maximum. need to test. Motor documentation says 320, but it can def spin faster than taproot's 320 rpm.
+        static constexpr uint32_t motor_indexer_max_speed = 6000;
+        static constexpr uint32_t flywheel_max_speed = 6700;
+        static constexpr uint32_t motor_pitch_max_speed = 900;
+        static constexpr uint32_t YAW_MOTOR_SCALAR = 500;
         bool isShooting = false;
     
         double current_yaw_angle = 180;
 
-        int getYawMotorSpeed(double desiredAngle, int motor_one_speed, int motor_two_speed);
-        int getPitchMotorSpeed(double target_angle);
-        int getIndexerMotorSpeed();
-        int getFlywheelsSpeed();
+        uint32_t getYawMotorSpeed(double desiredAngle, uint32_t motor_one_speed, uint32_t motor_two_speed);
+        uint32_t getPitchMotorSpeed(double target_angle);
+        uint32_t getIndexerMotorSpeed();
+        uint32_t getFlywheelsSpeed();
         void UpdateMotor(Motor motorID);
         
     };

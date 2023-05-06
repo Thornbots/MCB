@@ -1,19 +1,25 @@
 #include "EntryPoint.h"
+#include "RobotController.h"
+#include <stdint.h>
 
 namespace ThornBots{
     bool EntryPoint::Initialize(){
-        m_RobotController.Initialize();
+        // m_RobotController->Initialize();
+        return true;
     }
+    
     void EntryPoint::Update(uint32_t cycleTimeInUS = 10, bool runRobot = true){
         if(runRobot){
             
         }else{
-            m_RobotController.EmergencyStop();
+            // m_RobotController->EmergencyStop();
         }
     }
+
     void EntryPoint::Destroy(){
 
     }
+
     int main(){
         return 1;
     }

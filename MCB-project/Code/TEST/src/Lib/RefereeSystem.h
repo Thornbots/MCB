@@ -1,4 +1,6 @@
 #include "Core.h"
+#include <stdint.h>
+#pragma once
 
 namespace ThornBots{
     class RefereeSystem{

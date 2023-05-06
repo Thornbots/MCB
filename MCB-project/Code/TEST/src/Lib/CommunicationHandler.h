@@ -1,4 +1,5 @@
 #include "Core.h"
+#pragma once
 
 namespace ThornBots {
     class CommunicationHandler {
@@ -39,7 +40,7 @@ namespace ThornBots {
         bool GetLeftMouseClicked();      
 
         // Returns an integer pair of the mouse's coordinates               
-        std::pair<int, int> GetMouseCoords();
+        std::pair<int16_t, int16_t> GetMouseCoords();
 
         // Returns a character array of Uart's output 
         char* GetUartOutput();                      

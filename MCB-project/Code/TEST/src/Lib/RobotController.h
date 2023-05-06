@@ -1,4 +1,4 @@
-
+#pragma once
 #include "Core.h"
 #include "DriveTrainController.h"
 #include "TurretController.h"
@@ -11,7 +11,7 @@ namespace ThornBots{
             void Update();
             void EmergencyStop();
         private:
-            ThornBots::DriveTrainController *s_DriveTrainController = new ThornBots::DriveTrainController(drivers);
-            ThornBots::TurretController *s_TurretController = new ThornBots::TurretController(drivers);
+            ThornBots::DriveTrainController *s_DriveTrainController;
+            ThornBots::TurretController *s_TurretController;
     };
 }
