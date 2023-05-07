@@ -23,7 +23,7 @@ static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 400, 0.06, 80, 1500, 
 namespace ThornBots {
     class TurretController {
     public:
-        TurretController();
+        TurretController(std::shared_ptr<CommunicationHandler> ch, std::shared_ptr<HardwareHandler> hh, std::shared_ptr<RefereeSystem> rs);
         ~TurretController();
         bool Initialize();
         void Update();
@@ -38,10 +38,11 @@ namespace ThornBots {
         char GetOverride();
         float GetYawAngle();
         float GetPitchAngle();
+        std::shared_ptr<HardwareHandler> m_HardwareHandler; // TODO: Make private, this is just for testing purposes
     
     private:
         std::shared_ptr<CommunicationHandler> m_CommunicationHandler; 
-        std::shared_ptr<HardwareHandler> m_HardwareHandler;
+        
         std::shared_ptr<RefereeSystem> m_RefereeSystem;
         char m_OverrideStatus;
         bool m_IsShooting;

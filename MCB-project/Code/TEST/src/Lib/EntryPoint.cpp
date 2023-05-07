@@ -1,18 +1,15 @@
 #include "EntryPoint.h"
 #include "RobotController.h"
 #include <stdint.h>
+#include <iostream>
 
 namespace ThornBots{
-    bool EntryPoint::Initialize(){
-        // m_RobotController->Initialize();
-        return true;
-    }
     
     void EntryPoint::Update(uint32_t cycleTimeInUS = 10, bool runRobot = true){
         if(runRobot){
-            
-        }else{
-            // m_RobotController->EmergencyStop();
+            m_RobotController.Update();
+        } else{
+            m_RobotController.EmergencyStop();
         }
     }
 
@@ -20,7 +17,20 @@ namespace ThornBots{
 
     }
 
-    int main(){
+    static int main(){
+        RobotController rc = RobotController();
+        rc.Initialize();
+         {
+            using namespace std;
+            cout << "Yee" << endl;
+         }
+        
+
+        while(1){
+            rc.Update();
+        } 
+        // rc.EmergencyStop();
         return 1;
+
     }
 }

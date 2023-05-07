@@ -13,5 +13,6 @@ namespace ThornBots{
         private:
             ThornBots::DriveTrainController *s_DriveTrainController;
             ThornBots::TurretController *s_TurretController;
+            // ThornBots::HardwareHandler *s_HardwareHandler;
     };
 }

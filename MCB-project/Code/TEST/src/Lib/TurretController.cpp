@@ -12,7 +12,10 @@
 
 namespace ThornBots {
     
-    TurretController::TurretController() {
+    TurretController::TurretController(std::shared_ptr<CommunicationHandler> ch, std::shared_ptr<HardwareHandler> hh, std::shared_ptr<RefereeSystem> rs) {
+        m_CommunicationHandler = ch;
+        m_HardwareHandler = hh;
+        m_RefereeSystem = rs;
     }
 
     bool TurretController::Initialize(){

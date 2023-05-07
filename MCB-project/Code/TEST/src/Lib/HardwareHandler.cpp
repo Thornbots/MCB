@@ -1,7 +1,9 @@
 #include "HardwareHandler.h"
+#include "../Taproot/drivers.hpp"
+#include "../Taproot/drivers_singleton.hpp"
 
 namespace ThornBots {
-    HardwareHandler::HardwareHandler() {
+    HardwareHandler::HardwareHandler(src::Drivers *drivers) {
         //Motors on CAN1
         MotorArray[0][0] = new tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, false, "Can 1 motor 1", 0, 0);
         MotorArray[0][1] = new tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "Can 1 motor 2", 0, 0);
