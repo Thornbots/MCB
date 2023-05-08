@@ -26,7 +26,7 @@ namespace ThornBots {
     }
 
     int HardwareHandler::GetRow(Motor MotorID) {
-        return (int) MotorID % 10 == 1 ? 1 : 0;
+        return (int) MotorID / 10 >= 1 ? 1 : 0;
     }
 
     int HardwareHandler::GetColumn(Motor MotorID) {

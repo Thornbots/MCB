@@ -141,4 +141,8 @@ namespace ThornBots {
         
         free(messageCopy);
     }
+
+    bool CommunicationHandler::IsControllerConnected(){
+        return drivers->remote.isConnected();
+    }
 };

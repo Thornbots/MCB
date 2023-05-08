@@ -46,7 +46,9 @@ namespace ThornBots {
         char* GetUartOutput();                      
 
         // Sends messages to uart   
-        void SendUart(const char* message);             
+        void SendUart(const char* message);      
+
+        bool IsControllerConnected();       
 
         private:
         char* m_UartOutput;
