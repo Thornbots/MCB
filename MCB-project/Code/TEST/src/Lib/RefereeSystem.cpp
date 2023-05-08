@@ -1,12 +1,15 @@
 #include "RefereeSystem.h"
 #include <stdint.h>
+#include "../Taproot/drivers_singleton.hpp"
 
 namespace ThornBots{
-    RefereeSystem::RefereeSystem(){
-        m_isInitialized = true;
+    RefereeSystem::RefereeSystem(src::Drivers *drivers){
+        this->drivers = drivers;
+        m_isInitialized = false;
     }
 
     bool RefereeSystem::Initialize(){
+        drivers->refSerial.initialize();
         return m_isInitialized;
     }
     //General

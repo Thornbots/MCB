@@ -1,11 +1,12 @@
 #include "Core.h"
 #include <stdint.h>
+#include "../Taproot/drivers_singleton.hpp"
 #pragma once
 
 namespace ThornBots{
     class RefereeSystem{
         public:
-            RefereeSystem();
+            RefereeSystem(src::Drivers *drivers);
             //Init 
 
             bool Initialize();
@@ -49,5 +50,6 @@ namespace ThornBots{
             uint16_t GetBigShooterBarrelSpeedLimit();
         private:
             bool m_isInitialized;
+            src::Drivers *drivers;
     };
 }

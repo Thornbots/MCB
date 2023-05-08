@@ -4,9 +4,10 @@
 #include "Lib/CommunicationHandler.h"
 #include "Lib/RefereeSystem.h"
 #include "Taproot/drivers_singleton.hpp"
+#include "Lib/DriveTrainController.h"
+#include <memory>
 
 /*
-
 static constexpr tap::motor::MotorId MOTOR_ID = tap::motor::MOTOR1;
 static constexpr tap::can::CanBus CAN_BUS = tap::can::CanBus::CAN_BUS1;
 static constexpr int DESIRED_RPM = 3000;
@@ -55,9 +56,14 @@ int main(){
     using namespace ThornBots;
 
     HardwareHandler hh = HardwareHandler(drivers);
-    CommunicationHandler ch = CommunicationHandler();
-    RefereeSystem rs = RefereeSystem();
+    CommunicationHandler ch = CommunicationHandler(drivers);
+    RefereeSystem rs = RefereeSystem(drivers);
     
+    std::shared_ptr<CommunicationHandler> m_CommunicationHandler = std::make_shared<CommunicationHandler>(ch);
+    std::shared_ptr<RefereeSystem> m_RefereeSystem = std::make_shared<RefereeSystem>(rs);
+    std::shared_ptr<HardwareHandler> m_HardwareHandler = std::make_shared<HardwareHandler>(hh);
+
+    // DriveTrainController dtc = DriveTrainController(drivers, m_CommunicationHandler, m_HardwareHandler, m_RefereeSystem);
 
 
     hh.Initialize();

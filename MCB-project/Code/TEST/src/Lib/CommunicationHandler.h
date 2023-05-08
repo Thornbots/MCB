@@ -1,10 +1,11 @@
 #include "Core.h"
+#include "../Taproot/drivers_singleton.hpp"
 #pragma once
 
 namespace ThornBots {
     class CommunicationHandler {
         public:
-        CommunicationHandler();
+        CommunicationHandler(src::Drivers *drivers);
         ~CommunicationHandler() = default;
 
         // Initializes remote
@@ -54,6 +55,7 @@ namespace ThornBots {
         char* m_UartOutput;
         size_t m_ReadBuffNumBytes = 0;
         bool m_IsInitialized = false;
+        src::Drivers *drivers;
         std::map<int8_t, char> m_IntToKey = {
             {0, 'W'},
             {1, 'S'},

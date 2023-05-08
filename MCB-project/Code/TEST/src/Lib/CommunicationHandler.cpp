@@ -1,14 +1,17 @@
 #pragma once
 #include "CommunicationHandler.h"
 #include <stdint.h>
+#include "../Taproot/drivers_singleton.hpp"
 
 #define RX_BUFFER_LEN 128
 
 namespace ThornBots {
 
-    CommunicationHandler::CommunicationHandler() {
+    CommunicationHandler::CommunicationHandler(src::Drivers *drivers) {
         // initialization code for uart
+        this->drivers = drivers;
         drivers->uart.init<tap::communication::serial::Uart::UartPort::Uart1, 115200>();
+
     }
 
     bool CommunicationHandler::Initialize() {

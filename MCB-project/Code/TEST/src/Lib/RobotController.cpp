@@ -4,15 +4,15 @@ namespace ThornBots{
     RobotController::RobotController(){
         src::Drivers *drivers = src::DoNotUse_getDrivers();
 
-        std::shared_ptr<CommunicationHandler> m_CommunicationHandler = std::make_shared<CommunicationHandler>(CommunicationHandler());
-        std::shared_ptr<RefereeSystem> m_RefereeSystem = std::make_shared<RefereeSystem>(RefereeSystem());
-        std::shared_ptr<HardwareHandler> m_HardwareHandler = std::make_shared<HardwareHandler>(HardwareHandler(drivers));
+        // std::shared_ptr<CommunicationHandler> m_CommunicationHandler = std::make_shared<CommunicationHandler>(CommunicationHandler());
+        // std::shared_ptr<RefereeSystem> m_RefereeSystem = std::make_shared<RefereeSystem>(RefereeSystem(drivers));
+        // std::shared_ptr<HardwareHandler> m_HardwareHandler = std::make_shared<HardwareHandler>(HardwareHandler(drivers));
 
-        DriveTrainController dtc =  DriveTrainController(drivers, m_CommunicationHandler, m_HardwareHandler, m_RefereeSystem);
-        TurretController tc = TurretController(m_CommunicationHandler, m_HardwareHandler, m_RefereeSystem);
+        // DriveTrainController dtc =  DriveTrainController(drivers, m_CommunicationHandler, m_HardwareHandler, m_RefereeSystem);
+        // TurretController tc = TurretController(m_CommunicationHandler, m_HardwareHandler, m_RefereeSystem);
 
-        s_DriveTrainController = &dtc;
-        s_TurretController = &tc;
+        // s_DriveTrainController = &dtc;
+        // s_TurretController = &tc;
         
 
 
