@@ -39,11 +39,9 @@ namespace ThornBots {
         if (stickID[0] == 'R') {
             switch (stickID[1]) {
                 case 'H':
-                    drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
-                    break;
+                    return drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
                 case 'V':
-                    drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
-                    break;
+                    return drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
                 default:
                     return NULL;
             }
@@ -51,11 +49,10 @@ namespace ThornBots {
             switch (stickID[1])
             {
             case 'H':
-                drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
-                break;
+                return drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
+               
             case 'V':
-                drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
-                break;
+                return drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
             default:
                 return NULL;
             }

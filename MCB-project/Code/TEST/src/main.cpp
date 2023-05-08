@@ -2,6 +2,7 @@
 #include "tap/board/board.hpp"
 #include "Lib/HardwareHandler.h"
 #include "Lib/CommunicationHandler.h"
+#include "Lib/RefereeSystem.h"
 #include "Taproot/drivers_singleton.hpp"
 
 /*
@@ -41,7 +42,7 @@ int main()
 }
 */
 
-static constexpr int MAX_DESIRED_RPM = 300;
+static constexpr int MAX_DESIRED_RPM = 100;
 tap::arch::PeriodicMilliTimer sendMotorTimeout(2);
 tap::algorithms::SmoothPidConfig pidConf = tap::algorithms::SmoothPidConfig(20, 0, 0, 0, 8000, 1, 0, 1, 0);
 tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pidConf);
@@ -52,32 +53,48 @@ int main(){
     Board::initialize();
         
     using namespace ThornBots;
+
     HardwareHandler hh = HardwareHandler(drivers);
     CommunicationHandler ch = CommunicationHandler();
+    RefereeSystem rs = RefereeSystem();
+    
+
 
     hh.Initialize();
     ch.Initialize();
+    rs.Initialize();
 
-    int count = 0;
     while (1) {
         ch.Update();
         char values[] = {'R', 'V'};
+        
         int rpm = ch.GetStickValue(values) != 0 ? MAX_DESIRED_RPM : 0;
-        // count++;
-        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_LEFT), 1);
-        // hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_LEFT, static_cast<int32_t>(pidController.getOutput()));
-
-        // int rpm = ch.IsControllerConnected() ? MAX_DESIRED_RPM : 0;
-        // int rpm = MAX_DESIRED_RPM;
-        // tap::motor::MOTOR1
         pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_LEFT), 1);
         hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_LEFT, static_cast<int32_t>(pidController.getOutput()));
+
+        rpm = ch.IsControllerConnected() != 0 ? MAX_DESIRED_RPM : 0;
         pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_RIGHT), 1);
         hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_RIGHT, static_cast<int32_t>(pidController.getOutput()));
+
+        
+        rpm = rs.GetRobotHP() != 0 ? MAX_DESIRED_RPM : 0;
         pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_LEFT), 1);
         hh.SetMotorPowerOutput(Motor::MOTOR_BACK_LEFT, static_cast<int32_t>(pidController.getOutput()));
+
+        rpm = rs.IsBlueTeam() != 0 ? MAX_DESIRED_RPM : 0;
         pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_RIGHT), 1);
         hh.SetMotorPowerOutput(Motor::MOTOR_BACK_RIGHT, static_cast<int32_t>(pidController.getOutput()));
+
+        
+        
+        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_LEFT), 1);
+        // hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_LEFT, static_cast<int32_t>(pidController.getOutput()));
+        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_RIGHT), 1);
+        // hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_RIGHT, static_cast<int32_t>(pidController.getOutput()));
+        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_LEFT), 1);
+        // hh.SetMotorPowerOutput(Motor::MOTOR_BACK_LEFT, static_cast<int32_t>(pidController.getOutput()));
+        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_RIGHT), 1);
+        // hh.SetMotorPowerOutput(Motor::MOTOR_BACK_RIGHT, static_cast<int32_t>(pidController.getOutput()));
         hh.SendCanData();
         // meem
     }
