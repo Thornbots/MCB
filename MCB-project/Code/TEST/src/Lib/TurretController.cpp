@@ -1,4 +1,3 @@
-#pragma once
 #include "TurretController.h"
 #include <cmath>
 #include "tap/algorithms/smooth_pid.hpp"

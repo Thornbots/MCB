@@ -1,4 +1,3 @@
-#pragma once
 #include "CommunicationHandler.h"
 #include <stdint.h>
 #include "../Taproot/drivers_singleton.hpp"

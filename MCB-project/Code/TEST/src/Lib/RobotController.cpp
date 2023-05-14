@@ -33,7 +33,7 @@ namespace ThornBots{
     }
 
     void RobotController::EmergencyStop(){
-        s_DriveTrainController->stopMotors(true);
+        s_DriveTrainController->EmergencyStop();
         s_TurretController->EmergencyStop();
     }
 }

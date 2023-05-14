@@ -63,35 +63,33 @@ int main(){
     std::shared_ptr<RefereeSystem> m_RefereeSystem = std::make_shared<RefereeSystem>(rs);
     std::shared_ptr<HardwareHandler> m_HardwareHandler = std::make_shared<HardwareHandler>(hh);
 
-    // DriveTrainController dtc = DriveTrainController(drivers, m_CommunicationHandler, m_HardwareHandler, m_RefereeSystem);
-
+    DriveTrainController dtc = DriveTrainController(m_CommunicationHandler, m_HardwareHandler, m_RefereeSystem);
 
     hh.Initialize();
     ch.Initialize();
     rs.Initialize();
+    dtc.Initialize();
 
     while (1) {
         ch.Update();
         char values[] = {'R', 'V'};
         
-        int rpm = ch.GetStickValue(values) != 0 ? MAX_DESIRED_RPM : 0;
-        pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_LEFT), 1);
-        hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_LEFT, static_cast<int32_t>(pidController.getOutput()));
+        // int rpm = ch.GetStickValue(values) != 0 ? MAX_DESIRED_RPM : 0;
+        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_LEFT), 1);
+        // hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_LEFT, static_cast<int32_t>(pidController.getOutput()));
 
-        rpm = ch.IsControllerConnected() != 0 ? MAX_DESIRED_RPM : 0;
-        pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_RIGHT), 1);
-        hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_RIGHT, static_cast<int32_t>(pidController.getOutput()));
-
-        
-        rpm = rs.GetRobotHP() != 0 ? MAX_DESIRED_RPM : 0;
-        pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_LEFT), 1);
-        hh.SetMotorPowerOutput(Motor::MOTOR_BACK_LEFT, static_cast<int32_t>(pidController.getOutput()));
-
-        rpm = rs.IsBlueTeam() != 0 ? MAX_DESIRED_RPM : 0;
-        pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_RIGHT), 1);
-        hh.SetMotorPowerOutput(Motor::MOTOR_BACK_RIGHT, static_cast<int32_t>(pidController.getOutput()));
+        // rpm = ch.IsControllerConnected() != 0 ? MAX_DESIRED_RPM : 0;
+        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_RIGHT), 1);
+        // hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_RIGHT, static_cast<int32_t>(pidController.getOutput()));
 
         
+        // rpm = rs.GetRobotHP() != 0 ? MAX_DESIRED_RPM : 0;
+        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_LEFT), 1);
+        // hh.SetMotorPowerOutput(Motor::MOTOR_BACK_LEFT, static_cast<int32_t>(pidController.getOutput()));
+
+        // rpm = rs.IsBlueTeam() != 0 ? MAX_DESIRED_RPM : 0;
+        // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_RIGHT), 1);
+        // hh.SetMotorPowerOutput(Motor::MOTOR_BACK_RIGHT, static_cast<int32_t>(pidController.getOutput()));
         
         // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_LEFT), 1);
         // hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_LEFT, static_cast<int32_t>(pidController.getOutput()));
