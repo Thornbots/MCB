@@ -12,10 +12,8 @@
 #include "drivers_singleton.hpp"
 
 
-namespace ThornBots
-{
-DriveTrainController::DriveTrainController(tap::Drivers* m_driver)
-{
+namespace ThornBots {
+DriveTrainController::DriveTrainController(tap::Drivers* m_driver) {
     // TODO
     this->drivers = m_driver;
     motor_one.initialize();
@@ -95,7 +93,6 @@ double DriveTrainController::getScaledQuadratic(double magnitude) { return pow(m
  * into acount turning, WASD or conroller input,  beyblading, and translating)
  */
 void DriveTrainController::setMotorValues(
-    bool KeyboardAndMouseEnabled,
     bool doBeyblading,
     double right_stick_vert,
     double right_stick_horz,
@@ -103,7 +100,6 @@ void DriveTrainController::setMotorValues(
     double left_stick_horz,
     std::string input,
     float yaw_angle,
-    bool isRightStickMid,
     int rightSwitchState,
     int leftSwitchValue)
 {
@@ -123,161 +119,6 @@ void DriveTrainController::setMotorValues(
         } else {
             beyblading_factor = 0.7;
         }
-    }
-
-    if (KeyboardAndMouseEnabled)
-    {
-        //TODO redo all this
-        char prev = '\0';
-        if (input.length() >= 2)
-        {
-            prev = input[input.length() - 2];
-        }
-
-        switch (input.back())
-        {
-            case ('w'):
-            {
-                right_stick_vert = 1;
-                switch (prev)
-                {
-                    case ('a'):
-                    {
-                        // Go front left
-                        right_stick_horz = -1;
-                        break;
-                    }
-                    case ('s'):
-                    {
-                        // Ignore this, and just make the robot go spinny forward
-                        right_stick_horz = 0;
-                        break;
-                    }
-                    case ('d'):
-                    {
-                        // Go front right
-                        right_stick_horz = 1;
-                        break;
-                    }
-                    default:
-                    {
-                        // No other character, so make it go spinny forward
-                        right_stick_horz = 0;
-                        break;
-                    }
-                }
-                break;
-            }  // End 'w'
-
-            case ('a'):
-            {
-                right_stick_horz = -1;
-                switch (prev)
-                {
-                    case ('w'):
-                    {
-                        // Go front left
-                        right_stick_vert = 1;
-                        break;
-                    }
-                    case ('s'):
-                    {
-                        // Go back left
-                        right_stick_vert = -1;
-                        break;
-                    }
-                    case ('d'):
-                    {
-                        // Ignore this, and just make the robot go spinny leftyy
-                        right_stick_vert = 0;
-                        break;
-                    }
-                    default:
-                    {
-                        // No other character, so make it go spinny left
-                        right_stick_vert = 0;
-                        break;
-                    }
-                }
-                break;
-            }  // End 'a'
-
-            case ('s'):
-            {
-                right_stick_vert = -1;
-                switch (prev)
-                {
-                    case ('a'):
-                    {
-                        // Go back left
-                        right_stick_horz = -1;
-                        break;
-                    }
-                    case ('w'):
-                    {
-                        // Ignore this, and just make the robot go spinny backward
-                        right_stick_horz = 0;
-                        break;
-                    }
-                    case ('d'):
-                    {
-                        // Go back right
-                        right_stick_horz = 1;
-                        break;
-                    }
-                    default:
-                    {
-                        // No other character, so make it go spinny backward
-                        right_stick_horz = 0;
-                        break;
-                    }
-                }
-                break;
-            }  // End 's'
-
-            case ('d'):
-            {
-                right_stick_horz = 1;
-                switch (prev)
-                {
-                    case ('a'):
-                    {
-                        // Ignore this and make it go spinny right
-                        right_stick_vert = 0;
-                        break;
-                    }
-                    case ('w'):
-                    {
-                        // Go front right
-                        right_stick_vert = 1;
-                        break;
-                    }
-                    case ('s'):
-                    {
-                        // Go back right
-                        right_stick_vert = -1;
-                        break;
-                    }
-                    default:
-                    {
-                        // No other character, so make it go spinny right
-                        right_stick_vert = 0;
-                        break;
-                    }
-                }
-                break;
-            }  // End 'd'
-            default:
-            {
-                // No characters, so just do nothing.
-                right_stick_horz = 0;
-                right_stick_vert = 0;
-                break;
-            }  // End default
-
-        }
-    } else { //keyboard and mouse not enabled
- 
     }
 
     int motor_one_new_speed =   getMotorOneSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);

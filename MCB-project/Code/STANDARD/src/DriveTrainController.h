@@ -17,7 +17,7 @@ namespace ThornBots {
     public:
         DriveTrainController(tap::Drivers* driver);
         ~DriveTrainController();
-        void setMotorValues(bool useWASD, bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle, bool isRightStickMid, int rightSwitchState, int leftSwitchValue);
+        void setMotorValues(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, std::string input, float yaw_angle, bool isRightStickMid, int rightSwitchState, int leftSwitchValue);
         void setMotorSpeeds(bool sendMotorTimeout);
         void stopMotors(bool sendMotorTimeout);
         tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
@@ -68,6 +68,7 @@ namespace ThornBots {
         double beyblading_factor = 0.7; //How much of the max_speed beyblading will eat up while robot is not translating range this from [0, 1]
         static constexpr double PI = 3.14159; //Everyone likes Pi!
         bool use_exponentional_controlling = true;
+
         tap::Drivers *drivers;
         tap::motor::DjiMotor motor_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "PURDON'T!", 0, 0);
         tap::motor::DjiMotor motor_three = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, true, "Put the possum in his room", 0, 0);

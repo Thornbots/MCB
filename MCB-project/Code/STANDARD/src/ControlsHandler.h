@@ -11,6 +11,7 @@ namespace ThornBots {
         ControlsHandler(tap::Drivers* m_driver);
         //Destructor
         ~ControlsHandler();
+        
         /*
         * Main function for the ControlsHandler class. This function will be called in the main.cpp file.
         */

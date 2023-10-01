@@ -61,42 +61,8 @@ int main() {
         }                       // Stop reading from the IMU
 
         if (drivers->remote.isConnected()) {  // If the remote is On and connected do the following
-
-            controlsHandler->main();
-
-            // Call the setMotorValues and setMotorSpeeds function in the DriveTrainController class
-            driveTrainController->setMotorValues(
-                KeyboardAndMouseEnabled,
-                doBeyblading,
-                right_stick_vert,
-                right_stick_horz,
-                left_stick_vert,
-                left_stick_horz,
-                controlString,
-                turretController->getYawEncoderAngle(),
-                isRightStickMid,
-                rightSwitchValue,
-                leftSwitchValue);
-            driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-
-                // Call the setMotorValues and setMotor Speeds function in the TurretController class
-                turretController->setMotorValues(
-                    KeyboardAndMouseEnabled,
-                    doBeyblading,
-                    angleOffset,
-                    -right_stick_vert,
-                    right_stick_horz,
-                    driveTrainController->motor_one.getShaftRPM(),
-                    driveTrainController->motor_four.getShaftRPM(),
-                    wheel_value,
-                    isRightStickMid,
-                    isLeftStickUp,
-                    rightSwitchValue,
-                    leftSwitchValue);
-                turretController->setMotorSpeeds(sendTurretTimeout.execute());
-        }
-        else
-        {  // Remote not connected, so have everything turn off (Saftey features!)
+             controlsHandler->main();
+        } else {  // Remote not connected, so have everything turn off (Saftey features!)
             driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
             turretController->stopMotors(sendTurretTimeout.execute());
         }

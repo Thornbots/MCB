@@ -40,23 +40,40 @@ namespace ThornBots {
             findRightSwitchState();
 
             // Get Current state of the Right Stick on the remote and set the appropriate
-            right_stick_vert = drivers->remote.getChannel(
-                tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
-            right_stick_horz = drivers->remote.getChannel(
-                tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
+            right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
+            right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
 
             // Get Current state of the Left Stick on the remote and set the appropriate
-            left_stick_vert = drivers->remote.getChannel(
-                tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
-            left_stick_horz = drivers->remote.getChannel(
-                tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
+            left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
+            left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
 
             // Get Current state of the wheel on the remote and set the appropriate
             wheel_value = drivers->remote.getWheel();
 
-            
-
         }
+
+         // Call the setMotorValues and setMotorSpeeds function in the DriveTrainController class
+        driveTrainController->setMotorValues(
+            right_stick_vert,
+            right_stick_horz,
+            left_stick_vert,
+            left_stick_horz,
+            turretController->getYawEncoderAngle(),
+            rightSwitchValue,
+            leftSwitchValue);
+        driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
+
+        // Call the setMotorValues and setMotor Speeds function in the TurretController class
+        turretController->setMotorValues(
+            angleOffset,
+            -right_stick_vert,
+            right_stick_horz,
+            driveTrainController->motor_one.getShaftRPM(),
+            driveTrainController->motor_four.getShaftRPM(),
+            wheel_value,
+            rightSwitchValue,
+            leftSwitchValue);
+        turretController->setMotorSpeeds(sendTurretTimeout.execute());
 
     }
 
