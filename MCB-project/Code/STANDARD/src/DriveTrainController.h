@@ -43,6 +43,7 @@ namespace ThornBots {
         inline int getMaxSpeed() { return max_speed; }
         //STOP getters and setters
 
+        //Functions
         int getMotorOneSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz);
         int getMotorTwoSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz);
         int getMotorThreeSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz);
@@ -52,6 +53,7 @@ namespace ThornBots {
         double getAngle(double xPosition, double yPosition);
         double getMagnitude(double xPosition, double yPosition);
         double getScaledQuadratic(double magnitude);
+        double updateMotorSpeeds(double MotorNewSpeed, double MotorCurrentSpeed, int slewRate);
         
         //float power_limit;
         float yaw_motor_angle = 0.0f;

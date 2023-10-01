@@ -252,8 +252,7 @@ int main()
                 // Get Current state of the wheel on the remote and set the appropriate
                 wheel_value = drivers->remote.getWheel();
 
-                // Call the setMotorValues and setMotorSpeeds function in the DriveTrainController
-                // class
+                // Call the setMotorValues and setMotorSpeeds function in the DriveTrainController class
                 driveTrainController->setMotorValues(
                     KeyboardAndMouseEnabled,
                     doBeyblading,

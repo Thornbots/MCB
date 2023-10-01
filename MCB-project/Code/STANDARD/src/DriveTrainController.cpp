@@ -407,8 +407,7 @@ void DriveTrainController::stopMotors(bool sendMotorTimeout)
  * To move in relation to the front of the vechile (motors 1 and 2 are in the front), the equation
  * for the speed of the MotorSetOne is sin(angle + pi/4) * MaxSpeed * magnitude
  */
-int DriveTrainController::getMotorSetOneTranslatingSpeed(double xPosition, double yPosition)
-{
+int DriveTrainController::getMotorSetOneTranslatingSpeed(double xPosition, double yPosition) {
     float refined_angle = yaw_motor_angle + REFINED_ANGLE_OFFSET;
     if (refined_angle < 0) refined_angle += 360.0f;
     double angle = getAngle(xPosition, yPosition) + (PI * refined_angle / 180.0f);
@@ -424,8 +423,7 @@ int DriveTrainController::getMotorSetOneTranslatingSpeed(double xPosition, doubl
  * front wheel) If you want a visual intrepretation, it's the red wheels at
  * https://seamonsters-2605.github.io/archive/mecanum/
  */
-int DriveTrainController::getMotorSetTwoTranslatingSpeed(double xPosition, double yPosition)
-{
+int DriveTrainController::getMotorSetTwoTranslatingSpeed(double xPosition, double yPosition) {
     float refined_angle = yaw_motor_angle + REFINED_ANGLE_OFFSET;
     if (refined_angle < 0) refined_angle += 360.0f;
     double angle = getAngle(xPosition, yPosition) + (PI * refined_angle / 180.0f);
