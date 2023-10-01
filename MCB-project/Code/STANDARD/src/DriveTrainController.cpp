@@ -93,19 +93,21 @@ double DriveTrainController::getScaledQuadratic(double magnitude) { return pow(m
  * into acount turning, WASD or conroller input,  beyblading, and translating)
  */
 void DriveTrainController::setMotorValues(
-    bool doBeyblading,
     double right_stick_vert,
     double right_stick_horz,
     double left_stick_vert,
     double left_stick_horz,
-    std::string input,
     float yaw_angle,
     int rightSwitchState,
     int leftSwitchValue)
 {
 
     yaw_motor_angle = yaw_angle;
-    lockRotation = isRightStickMid;
+    if(rightSwitchState == 2) {
+        lockRotation = true;
+    } else {
+        lockRotation = false;
+    }
     lockDrivetrain = false;  // (rightSwitchState == 2);
 
     bool beyBladeEnabled = false;

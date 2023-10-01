@@ -11,7 +11,7 @@ namespace ThornBots {
         ControlsHandler(tap::Drivers* m_driver);
         //Destructor
         ~ControlsHandler();
-        
+
         /*
         * Main function for the ControlsHandler class. This function will be called in the main.cpp file.
         */
@@ -22,11 +22,14 @@ namespace ThornBots {
         bool keyboardAndMouseEnabled = false;
         int leftSwitchValue;
         int rightSwitchValue;
+        int16_t wheel_value = 0;
         double right_stick_vert = 0.0;
         double right_stick_horz = 0.0;
         double left_stick_vert = 0.0;
         double left_stick_horz = 0.0;
-        int16_t wheel_value = 0;
+
+        //temp to be deleted
+        float temp_yaw_angle = 0.0;
 
         tap::Drivers* drivers;
 

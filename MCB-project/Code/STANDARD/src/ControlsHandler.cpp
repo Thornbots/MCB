@@ -1,10 +1,18 @@
 #include "ControlsHandler.h"
 
+#include "DriveTrainController.h"
+#include "TurretController.h"
+
 
 
 namespace ThornBots {
     ControlsHandler::ControlsHandler(tap::Drivers* m_driver) {
         this->drivers = m_driver;
+
+        //temp to be deleted
+        bool KeyboardAndMouseEnabled = false;
+        bool doBeyblading = false;
+        float temp_yaw_angle = 0.0;
     }
 
     ControlsHandler::~ControlsHandler() {
@@ -51,29 +59,34 @@ namespace ThornBots {
             wheel_value = drivers->remote.getWheel();
 
         }
+        temp_yaw_angle = ThornBots::turretController->getYawEncoderAngle()
 
-         // Call the setMotorValues and setMotorSpeeds function in the DriveTrainController class
+        // Call the setMotorValues and setMotorSpeeds function in the DriveTrainController class
         driveTrainController->setMotorValues(
             right_stick_vert,
             right_stick_horz,
             left_stick_vert,
             left_stick_horz,
-            turretController->getYawEncoderAngle(),
+            temp_yaw_angle,
             rightSwitchValue,
             leftSwitchValue);
-        driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
+
+        //TODO Fix the following codes to get robot to work again
+        //driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
 
         // Call the setMotorValues and setMotor Speeds function in the TurretController class
-        turretController->setMotorValues(
-            angleOffset,
-            -right_stick_vert,
-            right_stick_horz,
-            driveTrainController->motor_one.getShaftRPM(),
-            driveTrainController->motor_four.getShaftRPM(),
-            wheel_value,
-            rightSwitchValue,
-            leftSwitchValue);
-        turretController->setMotorSpeeds(sendTurretTimeout.execute());
+        // turretController->setMotorValues(
+        //     KeyboardAndMouseEnabled,
+        //     doBeyblading,
+        //     angleOffset,
+        //     -right_stick_vert,
+        //     right_stick_horz,
+        //     driveTrainController->motor_one.getShaftRPM(),
+        //     driveTrainController->motor_four.getShaftRPM(),
+        //     wheel_value,
+        //     rightSwitchValue,
+        //     leftSwitchValue);
+        // turretController->setMotorSpeeds(sendTurretTimeout.execute());
 
     }
 
