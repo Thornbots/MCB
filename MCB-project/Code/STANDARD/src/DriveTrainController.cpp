@@ -111,6 +111,7 @@ void DriveTrainController::setMotorValues(
     yaw_motor_angle = yaw_angle;
     lockRotation = isRightStickMid;
     lockDrivetrain = false;  // (rightSwitchState == 2);
+
     bool beyBladeEnabled = false;
     int slew_rate = 4;
 
@@ -279,35 +280,15 @@ void DriveTrainController::setMotorValues(
  
     }
 
-    int motor_one_new_speed = getMotorOneSpeedWithCont(
-        beyBladeEnabled,
-        right_stick_vert,
-        right_stick_horz,
-        left_stick_vert,
-        left_stick_horz);
-    int motor_two_new_speed = getMotorTwoSpeedWithCont(
-        beyBladeEnabled,
-        right_stick_vert,
-        right_stick_horz,
-        left_stick_vert,
-        left_stick_horz);
-    int motor_three_new_speed = getMotorThreeSpeedWithCont(
-        beyBladeEnabled,
-        right_stick_vert,
-        right_stick_horz,
-        left_stick_vert,
-        left_stick_horz);
-    int motor_four_new_speed = getMotorFourSpeedWithCont(
-        beyBladeEnabled,
-        right_stick_vert,
-        right_stick_horz,
-        left_stick_vert,
-        left_stick_horz);
+    int motor_one_new_speed =   getMotorOneSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+    int motor_two_new_speed =   getMotorTwoSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+    int motor_three_new_speed = getMotorThreeSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+    int motor_four_new_speed =  getMotorFourSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
 
-    motor_one_speed = updateMotorSpeeds(motor_one_new_speed, motor_one_speed, slew_rate);
-    motor_two_speed = updateMotorSpeeds(motor_two_new_speed, motor_two_speed, slew_rate);
+    motor_one_speed =   updateMotorSpeeds(motor_one_new_speed, motor_one_speed, slew_rate);
+    motor_two_speed =   updateMotorSpeeds(motor_two_new_speed, motor_two_speed, slew_rate);
     motor_three_speed = updateMotorSpeeds(motor_three_new_speed, motor_three_speed, slew_rate);
-    motor_four_speed = updateMotorSpeeds(motor_four_new_speed, motor_four_speed, slew_rate);
+    motor_four_speed =  updateMotorSpeeds(motor_four_new_speed, motor_four_speed, slew_rate);
 
     /*
     Power Limiting w/Receiver
@@ -346,64 +327,6 @@ double DriveTrainController::updateMotorSpeeds(double MotorNewSpeed, double Moto
         }
     }
         return MotorNewSpeed;
-
-       // if (abs(motor_one_new_speed - motor_one_speed) > slew_rate)
-    // {
-    //     if (motor_one_new_speed > motor_one_speed)
-    //     {
-    //         motor_one_speed += slew_rate;
-    //     }
-    //     else
-    //     {
-    //         motor_one_speed -= slew_rate;
-    //     }
-    // }
-    // else
-    // {
-    //     motor_one_speed = motor_one_new_speed;
-    // }
-
-    // if (abs(motor_two_new_speed - motor_two_speed) > slew_rate)
-    // {
-    //     if (motor_two_new_speed > motor_two_speed)
-    //     {
-    //         motor_two_speed += slew_rate;
-    //     }
-    //     else
-    //     {
-    //         motor_two_speed -= slew_rate;
-    //     }
-    // }
-    // else
-    // {
-    //     motor_two_speed = motor_two_new_speed;
-    // }
-    // if (abs(motor_three_new_speed - motor_three_speed) > slew_rate)
-    // {
-    //     if (motor_three_new_speed > motor_three_speed)
-    //     {
-    //         motor_three_speed += slew_rate;
-    //     }
-    //     else
-    //     {
-    //         motor_three_speed -= slew_rate;
-    //     }
-    // }
-    // else
-    // {
-    //     motor_three_speed = motor_three_new_speed;
-    // }
-    // if (abs(motor_four_new_speed - motor_four_speed) > slew_rate)
-    // {
-    //     if (motor_four_new_speed > motor_four_speed) {
-    //         motor_four_speed += slew_rate;
-    //     }
-    //     else {
-    //         motor_four_speed -= slew_rate;
-    //     }
-    // } else {
-    //     motor_four_speed = motor_four_new_speed;
-    // }
 }
 
 /**
