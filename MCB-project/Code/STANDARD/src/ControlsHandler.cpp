@@ -1,13 +1,17 @@
-#include "ControlsHandler.h"
+#include <cmath>
 
+#include "ControlsHandler.h"
 #include "DriveTrainController.h"
 #include "TurretController.h"
 
 
 
+
 namespace ThornBots {
-    ControlsHandler::ControlsHandler(tap::Drivers* m_driver) {
+    ControlsHandler::ControlsHandler(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController) {
         this->drivers = m_driver;
+        this->driveTrainController = driveTrainController;
+        this->turretController = turretController;
 
         //temp to be deleted
         bool KeyboardAndMouseEnabled = false;
@@ -58,8 +62,10 @@ namespace ThornBots {
             // Get Current state of the wheel on the remote and set the appropriate
             wheel_value = drivers->remote.getWheel();
 
+            
+
         }
-        temp_yaw_angle = ThornBots::turretController->getYawEncoderAngle()
+        temp_yaw_angle = turretController->getYawEncoderAngle();
 
         // Call the setMotorValues and setMotorSpeeds function in the DriveTrainController class
         driveTrainController->setMotorValues(
@@ -71,9 +77,9 @@ namespace ThornBots {
             rightSwitchValue,
             leftSwitchValue);
 
-        //TODO Fix the following codes to get robot to work again
-        //driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
+        driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
 
+        //TODO Fix the following codes to get robot turret to work again
         // Call the setMotorValues and setMotor Speeds function in the TurretController class
         // turretController->setMotorValues(
         //     KeyboardAndMouseEnabled,
@@ -86,8 +92,13 @@ namespace ThornBots {
         //     wheel_value,
         //     rightSwitchValue,
         //     leftSwitchValue);
-        // turretController->setMotorSpeeds(sendTurretTimeout.execute());
+        turretController->setMotorSpeeds(sendTurretTimeout.execute());
 
+    }
+
+    double ControlsHandler::getAngle(double xPosition, double yPosition) {
+        double angle = atan2(yPosition, xPosition) + PI / 2.0;
+        return angle;
     }
 
     bool ControlsHandler::toggleKeyboardAndMouse() {

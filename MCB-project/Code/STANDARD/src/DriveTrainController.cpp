@@ -35,7 +35,6 @@ DriveTrainController::~DriveTrainController() {
 double DriveTrainController::getAngle(double xPosition, double yPosition)
 {
     double angle = 0;
-
     if(xPosition == 0) {
         if(yPosition == 0) {
             return angle;

@@ -4,11 +4,14 @@
 #include <cmath>
 #include "drivers_singleton.hpp"
 
+tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
+tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
+
 namespace ThornBots {
     class ControlsHandler {
     public:
         //Constructor
-        ControlsHandler(tap::Drivers* m_driver);
+        ControlsHandler(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
         //Destructor
         ~ControlsHandler();
 
@@ -19,6 +22,7 @@ namespace ThornBots {
 
 
     private:
+        //Variables
         bool keyboardAndMouseEnabled = false;
         int leftSwitchValue;
         int rightSwitchValue;
@@ -28,12 +32,24 @@ namespace ThornBots {
         double left_stick_vert = 0.0;
         double left_stick_horz = 0.0;
 
+        static constexpr double PI = 3.14159;
+
+
+        tap::Drivers* drivers;
+        ThornBots::DriveTrainController *driveTrainController;
+        ThornBots::TurretController *turretController;
+
         //temp to be deleted
         float temp_yaw_angle = 0.0;
 
-        tap::Drivers* drivers;
 
         //Functions
+
+        /*
+        * This function will find relation of a point to the orgin and return the angle in degrees. Furthermore
+        * it will set the 0 refrence aggle to the front of the drivetrain.
+        */
+        double getAngle(double xPosition, double yPosition);
         
         /**
         * Reads inputs from the keyboard and mouse and checks to see if KBM(keyboard and Mouse) mode should

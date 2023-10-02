@@ -43,8 +43,8 @@ int main() {
     drivers->bmi088.initialize(500, 0.0, 0.0);
     drivers->bmi088.requestRecalibration();
     ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
-    ThornBots::ControlsHandler *controlsHandler = new ThornBots::ControlsHandler(drivers);
     ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
+    ThornBots::ControlsHandler *controlsHandler = new ThornBots::ControlsHandler(drivers, driveTrainController, turretController);
 
     while (1) {
         
