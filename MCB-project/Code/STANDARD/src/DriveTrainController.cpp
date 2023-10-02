@@ -27,7 +27,7 @@ DriveTrainController::~DriveTrainController() {
 }  // Not going to use this. So look at a cool video of a doggie instead:
    // https://youtu.be/dQw4w9WgXcQ
 
-/**
+/** TODO REMOVE THIS!!!!
  * Returns the angle, in radians, that the vector defined by the
  * given x and y coordinates make from the positive x axis. (Ranging from 0 to 2*Pi in the CCW
  * direction)
@@ -68,7 +68,7 @@ double DriveTrainController::getAngle(double xPosition, double yPosition)
     return (double)(angle);
 }
 
-/**
+/** TODO REMOVE THIS!!!!
  * Returns the hypotenuse gives two sides to a right triangle
  */
 double DriveTrainController::getMagnitude(double xPosition, double yPosition) {
@@ -255,7 +255,7 @@ int DriveTrainController::getMotorSetOneTranslatingSpeed(double xPosition, doubl
     if (lockDrivetrain) angle = yaw_motor_angle;
     double magnitude = getMagnitude(xPosition, yPosition);
     // if (lockDrivetrain) magnitude = 0.5;
-    return (max_speed * magnitude * sin(angle + (PI / (double)4.0)));
+    return (MAX_SPEED * magnitude * sin(angle + (PI / (double)4.0)));
 }
 
 /**
@@ -271,7 +271,7 @@ int DriveTrainController::getMotorSetTwoTranslatingSpeed(double xPosition, doubl
     if (lockDrivetrain) angle = yaw_motor_angle;
     double magnitude = getMagnitude(xPosition, yPosition);
     // if (lockDrivetrain) magnitude = 0.5;
-    return (max_speed * magnitude * sin(angle - (PI / (double)4.0)));
+    return (MAX_SPEED * magnitude * sin(angle - (PI / (double)4.0)));
 }
 
 int DriveTrainController::getMotorOneSpeedWithCont(
@@ -283,16 +283,16 @@ int DriveTrainController::getMotorOneSpeedWithCont(
 {
     if (isBeyblading)
     {
-        double tmp = beyblading_factor * max_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= max_speed) ? tmp : ((int)tmp > 0) ? max_speed : -1 * max_speed;
+        double tmp = beyblading_factor * MAX_SPEED + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
+        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
     else
     {
-        double rotation_speed = right_stick_horz * max_speed;
+        double rotation_speed = right_stick_horz * MAX_SPEED;
         if (lockRotation) rotation_speed = 0;
         double tmp =
             rotation_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= max_speed) ? tmp : ((int)tmp > 0) ? max_speed : -1 * max_speed;
+        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
 }
 
@@ -305,17 +305,17 @@ int DriveTrainController::getMotorTwoSpeedWithCont(
 {
     if (doBeyblading)
     {
-        double tmp = -1 * beyblading_factor * max_speed +
+        double tmp = -1 * beyblading_factor * MAX_SPEED +
                      getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= max_speed) ? tmp : ((int)tmp > 0) ? max_speed : -1 * max_speed;
+        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
     else
     {
-        double rotation_speed = -1 * right_stick_horz * max_speed;
+        double rotation_speed = -1 * right_stick_horz * MAX_SPEED;
         if (lockRotation) rotation_speed = 0;
         double tmp =
             rotation_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= max_speed) ? tmp : ((int)tmp > 0) ? max_speed : -1 * max_speed;
+        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
 }
 
@@ -328,17 +328,17 @@ int DriveTrainController::getMotorThreeSpeedWithCont(
 {
     if (doBeyblading)
     {
-        double tmp = beyblading_factor * max_speed +
+        double tmp = beyblading_factor * MAX_SPEED +
                      getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= max_speed) ? tmp : ((int)tmp > 0) ? max_speed : -1 * max_speed;
+        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
     else
     {
-        double rotation_speed = right_stick_horz * max_speed;
+        double rotation_speed = right_stick_horz * MAX_SPEED;
         if (lockRotation) rotation_speed = 0;
         double tmp =
             rotation_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= max_speed) ? tmp : ((int)tmp > 0) ? max_speed : -1 * max_speed;
+        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
 }
 
@@ -351,17 +351,17 @@ int DriveTrainController::getMotorFourSpeedWithCont(
 {
     if (doBeyblading)
     {
-        double tmp = -1.0 * beyblading_factor * max_speed +
+        double tmp = -1.0 * beyblading_factor * MAX_SPEED +
                      getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= max_speed) ? tmp : ((int)tmp > 0) ? max_speed : -1 * max_speed;
+        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
     else
     {
-        double rotation_speed = -1 * right_stick_horz * max_speed;
+        double rotation_speed = -1 * right_stick_horz * MAX_SPEED;
         if (lockRotation) rotation_speed = 0;
         double tmp =
             rotation_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= max_speed) ? tmp : ((int)tmp > 0) ? max_speed : -1 * max_speed;
+        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
 }
 }  // namespace ThornBots

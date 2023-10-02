@@ -176,6 +176,6 @@ namespace ThornBots {
     }
 
     void TurretController::reZero(){
-        current_yaw_angle = 180;
+        current_yaw_angle = 0;
     }
 };

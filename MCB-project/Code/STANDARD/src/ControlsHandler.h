@@ -18,11 +18,18 @@ namespace ThornBots {
         /*
         * Main function for the ControlsHandler class. This function will be called in the main.cpp file.
         */
-        void main();
+        void update();
 
 
     private:
         //Variables
+        static constexpr double BEYBLADE_FACTOR = 0.7; //Change this to change the maximum factor of speed of the beyblading
+        static constexpr double PI = 3.14159;
+        static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
+
+        
+        
+        double beybladeFactor = 0;
         bool keyboardAndMouseEnabled = false;
         int leftSwitchValue;
         int rightSwitchValue;
@@ -32,7 +39,6 @@ namespace ThornBots {
         double left_stick_vert = 0.0;
         double left_stick_horz = 0.0;
 
-        static constexpr double PI = 3.14159;
 
 
         tap::Drivers* drivers;

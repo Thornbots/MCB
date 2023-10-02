@@ -61,7 +61,7 @@ int main() {
         }                       // Stop reading from the IMU
 
         if (drivers->remote.isConnected()) {  // If the remote is On and connected do the following
-             controlsHandler->main();
+             controlsHandler->update();
         } else {  // Remote not connected, so have everything turn off (Saftey features!)
             driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
             turretController->stopMotors(sendTurretTimeout.execute());

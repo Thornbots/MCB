@@ -22,7 +22,7 @@ namespace ThornBots {
     ControlsHandler::~ControlsHandler() {
     }
 
-    void ControlsHandler::main() {
+    void ControlsHandler::update() {
 
         keyboardAndMouseEnabled = toggleKeyboardAndMouse();
 
@@ -62,35 +62,56 @@ namespace ThornBots {
             // Get Current state of the wheel on the remote and set the appropriate
             wheel_value = drivers->remote.getWheel();
 
+            temp_yaw_angle = turretController->getYawEncoderAngle();
+
         }
-        temp_yaw_angle = turretController->getYawEncoderAngle();
 
-        // Call the setMotorValues and setMotorSpeeds function in the DriveTrainController class
-        driveTrainController->setMotorValues(
-            right_stick_vert,
-            right_stick_horz,
-            left_stick_vert,
-            left_stick_horz,
-            temp_yaw_angle,
-            rightSwitchValue,
-            leftSwitchValue);
+        switch(rightSwitchValue) {
+            case 0: //Turret is locked to the drivebase (Turret moves drivetrain follows)
+                //TODO
+                break;
+            case 1: //Turret is independent of the drivebase
+                //left stick translates the robot
+                //right stick handle pitch and yaw of the turret
 
-        driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
+                //step 1 convert to pitch and yaw of the right stick
+                double distance = right_stick_vert;
+                double turnSpeed = MAX_SPEED * distance;
 
-        //TODO Fix the following codes to get robot turret to work again
-        // Call the setMotorValues and setMotor Speeds function in the TurretController class
-        // turretController->setMotorValues(
-        //     KeyboardAndMouseEnabled,
-        //     doBeyblading,
-        //     angleOffset,
-        //     -right_stick_vert,
-        //     right_stick_horz,
-        //     driveTrainController->motor_one.getShaftRPM(),
-        //     driveTrainController->motor_four.getShaftRPM(),
-        //     wheel_value,
-        //     rightSwitchValue,
-        //     leftSwitchValue);
-        turretController->setMotorSpeeds(sendTurretTimeout.execute());
+                //step2 find angle and speed of left stick
+                double translationAngle = getAngle(left_stick_horz, left_stick_vert);
+                double magnitude = hypot(left_stick_horz, left_stick_vert);
+                double translationSpeed = MAX_SPEED * magnitude;
+
+                //Drive train needs translation speed, and translation angle to know how to move
+                //TODO implement tempName
+                driveTrainController->tempName( translationSpeed, translationAngle, temp_yaw_angle);
+
+                break;
+            case 2: //Turret is aligned with the drivebase (Drivetrain moves turret follows)
+                //left stick translates the robot
+                //right stick only rotates the robot horz values don't matter
+
+                //step 1 find the turnspeed of the right stick
+                double distance = right_stick_vert;
+                double turnSpeed = MAX_SPEED * distance;
+
+                //step2 find angle and speed of left stick
+                double translationAngle = getAngle(left_stick_horz, left_stick_vert);
+                double magnitude = hypot(left_stick_horz, left_stick_vert);
+                double translationSpeed = MAX_SPEED * magnitude;
+
+                //Drive train needs turn speed, translation speed, and translation angle to know how to move
+                //TODO implement tempName
+                driveTrainController->tempName( turnSpeed, translationSpeed, translationAngle);
+                driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
+
+                //TODO understand turret controller
+                turretController->tempName();
+                turretController->setMotorSpeeds(sendTurretTimeout.execute());
+
+                break;
+        }
 
     }
 
@@ -133,7 +154,7 @@ namespace ThornBots {
                 // isLeftStickUp = true;
                 // doBeyblading = true;
                 // turretIndependent = false;
-                leftSwitchValue = 2;
+                beybladeFactor = BEYBLADE_FACTOR;
                 break;
 
             case tap::communication::serial::Remote::SwitchState::MID:
@@ -141,7 +162,7 @@ namespace ThornBots {
                 // isLeftStickDown = false;
                 // doBeyblading = false;
                 // turretIndependent = true;
-                leftSwitchValue = 1;
+                beybladeFactor = BEYBLADE_FACTOR / 2;
                 break;
 
             case tap::communication::serial::Remote::SwitchState::DOWN:
@@ -149,7 +170,7 @@ namespace ThornBots {
                 // isLeftStickUp = false;
                 // doBeyblading = false;
                 // turretIndependent = false;
-                leftSwitchValue = 0;
+                beybladeFactor = 0;
                 break;
         }
         
@@ -159,24 +180,19 @@ namespace ThornBots {
         auto rightSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH);
         switch (rightSwitchState) {
             case tap::communication::serial::Remote::SwitchState::UP:
-                // Nothing as of now
-                //isRightStickMid = false;
+                // TODO: Make the drivebase align with the turret.
+                // i.e., if the angle offset is negative, make it spin CW or vice versa
                 rightSwitchValue = 2;
                 break;
 
             case tap::communication::serial::Remote::SwitchState::MID:
-                // TODO: Make the drivebase align with the turret.
-                // i.e., if the angle offset is negative, make it spin CW or vice versa
-                //isRightStickMid = true;
                 rightSwitchValue = 1;
                 break;
 
             case tap::communication::serial::Remote::SwitchState::DOWN:
-                //turretController->reZero();
-                //isRightStickMid = false;
+                //Lock the turret to the drivebase
+                turretController->reZero();
                 rightSwitchValue = 0;
-                // TODO: Lock the turret to the front of the drivetrain.
-                // i.e., set the desired angle to be 0 (the center of the robot)
                 break;
         }
     }

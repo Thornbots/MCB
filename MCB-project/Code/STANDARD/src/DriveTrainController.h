@@ -40,7 +40,7 @@ namespace ThornBots {
         inline void setTranslationSpeed(int speed) { translation_speed = speed; }
         inline void setRotationSpeed(int speed) { rotation_speed = speed; }
         inline void setBeybladingSpeed(int speed) { beyblading_speed = speed; }
-        inline int getMaxSpeed() { return max_speed; }
+        inline int getMaxSpeed() { return MAX_SPEED; }
         //STOP getters and setters
 
         //Functions
@@ -56,6 +56,9 @@ namespace ThornBots {
         double updateMotorSpeeds(double MotorNewSpeed, double MotorCurrentSpeed, int slewRate);
         
         //float power_limit;
+        static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
+        static constexpr double PI = 3.14159; //Everyone likes Pi!
+
         float yaw_motor_angle = 0.0f;
         int motor_one_speed = 0; //Driver's front
         int motor_two_speed = 0; //Passenger's front
@@ -64,9 +67,7 @@ namespace ThornBots {
         bool lockRotation = true;
         bool lockDrivetrain = true;
         int translation_speed, rotation_speed, beyblading_speed = 0;
-        int max_speed = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
         double beyblading_factor = 0.7; //How much of the max_speed beyblading will eat up while robot is not translating range this from [0, 1]
-        static constexpr double PI = 3.14159; //Everyone likes Pi!
         bool use_exponentional_controlling = true;
 
         tap::Drivers *drivers;
