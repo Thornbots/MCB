@@ -62,8 +62,6 @@ namespace ThornBots {
             // Get Current state of the wheel on the remote and set the appropriate
             wheel_value = drivers->remote.getWheel();
 
-            
-
         }
         temp_yaw_angle = turretController->getYawEncoderAngle();
 
@@ -97,8 +95,24 @@ namespace ThornBots {
     }
 
     double ControlsHandler::getAngle(double xPosition, double yPosition) {
-        double angle = atan2(yPosition, xPosition) + PI / 2.0;
-        return angle;
+        //error handling to prevent runtime errors in atan2
+        if(xPosition == 0) {
+            if(yPosition == 0) {
+                return 0;
+            }
+            if(yPosition > 0) {
+                return 0;
+            }
+            return (double)(PI);
+        }
+        if(yPosition == 0) {
+            if(xPosition > 0) {
+                return (double) (3 * PI) / 2;
+            }
+            return (double) PI / 2;
+        }
+
+        return atan2(yPosition, xPosition) + PI / 2.0;
     }
 
     bool ControlsHandler::toggleKeyboardAndMouse() {

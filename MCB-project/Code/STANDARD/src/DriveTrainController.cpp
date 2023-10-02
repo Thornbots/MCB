@@ -71,8 +71,7 @@ double DriveTrainController::getAngle(double xPosition, double yPosition)
 /**
  * Returns the hypotenuse gives two sides to a right triangle
  */
-double DriveTrainController::getMagnitude(double xPosition, double yPosition)
-{
+double DriveTrainController::getMagnitude(double xPosition, double yPosition) {
     return sqrt((xPosition * xPosition) + (yPosition * yPosition));
 }
 
