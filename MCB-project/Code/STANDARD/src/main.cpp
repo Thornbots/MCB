@@ -15,12 +15,11 @@
 // Our .h's
 #include "DriveTrainController.h"
 #include "TurretController.h"
-#include "ControlsHandler.h"
+#include "RobotController.h"
 
 tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
 tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
 tap::arch::PeriodicMilliTimer updateIMUTimeout(2);
-std::string controlString = "";  // Will be the last two chars in the "WASDstring" string. (What we're actually going to be looking at)
 src::Drivers *drivers;
 
 bool KeyboardAndMouseEnabled = false;
@@ -44,7 +43,7 @@ int main() {
     drivers->bmi088.requestRecalibration();
     ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
     ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
-    ThornBots::ControlsHandler *controlsHandler = new ThornBots::ControlsHandler(drivers, driveTrainController, turretController);
+    ThornBots::RobotController *RobotController = new ThornBots::RobotController(drivers, driveTrainController, turretController);
 
     while (1) {
         
@@ -61,7 +60,7 @@ int main() {
         }                       // Stop reading from the IMU
 
         if (drivers->remote.isConnected()) {  // If the remote is On and connected do the following
-             controlsHandler->update();
+             RobotController->update();
         } else {  // Remote not connected, so have everything turn off (Saftey features!)
             driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
             turretController->stopMotors(sendTurretTimeout.execute());

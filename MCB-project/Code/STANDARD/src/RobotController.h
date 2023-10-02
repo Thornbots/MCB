@@ -4,19 +4,22 @@
 #include <cmath>
 #include "drivers_singleton.hpp"
 
+#include "DriveTrainController.h"
+#include "TurretController.h"
+
 tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
 tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
 
 namespace ThornBots {
-    class ControlsHandler {
+    class RobotController {
     public:
         //Constructor
-        ControlsHandler(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
+        RobotController(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
         //Destructor
-        ~ControlsHandler();
+        ~RobotController();
 
         /*
-        * Main function for the ControlsHandler class. This function will be called in the main.cpp file.
+        * Main function for the RobotController class. This function will be called in the main.cpp file.
         */
         void update();
 

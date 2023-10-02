@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "ControlsHandler.h"
+#include "RobotController.h"
 #include "DriveTrainController.h"
 #include "TurretController.h"
 
@@ -8,7 +8,7 @@
 
 
 namespace ThornBots {
-    ControlsHandler::ControlsHandler(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController) {
+    RobotController::RobotController(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController) {
         this->drivers = m_driver;
         this->driveTrainController = driveTrainController;
         this->turretController = turretController;
@@ -19,10 +19,10 @@ namespace ThornBots {
         float temp_yaw_angle = 0.0;
     }
 
-    ControlsHandler::~ControlsHandler() {
+    RobotController::~RobotController() {
     }
 
-    void ControlsHandler::update() {
+    void RobotController::update() {
 
         keyboardAndMouseEnabled = toggleKeyboardAndMouse();
 
@@ -67,8 +67,11 @@ namespace ThornBots {
         }
 
         switch(rightSwitchValue) {
-            case 0: //Turret is locked to the drivebase (Turret moves drivetrain follows)
+            case 2: //Turret is locked to the drivebase (Turret moves drivetrain follows)
                 //TODO
+
+
+
                 break;
             case 1: //Turret is independent of the drivebase
                 //left stick translates the robot
@@ -85,10 +88,10 @@ namespace ThornBots {
 
                 //Drive train needs translation speed, and translation angle to know how to move
                 //TODO implement tempName
-                driveTrainController->tempName( translationSpeed, translationAngle, temp_yaw_angle);
+                //driveTrainController->tempName( translationSpeed, translationAngle, temp_yaw_angle);
 
                 break;
-            case 2: //Turret is aligned with the drivebase (Drivetrain moves turret follows)
+            case 0: //Turret is aligned with the drivebase (Drivetrain moves turret follows)
                 //left stick translates the robot
                 //right stick only rotates the robot horz values don't matter
 
@@ -103,11 +106,15 @@ namespace ThornBots {
 
                 //Drive train needs turn speed, translation speed, and translation angle to know how to move
                 //TODO implement tempName
-                driveTrainController->tempName( turnSpeed, translationSpeed, translationAngle);
+                driveTrainController->setMotorValues(right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, temp_yaw_angle, rightSwitchValue, leftSwitchValue);
+                
+                
+                driveTrainController->DriveTrainMovesTurretFollow(turnSpeed, translationSpeed, translationAngle);
+
                 driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
 
                 //TODO understand turret controller
-                turretController->tempName();
+                //turretController->tempName();
                 turretController->setMotorSpeeds(sendTurretTimeout.execute());
 
                 break;
@@ -115,7 +122,7 @@ namespace ThornBots {
 
     }
 
-    double ControlsHandler::getAngle(double xPosition, double yPosition) {
+    double RobotController::getAngle(double xPosition, double yPosition) {
         //error handling to prevent runtime errors in atan2
         if(xPosition == 0) {
             if(yPosition == 0) {
@@ -136,7 +143,7 @@ namespace ThornBots {
         return atan2(yPosition, xPosition) + PI / 2.0;
     }
 
-    bool ControlsHandler::toggleKeyboardAndMouse() {
+    bool RobotController::toggleKeyboardAndMouse() {
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL) &&
             drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT) &&
             drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) {
@@ -146,7 +153,7 @@ namespace ThornBots {
         return false;
     }
 
-    void ControlsHandler::findLeftSwitchState() {
+    void RobotController::findLeftSwitchState() {
         auto leftSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH);
         switch (leftSwitchState) {
             case tap::communication::serial::Remote::SwitchState::UP:
@@ -176,7 +183,7 @@ namespace ThornBots {
         
     }
 
-    void ControlsHandler::findRightSwitchState() {
+    void RobotController::findRightSwitchState() {
         auto rightSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH);
         switch (rightSwitchState) {
             case tap::communication::serial::Remote::SwitchState::UP:
@@ -196,4 +203,4 @@ namespace ThornBots {
                 break;
         }
     }
-}
+} //Namespace ThornBots

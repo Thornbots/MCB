@@ -10,21 +10,39 @@
 #include "drivers_singleton.hpp"
 static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 500, 0 };
 static constexpr float REFINED_ANGLE_OFFSET = 210.0f;
+static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
+static constexpr double PI = 3.14159; //Everyone likes Pi!
 
 
 namespace ThornBots {
     class DriveTrainController {
     public:
+        //Contructor and Destructor
         DriveTrainController(tap::Drivers* driver);
         ~DriveTrainController();
-        void setMotorValues(double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, float yaw_angle, int rightSwitchState, int leftSwitchValue);
-        void setMotorSpeeds(bool sendMotorTimeout);
-        void stopMotors(bool sendMotorTimeout);
+
+        //HUH??
         tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
         tap::motor::DjiMotor motor_four = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "Call 858-267-8107 for a good time!", 0, 0);
 
+        //--------------------------------------------------------------------------------
+        //Functions
+        //--------------------------------------------------------------------------------
+        void DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle);
+        void setMotorValues(double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, float yaw_angle, int rightSwitchState, int leftSwitchValue);
+        void setMotorSpeeds(bool sendMotorTimeout);
+        void stopMotors(bool sendMotorTimeout);
+
+
         
     private:
+
+        //--------------------------------------------------------------------------------
+        //Variables
+        //--------------------------------------------------------------------------------
+
+
+
         //START getters and setters
         inline int getMotorOneSpeed() { return motor_one_speed; }
         inline int getMotorTwoSpeed() { return motor_two_speed; }
@@ -56,8 +74,6 @@ namespace ThornBots {
         double updateMotorSpeeds(double MotorNewSpeed, double MotorCurrentSpeed, int slewRate);
         
         //float power_limit;
-        static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
-        static constexpr double PI = 3.14159; //Everyone likes Pi!
 
         float yaw_motor_angle = 0.0f;
         int motor_one_speed = 0; //Driver's front
