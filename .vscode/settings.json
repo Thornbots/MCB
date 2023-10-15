@@ -1,6 +1,7 @@
 {
     "editor.tabSize": 4,
     "files.associations": {
+        "*.ejs": "html",
         "array": "cpp",
         "string": "cpp",
         "string_view": "cpp",
@@ -69,7 +70,14 @@
         "valarray": "cpp",
         "variant": "cpp",
         "SConstruct": "python",
-        "SConscript": "python"
+        "SConscript": "python",
+        "bit": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "ranges": "cpp",
+        "stop_token": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "C_Cpp.default.includePath": [

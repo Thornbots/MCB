@@ -1,5 +1,6 @@
 #pragma once
 #include "Core.h"
+#include <inttypes.h>
 
 namespace ThornBots {
     /**
@@ -41,7 +42,7 @@ namespace ThornBots {
             /**
              * @brief Construct a new Hardware Handler object
              */
-            HardwareHandler();
+            HardwareHandler(src::Drivers *drivers);
 
             /**
              * @brief Destructor for a HardwareHandler. Not being used, so watch these otters holding hands: https://youtu.be/epUk3T2Kfno
