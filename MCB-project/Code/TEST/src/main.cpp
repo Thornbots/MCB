@@ -74,15 +74,24 @@ int main(){
         ch.Update();
         char values[] = "RV";
 
-        int rpm = ch.GetStickValue(values) != 0 ? MAX_DESIRED_RPM : 0;
+        int maxRPM = MAX_DESIRED_RPM / 2;
+        int rpm = ch.GetStickValue("RH") != 0 ? maxRPM : 0;
         pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_LEFT), 1);
         hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_LEFT, static_cast<int32_t>(pidController.getOutput()));
 
-        rpm = ch.IsControllerConnected() != 0 ? MAX_DESIRED_RPM : 0;
+        int rpm = ch.GetStickValue(values) != 0 ? maxRPM : 0;
         pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_FRONT_RIGHT), 1);
         hh.SetMotorPowerOutput(Motor::MOTOR_FRONT_RIGHT, static_cast<int32_t>(pidController.getOutput()));
 
-        
+        int rpm = ch.GetStickValue("LV") != 0 ? maxRPM : 0;
+        pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_LEFT), 1);
+        hh.SetMotorPowerOutput(Motor::MOTOR_BACK_LEFT, static_cast<int32_t>(pidController.getOutput()));
+
+        int rpm = ch.GetStickValue("LH") != 0 ? maxRPM : 0;
+        pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_RIGHT), 1);
+        hh.SetMotorPowerOutput(Motor::MOTOR_BACK_RIGHT, static_cast<int32_t>(pidController.getOutput()));
+
+
         // rpm = rs.GetRobotHP() != 0 ? MAX_DESIRED_RPM : 0;
         // pidController.runControllerDerivateError(rpm - hh.GetMotorShaftRPM(Motor::MOTOR_BACK_LEFT), 1);
         // hh.SetMotorPowerOutput(Motor::MOTOR_BACK_LEFT, static_cast<int32_t>(pidController.getOutput()));
