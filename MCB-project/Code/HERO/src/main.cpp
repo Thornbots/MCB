@@ -10,17 +10,17 @@ tap::arch::PeriodicMilliTimer sendMotorTimeout(2);
 src::Drivers *drivers;
 int indexerDesiredRPM = 0;
 int indexerMaxRPM = 1000;
-int indexerStepSpeed = 25;
+int indexerStepSpeed = 200;
 bool alreadyChanged = false;
 int flywheelDesiredRPM = 0;
-int flywheelMaxRPM = 20;
+int flywheelMaxRPM = 2000;
 
 int main() {
     src::Drivers *drivers = src::DoNotUse_getDrivers();
     Board::initialize();
     drivers->can.initialize();
     drivers->remote.initialize();
-    tap::motor::DjiMotor indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, true, "ID1", 0, 0);
+    tap::motor::DjiMotor indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "ID1", 0, 0);
     tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "ID1", 0, 0);
     tap::motor::DjiMotor flywheel_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "ID1", 0, 0);
     indexer.initialize();
@@ -36,17 +36,17 @@ int main() {
                 //Do Nothing
                 alreadyChanged = false;
       	    } else if((drivers->remote.getSwitch(drivers->remote.Switch::LEFT_SWITCH) == drivers->remote.SwitchState::UP)) { 
-                //Increment the Indexer Speed, stopping at 0
+                //Increment the Indexer Speed
                 if(!alreadyChanged) {
-                    if(indexerDesiredRPM<0) {
+                    if(indexerDesiredRPM<indexerMaxRPM) {
                         indexerDesiredRPM+=indexerStepSpeed;
                     }
                     alreadyChanged = true;
                 }
             } else if(drivers->remote.getSwitch(drivers->remote.Switch::LEFT_SWITCH) == drivers->remote.SwitchState::DOWN) { 
-                //Decrement the Indexer
+                //Decrement the Indexer, stopping at 0
                 if(!alreadyChanged) {
-                    if(-indexerDesiredRPM<indexerMaxRPM) {
+                    if(-indexerDesiredRPM<0) {
                         indexerDesiredRPM-=indexerStepSpeed;
                     }
                     alreadyChanged = true;
