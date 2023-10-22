@@ -23,14 +23,11 @@ DriveTrainController::DriveTrainController(tap::Drivers* m_driver) {
     // power_limit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
 }
 
-DriveTrainController::~DriveTrainController() {
-}  // Not going to use this. So look at a cool video of a doggie instead:
-   // https://youtu.be/dQw4w9WgXcQ
+DriveTrainController::~DriveTrainController() {}  
 
 
 void DriveTrainController::DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle) {
-    //TODO: Make this work
-
+    //TODO: Check if this works
     double MotorOneTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
     double MotorTwoTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
     double MotorThreeTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
@@ -44,16 +41,7 @@ void DriveTrainController::DriveTrainMovesTurretFollow(double turnSpeed, double 
 }
 
 
-
-
-
-/**
- * Tells all the motors to go to their assined speeds
- * i.e. Tells motor_one to to go motor_one_speed and so on.
- * sendMotorTimeout should be the method call sendMotorTimeout.execute() when calling this method
- */
-void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout)
-{
+void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout) {
     if (sendMotorTimeout) {
         drivers->canRxHandler.pollCanData();
 
@@ -73,10 +61,22 @@ void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout)
         pidController.runControllerDerivateError(motor_four_speed - motor_four.getShaftRPM(), 1);
         motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-        drivers->djiMotorTxHandler
-            .encodeAndSendCanData();  // Processes these motor speed changes into can signal
-    }                                 // STOP Updating motor speeds
+        drivers->djiMotorTxHandler.encodeAndSendCanData();  // Processes these motor speed changes into can signal
+    } // STOP Updating motor speeds
 }
+
+
+void DriveTrainController::stopMotors(bool sendMotorTimeout) {
+    motor_one_speed = 0;
+    motor_two_speed = 0;
+    motor_three_speed = 0;
+    motor_four_speed = 0;
+    setMotorSpeeds(sendMotorTimeout);
+}
+
+
+
+
 
 
 
@@ -227,42 +227,43 @@ double DriveTrainController::updateMotorSpeeds(double MotorNewSpeed, double Moto
 }
 
 
-/**
+/** Deprecated**
+ * 
  * Tells all of the motors of the drivetrain to go to 0 RPM.
  * We are hard coding this as well as updating the values to just ensure that the motors stop.
  * sendMotorTimeout should be the method call sendMotorTimeout.execute() when calling this method
  */
-void DriveTrainController::stopMotors(bool sendMotorTimeout)
-{
-    motor_one_speed = 0;
-    motor_two_speed = 0;
-    motor_three_speed = 0;
-    motor_four_speed = 0;
-    // START Updating motor speeds
-    if (sendMotorTimeout)
-    {
-        drivers->canRxHandler.pollCanData();
+// void DriveTrainController::stopMotors(bool sendMotorTimeout)
+// {
+//     motor_one_speed = 0;
+//     motor_two_speed = 0;
+//     motor_three_speed = 0;
+//     motor_four_speed = 0;
+//     // START Updating motor speeds
+//     if (sendMotorTimeout)
+//     {
+//         drivers->canRxHandler.pollCanData();
 
-        // Motor1 (The driver's front wheel)
-        pidController.runControllerDerivateError(0 - motor_one.getShaftRPM(), 1);
-        motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+//         // Motor1 (The driver's front wheel)
+//         pidController.runControllerDerivateError(0 - motor_one.getShaftRPM(), 1);
+//         motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-        // Motor2 (The passenger's front wheel)
-        pidController.runControllerDerivateError(0 - motor_two.getShaftRPM(), 1);
-        motor_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+//         // Motor2 (The passenger's front wheel)
+//         pidController.runControllerDerivateError(0 - motor_two.getShaftRPM(), 1);
+//         motor_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-        // Motor3 (The driver's back wheel)
-        pidController.runControllerDerivateError(0 - motor_three.getShaftRPM(), 1);
-        motor_three.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+//         // Motor3 (The driver's back wheel)
+//         pidController.runControllerDerivateError(0 - motor_three.getShaftRPM(), 1);
+//         motor_three.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-        // Motor4 (The passenger's back wheel)
-        pidController.runControllerDerivateError(0 - motor_four.getShaftRPM(), 1);
-        motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+//         // Motor4 (The passenger's back wheel)
+//         pidController.runControllerDerivateError(0 - motor_four.getShaftRPM(), 1);
+//         motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-        drivers->djiMotorTxHandler
-            .encodeAndSendCanData();  // Processes these motor speed changes into can signal
-    }                                 // STOP Updating motor speeds
-}
+//         drivers->djiMotorTxHandler
+//             .encodeAndSendCanData();  // Processes these motor speed changes into can signal
+//     }                                 // STOP Updating motor speeds
+// }
 
 /**
  * Returns the speed that the first motor set should go to (the first motor set

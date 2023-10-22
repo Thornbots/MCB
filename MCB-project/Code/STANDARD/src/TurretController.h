@@ -13,11 +13,27 @@ static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1
 static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 180, 0, -30000, 0, 1000000, 1, 0, 1, 0, 0, 0 };    //{ 90, 10, -15000, 1, 1000000, 1, 0, 1, 0, 0, 0 };
 static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 800, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0 };
 
+static constexpr int motor_yaw_max_speed = 500; //Not sure if this is the absolute maximum. need to test. Motor documentation says 320, but it can def spin faster than taproot's 320 rpm.
+static constexpr int motor_indexer_max_speed = 6000;
+static constexpr int flywheel_max_speed = 5000;
+static constexpr int motor_pitch_max_speed = 900;
+static constexpr int YAW_MOTOR_SCALAR = 500;
+
 namespace ThornBots {
     class TurretController {
     public:
+        //Contructor and Destructor
         TurretController(tap::Drivers* driver);
         ~TurretController();
+
+        //----------------------------------Functions----------------------------------
+
+        /*
+        * This function will make the turret follow the drivetrain
+        */
+        void FollowDriveTrain();
+
+        //TODO - Refactor these functions
         void setMotorValues(bool useWASD, bool doBeyblading, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, int16_t wheel_value, bool isRightStickUp, bool isLeftStickUp, int rightSwitchValue, int leftSwitchValue);
         void setMotorSpeeds(bool sendMotorTimeout);
         void stopMotors(bool sendMotorTimeout);
@@ -42,11 +58,6 @@ namespace ThornBots {
         inline void setFlywheelSpeed(int speed) { flywheel_speed = speed; }
         //STOP getters and setters
 
-        static constexpr int motor_yaw_max_speed = 500; //Not sure if this is the absolute maximum. need to test. Motor documentation says 320, but it can def spin faster than taproot's 320 rpm.
-        static constexpr int motor_indexer_max_speed = 6000;
-        static constexpr int flywheel_max_speed = 5000;
-        static constexpr int motor_pitch_max_speed = 900;
-        static constexpr int YAW_MOTOR_SCALAR = 500;
         bool isShooting = false;
         int motor_yaw_speed = 0;
         int flywheel_speed = 0;

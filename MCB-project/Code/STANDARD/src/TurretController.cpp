@@ -21,11 +21,16 @@ namespace ThornBots {
         flywheel_two.initialize();
     }
 
+    TurretController::~TurretController() {} //Watch this cute video of a cat instead: https://youtu.be/hg3e1KflmC8
+
+    void FollowDriveTrain() {
+        //TODO - Make this work
+        
+    }
+
     float TurretController::getYawEncoderAngle() {
         return tap::motor::DjiMotor::encoderToDegrees(motor_yaw.getEncoderWrapped());
     }
-
-    TurretController::~TurretController() {} //Watch this cute video of a cat instead: https://youtu.be/hg3e1KflmC8
 
     /**
      * Updates the values of the motors' speeds. i.e. if you're beyblading, it will tell the motor_yaw_speed to change depending on what needs to change

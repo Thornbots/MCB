@@ -20,23 +20,34 @@ namespace ThornBots {
 
         /*
         * Main function for the RobotController class. This function will be called in the main.cpp file.
+        * This function will get and read our inputs and determinie what DriveTrainController and TurretController do
+        * based on the inputs.
         */
         void update();
 
+        /*
+        * This function will call setMotorSpeeds with sendMotorTimeout.execute() as the parameter to DriveTrain 
+        * and Turret Controller.
+        */
+        void stopRobot();
 
     private:
         //Variables
         static constexpr double BEYBLADE_FACTOR = 0.7; //Change this to change the maximum factor of speed of the beyblading
-        static constexpr double PI = 3.14159;
         static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
+        static constexpr double PI = 3.14159;
 
-        
-        
         double beybladeFactor = 0;
         bool keyboardAndMouseEnabled = false;
         int leftSwitchValue;
         int rightSwitchValue;
+        double distance = 0.0;
+        double turnSpeed = 0.0;
+        double translationAngle = 0.0;
+        double magnitude = 0.0;
+        double translationSpeed = 0.0;
         int16_t wheel_value = 0;
+
         double right_stick_vert = 0.0;
         double right_stick_horz = 0.0;
         double left_stick_vert = 0.0;

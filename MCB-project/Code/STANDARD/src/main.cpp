@@ -17,8 +17,8 @@
 #include "TurretController.h"
 #include "RobotController.h"
 
-tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
-tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
+//tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
+//tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
 tap::arch::PeriodicMilliTimer updateIMUTimeout(2);
 src::Drivers *drivers;
 
@@ -62,8 +62,9 @@ int main() {
         if (drivers->remote.isConnected()) {  // If the remote is On and connected do the following
              RobotController->update();
         } else {  // Remote not connected, so have everything turn off (Saftey features!)
-            driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
-            turretController->stopMotors(sendTurretTimeout.execute());
+            RobotController->stopRobot();
+            //driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
+            //turretController->stopMotors(sendTurretTimeout.execute());
         }
     }
     return 0;

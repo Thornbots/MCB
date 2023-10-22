@@ -17,7 +17,7 @@ static constexpr double PI = 3.14159; //Everyone likes Pi!
 namespace ThornBots {
     class DriveTrainController {
     public:
-        //Contructor and Destructor
+        //Contructor and Destructor - Currently destructor is not being used
         DriveTrainController(tap::Drivers* driver);
         ~DriveTrainController();
 
@@ -25,22 +25,39 @@ namespace ThornBots {
         tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
         tap::motor::DjiMotor motor_four = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "Call 858-267-8107 for a good time!", 0, 0);
 
-        //--------------------------------------------------------------------------------
-        //Functions
-        //--------------------------------------------------------------------------------
+        //----------------------------------Functions----------------------------------
+        
+        /*
+        * DriveTrainMovesTurretFollow will take the turnSpeed, translationSpeed and translationAngle and use
+        * them to move the drivetrain in the desired direction.
+        */
         void DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle);
-        void setMotorValues(double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, float yaw_angle, int rightSwitchState, int leftSwitchValue);
+
+        /*
+        * Once our global motor speeds are set, call this function with sendMotorTimeout.execute() as the parameter and it will
+        * send the motor speeds to the motors with the desired delay from sendMotorTimeout.execute.
+        */
         void setMotorSpeeds(bool sendMotorTimeout);
+
+        /*
+        * This function will set the motor speeds to 0 then call setMotorSpeeds with sendMotorTimeout.execute() as the parameter.
+        */
         void stopMotors(bool sendMotorTimeout);
+
+
+        //TO BE DELETED - TEMPORARY
+        void setMotorValues(double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, float yaw_angle, int rightSwitchState, int leftSwitchValue);
 
 
         
     private:
 
-        //--------------------------------------------------------------------------------
-        //Variables
-        //--------------------------------------------------------------------------------
+        //----------------------------------Variables----------------------------------
 
+        int motor_one_speed = 0; //Driver's front
+        int motor_two_speed = 0; //Passenger's front
+        int motor_three_speed = 0; //Driver's back
+        int motor_four_speed = 0; //Passenger's back
 
 
         //START getters and setters
@@ -76,10 +93,6 @@ namespace ThornBots {
         //float power_limit;
 
         float yaw_motor_angle = 0.0f;
-        int motor_one_speed = 0; //Driver's front
-        int motor_two_speed = 0; //Passenger's front
-        int motor_three_speed = 0; //Driver's back
-        int motor_four_speed = 0; //Passenger's back
         bool lockRotation = true;
         bool lockDrivetrain = true;
         int translation_speed, rotation_speed, beyblading_speed = 0;

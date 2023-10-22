@@ -44,8 +44,7 @@ namespace ThornBots {
                 //TODO: Make the robot move right
             }
 
-        } else {
-            //We are using the remote controls
+        } else { //We are using the remote controls
 
             findLeftSwitchState();
 
@@ -66,6 +65,7 @@ namespace ThornBots {
 
         }
 
+        //main logic for the robot
         switch(rightSwitchValue) {
             case 2: //Turret is locked to the drivebase (Turret moves drivetrain follows)
                 //TODO
@@ -78,13 +78,13 @@ namespace ThornBots {
                 //right stick handle pitch and yaw of the turret
 
                 //step 1 convert to pitch and yaw of the right stick
-                double distance = right_stick_vert;
-                double turnSpeed = MAX_SPEED * distance;
+                distance = right_stick_vert;
+                turnSpeed = MAX_SPEED * distance;
 
                 //step2 find angle and speed of left stick
-                double translationAngle = getAngle(left_stick_horz, left_stick_vert);
-                double magnitude = hypot(left_stick_horz, left_stick_vert);
-                double translationSpeed = MAX_SPEED * magnitude;
+                translationAngle = getAngle(left_stick_horz, left_stick_vert);
+                magnitude = hypot(left_stick_horz, left_stick_vert);
+                translationSpeed = MAX_SPEED * magnitude;
 
                 //Drive train needs translation speed, and translation angle to know how to move
                 //TODO implement tempName
@@ -96,30 +96,33 @@ namespace ThornBots {
                 //right stick only rotates the robot horz values don't matter
 
                 //step 1 find the turnspeed of the right stick
-                double distance = right_stick_vert;
-                double turnSpeed = MAX_SPEED * distance;
+                distance = right_stick_vert;
+                turnSpeed = MAX_SPEED * distance;
 
                 //step2 find angle and speed of left stick
-                double translationAngle = getAngle(left_stick_horz, left_stick_vert);
-                double magnitude = hypot(left_stick_horz, left_stick_vert);
-                double translationSpeed = MAX_SPEED * magnitude;
+                translationAngle = getAngle(left_stick_horz, left_stick_vert);
+                magnitude = hypot(left_stick_horz, left_stick_vert);
+                translationSpeed = MAX_SPEED * magnitude;
 
-                //Drive train needs turn speed, translation speed, and translation angle to know how to move
-                //TODO implement tempName
+                //test
                 driveTrainController->setMotorValues(right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, temp_yaw_angle, rightSwitchValue, leftSwitchValue);
                 
-                
+                //Drive train needs turn speed, translation speed, and translation angle to know how to move
                 driveTrainController->DriveTrainMovesTurretFollow(turnSpeed, translationSpeed, translationAngle);
-
                 driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
 
-                //TODO understand turret controller
-                //turretController->tempName();
+                turretController->FollowDriveTrain();
                 turretController->setMotorSpeeds(sendTurretTimeout.execute());
 
                 break;
+            default:
+                break;
         }
+    }
 
+    void RobotController::stopRobot() {
+        driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
+        turretController->stopMotors(sendTurretTimeout.execute());
     }
 
     double RobotController::getAngle(double xPosition, double yPosition) {
