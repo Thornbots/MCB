@@ -33,17 +33,21 @@ void DriveTrainController::DriveTrainMovesTurretFollow(double turnSpeed, double 
     double MotorThreeTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
     double MotorFourTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
 
-    double motor_one_speed = MotorOneTranslationSpeed + turnSpeed;
-    double motor_two_speed = MotorTwoTranslationSpeed + turnSpeed;
-    double motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
-    double motor_four_speed = MotorFourTranslationSpeed + turnSpeed;
+    motor_one_speed = MotorOneTranslationSpeed + turnSpeed;
+    motor_two_speed = MotorTwoTranslationSpeed - turnSpeed;
+    motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
+    motor_four_speed = MotorFourTranslationSpeed - turnSpeed;
+
+    // motor_one_speed = -1000;
+    // motor_two_speed = 1000;
+    // motor_three_speed = -1000;
+    // motor_four_speed = 1000;
 
 }
 
 
 void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout) {
     if (sendMotorTimeout) {
-        drivers->canRxHandler.pollCanData();
 
         // Motor1 (The driver's front wheel)
         pidController.runControllerDerivateError(motor_one_speed - motor_one.getShaftRPM(), 1);
@@ -60,8 +64,8 @@ void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout) {
         // Motor4 (The passenger's back wheel)
         pidController.runControllerDerivateError(motor_four_speed - motor_four.getShaftRPM(), 1);
         motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+    
 
-        drivers->djiMotorTxHandler.encodeAndSendCanData();  // Processes these motor speed changes into can signal
     } // STOP Updating motor speeds
 }
 
@@ -214,15 +218,15 @@ void DriveTrainController::setMotorValues(
 * Otherwise the motor speed is updated to the new speed
 */
 double DriveTrainController::updateMotorSpeeds(double MotorNewSpeed, double MotorCurrentSpeed, int slewRate) {
-    if (abs(MotorNewSpeed - MotorCurrentSpeed) > slewRate)
-    {
-        if (MotorNewSpeed > MotorCurrentSpeed) {
-            return MotorCurrentSpeed += slewRate;
-        }
-        else {
-            return MotorCurrentSpeed -= slewRate;
-        }
-    }
+    // if (abs(MotorNewSpeed - MotorCurrentSpeed) > slewRate)
+    // {
+    //     if (MotorNewSpeed > MotorCurrentSpeed) {
+    //         return MotorCurrentSpeed += slewRate;
+    //     }
+    //     else {
+    //         return MotorCurrentSpeed -= slewRate;
+    //     }
+    // }
         return MotorNewSpeed;
 }
 

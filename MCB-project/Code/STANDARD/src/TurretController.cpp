@@ -23,9 +23,12 @@ namespace ThornBots {
 
     TurretController::~TurretController() {} //Watch this cute video of a cat instead: https://youtu.be/hg3e1KflmC8
 
-    void FollowDriveTrain() {
+    void TurretController::FollowDriveTrain() {
         //TODO - Make this work
+        rawAngle = drivers->bmi088.getYaw();  // TODO: Make this calculate the AngleOffset and not the raw angle.
         
+        setMotorSpeeds(true);
+
     }
 
     float TurretController::getYawEncoderAngle() {

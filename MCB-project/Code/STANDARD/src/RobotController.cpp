@@ -4,8 +4,8 @@
 #include "DriveTrainController.h"
 #include "TurretController.h"
 
-
-
+tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
+tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
 
 namespace ThornBots {
     RobotController::RobotController(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController) {
@@ -24,8 +24,16 @@ namespace ThornBots {
 
     void RobotController::update() {
 
-        keyboardAndMouseEnabled = toggleKeyboardAndMouse();
+        //keyboardAndMouseEnabled = toggleKeyboardAndMouse();
+        keyboardAndMouseEnabled = false;
 
+        // right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
+        // right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
+        // left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
+        // left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
+
+        // driveTrainController->setMotorValues(right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, temp_yaw_angle, rightSwitchValue, leftSwitchValue);
+        // driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
 
         if (keyboardAndMouseEnabled) {
             // We are using Keyboard and Mouse controls
@@ -46,9 +54,10 @@ namespace ThornBots {
 
         } else { //We are using the remote controls
 
-            findLeftSwitchState();
-
-            findRightSwitchState();
+            //findLeftSwitchState();
+            leftSwitchValue = 0;
+            //findRightSwitchState();
+            rightSwitchValue = 0;
 
             // Get Current state of the Right Stick on the remote and set the appropriate
             right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
@@ -60,7 +69,6 @@ namespace ThornBots {
 
             // Get Current state of the wheel on the remote and set the appropriate
             wheel_value = drivers->remote.getWheel();
-
             temp_yaw_angle = turretController->getYawEncoderAngle();
 
         }
@@ -70,15 +78,13 @@ namespace ThornBots {
             case 2: //Turret is locked to the drivebase (Turret moves drivetrain follows)
                 //TODO
 
-
-
                 break;
             case 1: //Turret is independent of the drivebase
                 //left stick translates the robot
                 //right stick handle pitch and yaw of the turret
 
                 //step 1 convert to pitch and yaw of the right stick
-                distance = right_stick_vert;
+                distance = right_stick_horz;
                 turnSpeed = MAX_SPEED * distance;
 
                 //step2 find angle and speed of left stick
@@ -97,16 +103,13 @@ namespace ThornBots {
 
                 //step 1 find the turnspeed of the right stick
                 distance = right_stick_vert;
-                turnSpeed = MAX_SPEED * distance;
+                turnSpeed = MAX_SPEED * distance;   
 
                 //step2 find angle and speed of left stick
                 translationAngle = getAngle(left_stick_horz, left_stick_vert);
                 magnitude = hypot(left_stick_horz, left_stick_vert);
                 translationSpeed = MAX_SPEED * magnitude;
 
-                //test
-                driveTrainController->setMotorValues(right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, temp_yaw_angle, rightSwitchValue, leftSwitchValue);
-                
                 //Drive train needs turn speed, translation speed, and translation angle to know how to move
                 driveTrainController->DriveTrainMovesTurretFollow(turnSpeed, translationSpeed, translationAngle);
                 driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
@@ -129,21 +132,21 @@ namespace ThornBots {
         //error handling to prevent runtime errors in atan2
         if(xPosition == 0) {
             if(yPosition == 0) {
-                return 0;
+                return PI/4.0;
             }
             if(yPosition > 0) {
-                return 0;
+                return -PI/4.0;
             }
             return (double)(PI);
         }
         if(yPosition == 0) {
             if(xPosition > 0) {
-                return (double) (3 * PI) / 2;
+                return 0.0; //0 degrees in radians
             }
-            return (double) PI / 2;
+            return PI; //180 degrees in radians
         }
 
-        return atan2(yPosition, xPosition) + PI / 2.0;
+        return -atan2(yPosition, xPosition);
     }
 
     bool RobotController::toggleKeyboardAndMouse() {
@@ -201,7 +204,7 @@ namespace ThornBots {
 
             case tap::communication::serial::Remote::SwitchState::DOWN:
                 //Lock the turret to the drivebase
-                turretController->reZero();
+                //turretController->reZero();
                 rightSwitchValue = 0;
                 break;
         }

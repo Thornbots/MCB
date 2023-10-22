@@ -8,7 +8,7 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
-static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 500, 0 };
+static tap::algorithms::SmoothPidConfig pid_conf_dt = { 120, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
 static constexpr float REFINED_ANGLE_OFFSET = 210.0f;
 static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
 static constexpr double PI = 3.14159; //Everyone likes Pi!

@@ -66,6 +66,7 @@ namespace ThornBots {
         double current_yaw_angle = 180;
         float desiredAngle = 0.0f;
         float desiredPitch = 0.0f;
+        double rawAngle = 0.0;
 
         int tmp = 0;
 

@@ -7,8 +7,6 @@
 #include "DriveTrainController.h"
 #include "TurretController.h"
 
-tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
-tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
 
 namespace ThornBots {
     class RobotController {
@@ -39,8 +37,8 @@ namespace ThornBots {
 
         double beybladeFactor = 0;
         bool keyboardAndMouseEnabled = false;
-        int leftSwitchValue;
-        int rightSwitchValue;
+        int leftSwitchValue = 0;
+        int rightSwitchValue = 0;
         double distance = 0.0;
         double turnSpeed = 0.0;
         double translationAngle = 0.0;
