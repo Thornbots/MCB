@@ -9,23 +9,31 @@ tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_d
 tap::arch::PeriodicMilliTimer sendMotorTimeout(2);
 src::Drivers *drivers;
 int indexerDesiredRPM = 0;
-int indexerMaxRPM = 1000;
+int indexerMaxRPM = 10000;
 int indexerStepSpeed = 200;
 bool alreadyChanged = false;
 int flywheelDesiredRPM = 0;
 int flywheelMaxRPM = 2000;
+int boosterTopDesiredRPM = 0;
+int boosterTopMaxRPM = 1000;
+int boosterBottomDesiredRPM = 0;
+int boosterBottomMaxRPM = 20000;
 
 int main() {
     src::Drivers *drivers = src::DoNotUse_getDrivers();
     Board::initialize();
     drivers->can.initialize();
     drivers->remote.initialize();
-    tap::motor::DjiMotor indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "ID1", 0, 0);
-    tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "ID1", 0, 0);
-    tap::motor::DjiMotor flywheel_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "ID1", 0, 0);
+    tap::motor::DjiMotor indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS2, false, "ID1", 0, 0);
+    tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS2, true, "ID1", 0, 0);
+    tap::motor::DjiMotor flywheel_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, true, "ID1", 0, 0);
+    tap::motor::DjiMotor booster_bottom = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, true, "ID1", 0, 0);
+    tap::motor::DjiMotor booster_top = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS2, true, "ID1", 0, 0);
     indexer.initialize();
     flywheel_one.initialize();
     flywheel_two.initialize();
+    booster_bottom.initialize();
+    booster_top.initialize();
 
     while (1) {
         drivers->canRxHandler.pollCanData();
@@ -52,6 +60,9 @@ int main() {
                     alreadyChanged = true;
                 }
             }
+            //turn on the boosters if we are spinning the indexer
+            boosterTopDesiredRPM=indexerDesiredRPM==0 ? 0 : boosterTopMaxRPM;
+            boosterBottomDesiredRPM=indexerDesiredRPM==0 ? 0 : boosterBottomMaxRPM;
             if(drivers->remote.getSwitch(drivers->remote.Switch::RIGHT_SWITCH) == drivers->remote.SwitchState::UP) { 
                 //Set the Flywheel Speed to MaxRPM
                 flywheelDesiredRPM = flywheelMaxRPM;
@@ -66,12 +77,18 @@ int main() {
                 flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
                 pidController.runControllerDerivateError(flywheelDesiredRPM - flywheel_two.getShaftRPM(), 1);
                 flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+                pidController.runControllerDerivateError(boosterTopDesiredRPM - booster_top.getShaftRPM(), 1);
+                booster_top.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+                pidController.runControllerDerivateError(boosterBottomDesiredRPM - booster_bottom.getShaftRPM(), 1);
+                booster_bottom.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
                 drivers->djiMotorTxHandler.encodeAndSendCanData(); //Processes these motor speed changes into can signal
             }
         } else { //Remote not connected, so have everything turn off (Saftey features!)
                 indexer.setDesiredOutput(static_cast<int32_t>(0));
                 flywheel_one.setDesiredOutput(static_cast<int32_t>(0));
                 flywheel_two.setDesiredOutput(static_cast<int32_t>(0));
+                booster_top.setDesiredOutput(static_cast<int32_t>(0));
+                booster_bottom.setDesiredOutput(static_cast<int32_t>(0));
                 drivers->djiMotorTxHandler.encodeAndSendCanData(); //Processes these motor speed changes into can signal
         }
 
