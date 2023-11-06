@@ -27,7 +27,6 @@ namespace ThornBots {
         ~TurretController();
 
         //----------------------------------Functions----------------------------------
-
         /*
         * This function will make the turret follow the drivetrain
         */
@@ -43,6 +42,15 @@ namespace ThornBots {
         float getYawEncoderAngle();
         
     private:
+
+        //----------------------------------Functions----------------------------------
+
+        /*
+        * This function will get the raw angle from the IMU and calculate the angle offset of the turret from the drivetrain
+        */
+        double getAngleOffset();
+
+
         //START getters and setters
         inline int getMotorYawSpeed() { return motor_yaw_speed; }
         inline int getMotorPitchSpeed() { return motor_pitch_speed; }
@@ -67,6 +75,7 @@ namespace ThornBots {
         float desiredAngle = 0.0f;
         float desiredPitch = 0.0f;
         double rawAngle = 0.0;
+        double AngleOffset = 0.0;
 
         int tmp = 0;
 

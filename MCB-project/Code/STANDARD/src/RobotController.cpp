@@ -132,18 +132,18 @@ namespace ThornBots {
         //error handling to prevent runtime errors in atan2
         if(xPosition == 0) {
             if(yPosition == 0) {
-                return ((double)PI)/((double)4.0);
+                return 0;
             }
             if(yPosition > 0) {
-                return -((double)PI)/((double)4.0);
+                return 0;
             }
-            return ((double)PI);
+            return PI;
         }
         if(yPosition == 0) {
             if(xPosition > 0) {
-                return ((double)0.0); //0 degrees in radians
+                return -((double)PI/(double)2); //0 degrees in radians
             }
-            return ((double)PI); //180 degrees in radians
+            return ((double)PI/(double)2); //180 degrees in radians
         }
 
         return -atan2(yPosition, xPosition);

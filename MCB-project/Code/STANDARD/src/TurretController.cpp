@@ -25,10 +25,22 @@ namespace ThornBots {
 
     void TurretController::FollowDriveTrain() {
         //TODO - Make this work
-        rawAngle = drivers->bmi088.getYaw();  // TODO: Make this calculate the AngleOffset and not the raw angle.
-        
+        desiredAngle = 0;
+        AngleOffset = getAngleOffset(); 
+
         setMotorSpeeds(true);
 
+    }
+
+    double TurretController::getAngleOffset() {
+        rawAngle = drivers->bmi088.getYaw();  // TODO: Make this calculate the AngleOffset and not the raw angle.
+        while(rawAngle - desiredAngle > 180){
+            rawAngle -= 360;
+        }
+        while(desiredAngle - rawAngle > 180){
+            rawAngle += 360;
+        }
+        return rawAngle;
     }
 
     float TurretController::getYawEncoderAngle() {
@@ -57,9 +69,10 @@ namespace ThornBots {
     */
     void TurretController::setMotorSpeeds(bool sendMotorTimeout) {
         if(!sendMotorTimeout) { return; }
-        drivers->canRxHandler.pollCanData();
         
         //Yaw Motor
+        yawPidController.runControllerDerivateError(desiredAngle - AngleOffset, 1);
+        pidController.runControllerDerivateError(motor_yaw_speed - motor_yaw.getShaftRPM(), 1);
         motor_yaw.setDesiredOutput(static_cast<int32_t>(motor_yaw_speed));
 
         //Pitch Motor
@@ -77,7 +90,6 @@ namespace ThornBots {
         pidController.runControllerDerivateError(flywheel_speed - flywheel_two.getShaftRPM(), 1);
         flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
         
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
     }
 
     /**
@@ -150,7 +162,6 @@ namespace ThornBots {
             actualAngle += 360;
         }
         yawPidController.runControllerDerivateError(desiredAngle-actualAngle, 1);
-        tmp = actualAngle;
         return ((motor_one_speed - motor_four_speed) *kF) + yawPidController.getOutput();
     }
 
