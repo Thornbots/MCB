@@ -14,9 +14,9 @@ namespace ThornBots {
         this->turretController = turretController;
 
         //temp to be deleted
-        bool KeyboardAndMouseEnabled = false;
-        bool doBeyblading = false;
-        float temp_yaw_angle = 0.0;
+        // bool KeyboardAndMouseEnabled = false;
+        // bool doBeyblading = false;
+        // float temp_yaw_angle = 0.0;
     }
 
     RobotController::~RobotController() {
@@ -132,18 +132,18 @@ namespace ThornBots {
         //error handling to prevent runtime errors in atan2
         if(xPosition == 0) {
             if(yPosition == 0) {
-                return PI/4.0;
+                return ((double)PI)/((double)4.0);
             }
             if(yPosition > 0) {
-                return -PI/4.0;
+                return -((double)PI)/((double)4.0);
             }
-            return (double)(PI);
+            return ((double)PI);
         }
         if(yPosition == 0) {
             if(xPosition > 0) {
-                return 0.0; //0 degrees in radians
+                return ((double)0.0); //0 degrees in radians
             }
-            return PI; //180 degrees in radians
+            return ((double)PI); //180 degrees in radians
         }
 
         return -atan2(yPosition, xPosition);
@@ -160,7 +160,7 @@ namespace ThornBots {
     }
 
     void RobotController::findLeftSwitchState() {
-        auto leftSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH);
+        tap::communication::serial::Remote::SwitchState leftSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH);
         switch (leftSwitchState) {
             case tap::communication::serial::Remote::SwitchState::UP:
                 // isLeftStickDown = false;
@@ -185,12 +185,17 @@ namespace ThornBots {
                 // turretIndependent = false;
                 beybladeFactor = 0;
                 break;
+
+            case tap::communication::serial::Remote::SwitchState::UNKNOWN:
+                //Do as little as possible (Don't beyblade) (Get's in this state from broken hardware on the controller)
+                beybladeFactor = 0;
+                break;
         }
         
     }
 
     void RobotController::findRightSwitchState() {
-        auto rightSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH);
+        tap::communication::serial::Remote::SwitchState rightSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH);
         switch (rightSwitchState) {
             case tap::communication::serial::Remote::SwitchState::UP:
                 // TODO: Make the drivebase align with the turret.
@@ -206,6 +211,10 @@ namespace ThornBots {
                 //Lock the turret to the drivebase
                 //turretController->reZero();
                 rightSwitchValue = 0;
+                break;
+
+            case tap::communication::serial::Remote::SwitchState::UNKNOWN:
+                //Do as little as possible. (Gets in this state from broken hardware on the controller)
                 break;
         }
     }
