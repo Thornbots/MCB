@@ -70,7 +70,6 @@ namespace ThornBots {
             // Get Current state of the wheel on the remote and set the appropriate
             wheel_value = drivers->remote.getWheel();
             temp_yaw_angle = turretController->getYawEncoderAngle();
-
         }
 
         //main logic for the robot
@@ -167,7 +166,7 @@ namespace ThornBots {
                 // isLeftStickUp = true;
                 // doBeyblading = true;
                 // turretIndependent = false;
-                beybladeFactor = BEYBLADE_FACTOR;
+                beybladeFactor = MAXIMUM_BEYBLADE_FACTOR;
                 break;
 
             case tap::communication::serial::Remote::SwitchState::MID:
@@ -175,7 +174,7 @@ namespace ThornBots {
                 // isLeftStickDown = false;
                 // doBeyblading = false;
                 // turretIndependent = true;
-                beybladeFactor = BEYBLADE_FACTOR / 2;
+                beybladeFactor = MAXIMUM_BEYBLADE_FACTOR / 2;
                 break;
 
             case tap::communication::serial::Remote::SwitchState::DOWN:

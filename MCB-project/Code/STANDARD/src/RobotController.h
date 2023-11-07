@@ -31,7 +31,7 @@ namespace ThornBots {
 
     private:
         //Variables
-        static constexpr double BEYBLADE_FACTOR = 0.7; //Change this to change the maximum factor of speed of the beyblading
+        static constexpr double MAXIMUM_BEYBLADE_FACTOR = 0.7; //Change this to change the maximum factor of speed of the beyblading from: [0, 1]
         static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
         static constexpr double PI = 3.14159;
 
@@ -64,8 +64,8 @@ namespace ThornBots {
         //Functions
 
         /*
-        * This function will find relation of a point to the orgin and return the angle in degrees. Furthermore
-        * it will set the 0 refrence aggle to the front of the drivetrain.
+        * This function will find relation of a point to the orgin and return the angle in radians. Furthermore
+        * it will set the 0 reference angle to the front of the drivetrain.
         */
         double getAngle(double xPosition, double yPosition);
         

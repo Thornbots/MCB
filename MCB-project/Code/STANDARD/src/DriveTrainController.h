@@ -9,6 +9,7 @@
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
 static tap::algorithms::SmoothPidConfig pid_conf_dt = { 120, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret = {500, 0.5, 0, 0, 6000, 1, 0, 1, 0, 0, 0 }; //TODO: Tune this profile
 static constexpr float REFINED_ANGLE_OFFSET = 210.0f;
 static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
 static constexpr double PI = 3.14159; //Everyone likes Pi!
@@ -33,6 +34,12 @@ namespace ThornBots {
         */
         void DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle);
 
+        /*
+        * TurretMovesDriveTrainFollows will the turnSpeed, translationSpeed, and translationAngle and use them
+        * to move the drivetrain in the desired direction
+        */
+        void TurretMovesDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
+        
         /*
         * Once our global motor speeds are set, call this function with sendMotorTimeout.execute() as the parameter and it will
         * send the motor speeds to the motors with the desired delay from sendMotorTimeout.execute.
@@ -103,6 +110,7 @@ namespace ThornBots {
         tap::motor::DjiMotor motor_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "PURDON'T!", 0, 0);
         tap::motor::DjiMotor motor_three = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, true, "Put the possum in his room", 0, 0);
         tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
+        tap::algorithms::SmoothPid pidControllerDTFollowsT = tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
 
     };
 }

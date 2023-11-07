@@ -25,7 +25,6 @@ DriveTrainController::DriveTrainController(tap::Drivers* m_driver) {
 
 DriveTrainController::~DriveTrainController() {}  
 
-
 void DriveTrainController::DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle) {
     //TODO: Check if this works
     double MotorOneTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
@@ -37,18 +36,27 @@ void DriveTrainController::DriveTrainMovesTurretFollow(double turnSpeed, double 
     motor_two_speed = MotorTwoTranslationSpeed - turnSpeed;
     motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
     motor_four_speed = MotorFourTranslationSpeed - turnSpeed;
-
-    // motor_one_speed = -1000;
-    // motor_two_speed = 1000;
-    // motor_three_speed = -1000;
-    // motor_four_speed = 1000;
-
 }
 
+void DriveTrainController::TurretMovesDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
+    //TODO: Check that this works
+    double MotorOneTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
+    double MotorTwoTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
+    double MotorThreeTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
+    double MotorFourTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
+
+    pidControllerDTFollowsT.runControllerDerivateError(driveTrainAngleFromTurret, 1); //TODO: TUNE THE PID CONSTANTS!!!
+    double turnSpeed = ((double)pidController.getOutput());
+    
+    //TODO: VERIFY THAT THE DIRECTIONS ARE CORRECT. THIS IS A RANDOM GUESS
+    motor_one_speed = MotorOneTranslationSpeed + turnSpeed;
+    motor_two_speed = MotorTwoTranslationSpeed - turnSpeed;
+    motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
+    motor_four_speed = MotorFourTranslationSpeed - turnSpeed;
+}
 
 void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout) {
     if (sendMotorTimeout) {
-
         // Motor1 (The driver's front wheel)
         pidController.runControllerDerivateError(motor_one_speed - motor_one.getShaftRPM(), 1);
         motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
@@ -64,11 +72,8 @@ void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout) {
         // Motor4 (The passenger's back wheel)
         pidController.runControllerDerivateError(motor_four_speed - motor_four.getShaftRPM(), 1);
         motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-    
-
     } // STOP Updating motor speeds
 }
-
 
 void DriveTrainController::stopMotors(bool sendMotorTimeout) {
     motor_one_speed = 0;
@@ -93,8 +98,7 @@ void DriveTrainController::stopMotors(bool sendMotorTimeout) {
  * given x and y coordinates make from the positive x axis. (Ranging from 0 to 2*Pi in the CCW
  * direction)
  */
-double DriveTrainController::getAngle(double xPosition, double yPosition)
-{
+double DriveTrainController::getAngle(double xPosition, double yPosition) {
     double angle = 0;
     if(xPosition == 0) {
         if(yPosition == 0) {
@@ -151,15 +155,7 @@ double DriveTrainController::getScaledQuadratic(double magnitude) { return pow(m
  * Calls all the necessary methods to set the drive train motors to their appropiate speeds. (Taking
  * into acount turning, WASD or conroller input,  beyblading, and translating)
  */
-void DriveTrainController::setMotorValues(
-    double right_stick_vert,
-    double right_stick_horz,
-    double left_stick_vert,
-    double left_stick_horz,
-    float yaw_angle,
-    int rightSwitchState,
-    int leftSwitchValue) {
-
+void DriveTrainController::setMotorValues(double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, float yaw_angle, int rightSwitchState, int leftSwitchValue) {
     yaw_motor_angle = yaw_angle;
     if(rightSwitchState == 2) {
         lockRotation = true;
@@ -230,45 +226,6 @@ double DriveTrainController::updateMotorSpeeds(double MotorNewSpeed, double Moto
         return MotorNewSpeed;
 }
 
-
-/** Deprecated**
- * 
- * Tells all of the motors of the drivetrain to go to 0 RPM.
- * We are hard coding this as well as updating the values to just ensure that the motors stop.
- * sendMotorTimeout should be the method call sendMotorTimeout.execute() when calling this method
- */
-// void DriveTrainController::stopMotors(bool sendMotorTimeout)
-// {
-//     motor_one_speed = 0;
-//     motor_two_speed = 0;
-//     motor_three_speed = 0;
-//     motor_four_speed = 0;
-//     // START Updating motor speeds
-//     if (sendMotorTimeout)
-//     {
-//         drivers->canRxHandler.pollCanData();
-
-//         // Motor1 (The driver's front wheel)
-//         pidController.runControllerDerivateError(0 - motor_one.getShaftRPM(), 1);
-//         motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-//         // Motor2 (The passenger's front wheel)
-//         pidController.runControllerDerivateError(0 - motor_two.getShaftRPM(), 1);
-//         motor_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-//         // Motor3 (The driver's back wheel)
-//         pidController.runControllerDerivateError(0 - motor_three.getShaftRPM(), 1);
-//         motor_three.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-//         // Motor4 (The passenger's back wheel)
-//         pidController.runControllerDerivateError(0 - motor_four.getShaftRPM(), 1);
-//         motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-//         drivers->djiMotorTxHandler
-//             .encodeAndSendCanData();  // Processes these motor speed changes into can signal
-//     }                                 // STOP Updating motor speeds
-// }
-
 /**
  * Returns the speed that the first motor set should go to (the first motor set
  * is the first and fourth motor. Or in other words, the driver's front wheel and the passenger's
@@ -304,19 +261,12 @@ int DriveTrainController::getMotorSetTwoTranslatingSpeed(double xPosition, doubl
     return (MAX_SPEED * magnitude * sin(angle - (PI / (double)4.0)));
 }
 
-int DriveTrainController::getMotorOneSpeedWithCont(
-    bool isBeyblading,
-    double right_stick_vert,
-    double right_stick_horz,
-    double left_stick_vert,
-    double left_stick_horz) {
-    if (isBeyblading)
-    {
+int DriveTrainController::getMotorOneSpeedWithCont(bool isBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
+    if (isBeyblading) {
         double tmp = beyblading_factor * MAX_SPEED + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
         return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
-    else
-    {
+    else {
         double rotation_speed = right_stick_horz * MAX_SPEED;
         if (lockRotation) rotation_speed = 0;
         double tmp =
@@ -325,21 +275,13 @@ int DriveTrainController::getMotorOneSpeedWithCont(
     }
 }
 
-int DriveTrainController::getMotorTwoSpeedWithCont(
-    bool doBeyblading,
-    double right_stick_vert,
-    double right_stick_horz,
-    double left_stick_vert,
-    double left_stick_horz)
-{
-    if (doBeyblading)
-    {
+int DriveTrainController::getMotorTwoSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
+    if (doBeyblading) {
         double tmp = -1 * beyblading_factor * MAX_SPEED +
                      getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
         return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
-    else
-    {
+    else {
         double rotation_speed = -1 * right_stick_horz * MAX_SPEED;
         if (lockRotation) rotation_speed = 0;
         double tmp =
@@ -348,21 +290,13 @@ int DriveTrainController::getMotorTwoSpeedWithCont(
     }
 }
 
-int DriveTrainController::getMotorThreeSpeedWithCont(
-    bool doBeyblading,
-    double right_stick_vert,
-    double right_stick_horz,
-    double left_stick_vert,
-    double left_stick_horz)
-{
-    if (doBeyblading)
-    {
+int DriveTrainController::getMotorThreeSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
+    if (doBeyblading) {
         double tmp = beyblading_factor * MAX_SPEED +
                      getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
         return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
-    else
-    {
+    else {
         double rotation_speed = right_stick_horz * MAX_SPEED;
         if (lockRotation) rotation_speed = 0;
         double tmp =
@@ -371,21 +305,13 @@ int DriveTrainController::getMotorThreeSpeedWithCont(
     }
 }
 
-int DriveTrainController::getMotorFourSpeedWithCont(
-    bool doBeyblading,
-    double right_stick_vert,
-    double right_stick_horz,
-    double left_stick_vert,
-    double left_stick_horz)
-{
-    if (doBeyblading)
-    {
+int DriveTrainController::getMotorFourSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
+    if (doBeyblading) {
         double tmp = -1.0 * beyblading_factor * MAX_SPEED +
                      getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
         return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
     }
-    else
-    {
+    else {
         double rotation_speed = -1 * right_stick_horz * MAX_SPEED;
         if (lockRotation) rotation_speed = 0;
         double tmp =
