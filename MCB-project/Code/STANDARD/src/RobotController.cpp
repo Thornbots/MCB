@@ -27,14 +27,6 @@ namespace ThornBots {
         //keyboardAndMouseEnabled = toggleKeyboardAndMouse();
         keyboardAndMouseEnabled = false;
 
-        // right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
-        // right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
-        // left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
-        // left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
-
-        // driveTrainController->setMotorValues(right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz, temp_yaw_angle, rightSwitchValue, leftSwitchValue);
-        // driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-
         if (keyboardAndMouseEnabled) {
             // We are using Keyboard and Mouse controls
             // TODO : Make this work
@@ -68,32 +60,58 @@ namespace ThornBots {
             left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
 
             // Get Current state of the wheel on the remote and set the appropriate
-            wheel_value = drivers->remote.getWheel();
-            temp_yaw_angle = turretController->getYawEncoderAngle();
+            projectileMotorSpeed = drivers->remote.getWheel();
+            
+            //temp_yaw_angle = turretController->getYawEncoderAngle(); //Figure out what this does
         }
 
         //main logic for the robot
         switch(rightSwitchValue) {
             case 2: //Turret is locked to the drivebase (Turret moves drivetrain follows)
-                //TODO
+                //left stick translates the robot with respect to the turret
+                //right stick handles the pitch and yaw of the turret
 
-                break;
-            case 1: //Turret is independent of the drivebase
-                //left stick translates the robot
-                //right stick handle pitch and yaw of the turret
-
-                //step 1 convert to pitch and yaw of the right stick
-                distance = right_stick_horz;
-                turnSpeed = MAX_SPEED * distance;
+                //step 1 right stick inputs into yaw and pitch motor speeds.
+                yawMotorSpeed = right_stick_horz * MAX_SPEED;
+                pitchMotorSpeed = right_stick_vert * MAX_SPEED;
 
                 //step2 find angle and speed of left stick
                 translationAngle = getAngle(left_stick_horz, left_stick_vert);
                 magnitude = hypot(left_stick_horz, left_stick_vert);
                 translationSpeed = MAX_SPEED * magnitude;
 
+                //Turret moves first
+                turretController->TurretMovesDriveTrainFollows(yawMotorSpeed, pitchMotorSpeed, projectileMotorSpeed);
+                turretController->setMotorSpeeds(sendTurretTimeout.execute());
+
                 //Drive train needs translation speed, and translation angle to know how to move
-                //TODO implement tempName
-                //driveTrainController->tempName( translationSpeed, translationAngle, temp_yaw_angle);
+                driveTrainController->TurretMovesDriveTrainFollow( translationSpeed, translationAngle, temp_yaw_angle);
+                driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
+
+
+                break;
+            case 1: //Turret is independent of the drivebase
+                //left stick translates the robot independently
+                //right stick handle pitch and yaw of the turret
+
+                //step 1 right stick inputs into yaw and pitch motor speeds.
+                yawMotorSpeed = right_stick_horz * MAX_SPEED;
+                pitchMotorSpeed = right_stick_vert * MAX_SPEED;
+
+                //step2 find angle and speed of left stick
+                translationAngle = getAngle(left_stick_horz, left_stick_vert);
+                magnitude = hypot(left_stick_horz, left_stick_vert);
+                translationSpeed = MAX_SPEED * magnitude;
+
+                //Turret moves first
+                turretController->TurretMovesDriveTrainFollows(yawMotorSpeed, pitchMotorSpeed, projectileMotorSpeed);
+                turretController->setMotorSpeeds(sendTurretTimeout.execute());
+
+                //Drive train needs translation speed, and translation angle to know how to move
+                driveTrainController->TurretMovesDriveTrainIndependent( translationSpeed, translationAngle, temp_yaw_angle);
+                driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
+
+
 
                 break;
             case 0: //Turret is aligned with the drivebase (Drivetrain moves turret follows)
@@ -106,13 +124,14 @@ namespace ThornBots {
 
                 //step2 find angle and speed of left stick
                 translationAngle = getAngle(left_stick_horz, left_stick_vert);
-                magnitude = hypot(left_stick_horz, left_stick_vert);
+                magnitude = hypot(left_stick_horz, left_stick_vert);               //may want to square this value, was done before to make values closer to 1 relatively unchanged, if needed we can add it back
                 translationSpeed = MAX_SPEED * magnitude;
 
                 //Drive train needs turn speed, translation speed, and translation angle to know how to move
                 driveTrainController->DriveTrainMovesTurretFollow(turnSpeed, translationSpeed, translationAngle);
                 driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
 
+                //Turrets then follows DriveTrain
                 turretController->FollowDriveTrain();
                 turretController->setMotorSpeeds(sendTurretTimeout.execute());
 

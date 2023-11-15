@@ -39,6 +39,12 @@ namespace ThornBots {
         * to move the drivetrain in the desired direction
         */
         void TurretMovesDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
+
+        /*
+        * Drive trains will move independly of the turret and will need, translationsSpeed, translationAngle, and driveTrainAngleFromTurret
+        * to move the drivetrain without affecting the turret.
+        */
+        void TurretMovesDriveTrainIndependent(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
         
         /*
         * Once our global motor speeds are set, call this function with sendMotorTimeout.execute() as the parameter and it will
@@ -96,9 +102,19 @@ namespace ThornBots {
         double getMagnitude(double xPosition, double yPosition);
         double getScaledQuadratic(double magnitude);
         double updateMotorSpeeds(double MotorNewSpeed, double MotorCurrentSpeed, int slewRate);
+
+        /*
+        * This function will take the translationSpeed and translationAngle and convert them to motor speeds for the drivetrain.
+        */
+        void convertTranslationSpeedToMotorSpeeds(double translationSpeed, double translationAngle);
+
+        /*
+        * This function adjusts the motor speed of each turret based on how turn speed affects each motor.
+        */
+        void adjustMotorSpeedWithTurnSpeed(double turnSpeed);
+        
         
         //float power_limit;
-
         float yaw_motor_angle = 0.0f;
         bool lockRotation = true;
         bool lockDrivetrain = true;

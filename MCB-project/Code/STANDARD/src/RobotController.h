@@ -44,6 +44,11 @@ namespace ThornBots {
         double translationAngle = 0.0;
         double magnitude = 0.0;
         double translationSpeed = 0.0;
+        double pitchMotorSpeed = 0.0;
+        double yawMotorSpeed = 0.0;
+        int16_t projectileMotorSpeed = 0;
+
+
         int16_t wheel_value = 0;
 
         double right_stick_vert = 0.0;

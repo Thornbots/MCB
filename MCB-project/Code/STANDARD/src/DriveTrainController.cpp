@@ -26,16 +26,20 @@ DriveTrainController::DriveTrainController(tap::Drivers* m_driver) {
 DriveTrainController::~DriveTrainController() {}  
 
 void DriveTrainController::DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle) {
-    //TODO: Check if this works
-    double MotorOneTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
-    double MotorTwoTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
-    double MotorThreeTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
-    double MotorFourTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
+    
+    convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
+    
+    adjustMotorSpeedWithTurnSpeed(turnSpeed);
 
-    motor_one_speed = MotorOneTranslationSpeed + turnSpeed;
-    motor_two_speed = MotorTwoTranslationSpeed - turnSpeed;
-    motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
-    motor_four_speed = MotorFourTranslationSpeed - turnSpeed;
+    // double MotorOneTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
+    // double MotorTwoTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
+    // double MotorThreeTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
+    // double MotorFourTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
+
+    // motor_one_speed = MotorOneTranslationSpeed + turnSpeed;
+    // motor_two_speed = MotorTwoTranslationSpeed - turnSpeed;
+    // motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
+    // motor_four_speed = MotorFourTranslationSpeed - turnSpeed;
 }
 
 void DriveTrainController::TurretMovesDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
@@ -53,6 +57,10 @@ void DriveTrainController::TurretMovesDriveTrainFollow(double translationSpeed, 
     motor_two_speed = MotorTwoTranslationSpeed - turnSpeed;
     motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
     motor_four_speed = MotorFourTranslationSpeed - turnSpeed;
+}
+
+void DriveTrainController::TurretMovesDriveTrainIndependent(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
+
 }
 
 void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout) {
@@ -81,6 +89,20 @@ void DriveTrainController::stopMotors(bool sendMotorTimeout) {
     motor_three_speed = 0;
     motor_four_speed = 0;
     setMotorSpeeds(sendMotorTimeout);
+}
+
+void DriveTrainController::convertTranslationSpeedToMotorSpeeds(double translationSpeed, double translationAngle) {
+    motor_one_speed = translationSpeed * sin(translationAngle + (PI / 4));
+    motor_two_speed = translationSpeed * sin(translationAngle - (PI / 4));
+    motor_three_speed = translationSpeed * sin(translationAngle - (PI / 4));
+    motor_four_speed = translationSpeed * sin(translationAngle + (PI / 4));
+}
+
+void DriveTrainController::adjustMotorSpeedWithTurnSpeed(double turnSpeed) {
+    motor_one_speed += turnSpeed;
+    motor_two_speed -= turnSpeed;
+    motor_three_speed += turnSpeed;
+    motor_four_speed -= turnSpeed;
 }
 
 

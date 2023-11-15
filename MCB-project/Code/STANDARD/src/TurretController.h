@@ -32,6 +32,11 @@ namespace ThornBots {
         */
         void FollowDriveTrain();
 
+        /*
+        * Turret need yaw amd pitch angles of the turret
+        */
+        void TurretMovesDriveTrainFollows(double yawAngle, double pitchAngle, int16_t projectileMotorSpeed);
+
         //TODO - Refactor these functions
         void setMotorValues(bool useWASD, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, int16_t wheel_value, bool isRightStickUp, bool isLeftStickUp, int rightSwitchValue, int leftSwitchValue);
         void setMotorSpeeds(bool sendMotorTimeout);
