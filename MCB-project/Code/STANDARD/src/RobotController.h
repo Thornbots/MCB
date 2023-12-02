@@ -7,7 +7,6 @@
 #include "DriveTrainController.h"
 #include "TurretController.h"
 
-
 namespace ThornBots {
     class RobotController {
     public:
@@ -48,15 +47,12 @@ namespace ThornBots {
         double yawMotorSpeed = 0.0;
         int16_t projectileMotorSpeed = 0;
 
-
         int16_t wheel_value = 0;
 
         double right_stick_vert = 0.0;
         double right_stick_horz = 0.0;
         double left_stick_vert = 0.0;
         double left_stick_horz = 0.0;
-
-
 
         tap::Drivers* drivers;
         ThornBots::DriveTrainController *driveTrainController;

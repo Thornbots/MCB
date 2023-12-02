@@ -26,41 +26,23 @@ DriveTrainController::DriveTrainController(tap::Drivers* m_driver) {
 DriveTrainController::~DriveTrainController() {}  
 
 void DriveTrainController::DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle) {
-    
     convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
-    
     adjustMotorSpeedWithTurnSpeed(turnSpeed);
-
-    // double MotorOneTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
-    // double MotorTwoTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
-    // double MotorThreeTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
-    // double MotorFourTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
-
-    // motor_one_speed = MotorOneTranslationSpeed + turnSpeed;
-    // motor_two_speed = MotorTwoTranslationSpeed - turnSpeed;
-    // motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
-    // motor_four_speed = MotorFourTranslationSpeed - turnSpeed;
 }
 
 void DriveTrainController::TurretMovesDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
     //TODO: Check that this works
-    double MotorOneTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
-    double MotorTwoTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
-    double MotorThreeTranslationSpeed = translationSpeed * sin(translationAngle - (PI / 4));
-    double MotorFourTranslationSpeed = translationSpeed * sin(translationAngle + (PI / 4));
+    convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
 
     pidControllerDTFollowsT.runControllerDerivateError(driveTrainAngleFromTurret, 1); //TODO: TUNE THE PID CONSTANTS!!!
     double turnSpeed = ((double)pidController.getOutput());
     
-    //TODO: VERIFY THAT THE DIRECTIONS ARE CORRECT. THIS IS A RANDOM GUESS
-    motor_one_speed = MotorOneTranslationSpeed + turnSpeed;
-    motor_two_speed = MotorTwoTranslationSpeed - turnSpeed;
-    motor_three_speed = MotorThreeTranslationSpeed + turnSpeed;
-    motor_four_speed = MotorFourTranslationSpeed - turnSpeed;
+    adjustMotorSpeedWithTurnSpeed(turnSpeed);
 }
 
+//Only worrying about translating in this state
 void DriveTrainController::TurretMovesDriveTrainIndependent(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
-
+    convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
 }
 
 void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout) {
@@ -104,12 +86,6 @@ void DriveTrainController::adjustMotorSpeedWithTurnSpeed(double turnSpeed) {
     motor_three_speed += turnSpeed;
     motor_four_speed -= turnSpeed;
 }
-
-
-
-
-
-
 
 //-------------------------------------------------------------------------------------------------
 //Everything below this point should hopefully get Redone
@@ -209,24 +185,22 @@ void DriveTrainController::setMotorValues(double right_stick_vert, double right_
     motor_three_speed = updateMotorSpeeds(motor_three_new_speed, motor_three_speed, slew_rate);
     motor_four_speed =  updateMotorSpeeds(motor_four_new_speed, motor_four_speed, slew_rate);
 
-    /*
-    Power Limiting w/Receiver
-    power_limit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
-    float current_power = drivers->refSerial.getRobotData().chassis.power;
-    if(current_power + (.05 * power_limit) > power_limit){
-        motor_one_speed = power_limit/(current_power + (.05 * power_limit)) * motor_one_speed;
-        motor_two_speed = power_limit/(current_power + (.05 * power_limit)) * motor_two_speed;
-        motor_three_speed = power_limit/(current_power + (.05 * power_limit)) * motor_three_speed;
-        motor_four_speed = power_limit/(current_power + (.05 * power_limit)) * motor_four_speed;
-    }else if(current_power < power_limit){
-        motor_one_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz,
-    left_stick_vert, left_stick_horz); motor_two_speed = getMotorTwoSpeedWithCont(doBeyblading,
-    right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz); motor_three_speed =
-    getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert,
-    left_stick_horz); motor_four_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert,
-    right_stick_horz, left_stick_vert, left_stick_horz);
-    }
-    */
+    
+    // // Power Limiting w/Receiver
+    // power_limit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
+    // float current_power = drivers->refSerial.getRobotData().chassis.power;
+    // if(current_power + (.05 * power_limit) > power_limit){
+    //     motor_one_speed = power_limit/(current_power + (.05 * power_limit)) * motor_one_speed;
+    //     motor_two_speed = power_limit/(current_power + (.05 * power_limit)) * motor_two_speed;
+    //     motor_three_speed = power_limit/(current_power + (.05 * power_limit)) * motor_three_speed;
+    //     motor_four_speed = power_limit/(current_power + (.05 * power_limit)) * motor_four_speed;
+    // }else if(current_power < power_limit){
+    //     motor_one_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz); 
+    //     motor_two_speed = getMotorTwoSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz); 
+    //     motor_three_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz); 
+    //     motor_four_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+    // }
+    
 }
 
 /* 

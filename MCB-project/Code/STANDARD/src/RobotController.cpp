@@ -111,8 +111,6 @@ namespace ThornBots {
                 driveTrainController->TurretMovesDriveTrainIndependent( translationSpeed, translationAngle, temp_yaw_angle);
                 driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
 
-
-
                 break;
             case 0: //Turret is aligned with the drivebase (Drivetrain moves turret follows)
                 //left stick translates the robot
