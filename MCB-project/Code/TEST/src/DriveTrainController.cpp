@@ -1,38 +1,39 @@
 #include "DriveTrainController.h"
 
 namespace ThornBots{
-    class DriveTrainController{
-        public:
-            DriveTrainController::DriveTrainController(tap::Drivers* driver) {
-                //TODO
-            }
+    DriveTrainController::DriveTrainController(tap::Drivers* driver) {
+        this->drivers = driver;
+    }
 
-            void DriveTrainMovesTurretFollow() {
-                //TODO
-            }
+    void DriveTrainController::initialize() {
+        //TODO
+    }
 
-            void TurretMoveDriveTrainFollow() {
-                //TODO
-            }
+    void DriveTrainController::DriveTrainMovesTurretFollow() {
+        //TODO
+    }
 
-            void TurretMoveDriveTrainIndependent() {
-                //TODO
-            }
+    void DriveTrainController::TurretMoveDriveTrainFollow() {
+        //TODO
+    }
 
-            void setMotorSpeeds() {
-                //TODO
-            }
+    void DriveTrainController::TurretMoveDriveTrainIndependent() {
+        //TODO
+    }
 
-            void stopMotors() {
-                //TODO
-            }
-        private: 
-            void convertTranslationSpeedToMotorSpeeds() {
-                //TODO
-            }
+    void DriveTrainController::setMotorSpeeds() {
+        //TODO
+    }
 
-            void adjustMotorSpeedWithTurnSpeed() {
-                //TODO
-            }
-    };
+    void DriveTrainController::stopMotors() {
+        //TODO
+    }
+
+    void DriveTrainController::convertTranslationSpeedToMotorSpeeds(double magnitude, double angle) {
+        //TODO
+    }
+
+    void DriveTrainController::adjustMotorSpeedWithTurnSpeed(double turnAngle) {
+        //TODO
+    }
 }

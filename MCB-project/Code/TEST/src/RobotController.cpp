@@ -1,55 +1,50 @@
 #include "RobotController.h"
 
 namespace ThornBots {
-    class RobotController{
-        public: //Public Methods
-            /*
-            * Constructor for RobotController
-            */
-            RobotController::RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController) {
-                this->drivers = driver;
-                this->driveTrainController = driveTrainController;
-                this->turretController = turretController;
-            }
+    /*
+    * Constructor for RobotController
+    */
+    RobotController::RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController) {
+        this->drivers = driver;
+        this->driveTrainController = driveTrainController;
+        this->turretController = turretController;
+    }
 
+    void RobotController::inialize() {
+        this->driveTrainController->initialize();
+        this->turretController->initialize();
+        //TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's reading correctly, ect)
+    }
 
-            void inialize() {
-                this->driveTrainController.initialize();
-                this->turretController.initialize();
-                //TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's reading correctly, ect)
-            }
+    void RobotController::update() {
+        //TODO
+    }
 
-            void update() {
-                //TODO
-            }
+    void RobotController::stopRobot() {
+        //TODO
+    }
 
-            void stopRobot() {
-                //TODO
-            }
+    void RobotController::updateAllInputVariables() {
+        //TODO
+    }
 
-            void toggleKeyBoardandMouse() {
-                //TODO
-            }
+    double RobotController::getAngle(double x, double y) {
+        //TODO
+        return ((double)0.0);
+    }
 
-            void updateAllInputVariables() {
-                //TODO
-            }
+    bool RobotController::toggleKeyboardAndMouse() {
+        //TODO
+        return false;
+    }
 
-        private: //Private Methods
-            double getAngle(double x, double y) {
-                //TODO
-            }
+    int RobotController::findLeftSwitchState() {
+        //TODO
+        return 0;
+    }
 
-            bool toggleKeyboardAndMouse() {
-                //TODO
-            }
-
-            int findLeftSwitchState() {
-                //TODO
-            }
-
-            int findRighTSwitchState() {
-                //TODO
-            }
-    };
+    int RobotController::findRighTSwitchState() {
+        //TODO
+        return 0;
+    }
 }
