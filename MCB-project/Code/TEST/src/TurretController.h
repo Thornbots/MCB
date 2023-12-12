@@ -5,11 +5,13 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
+#include "YawController.hpp"
 
 namespace ThornBots {
     class TurretController {
         public: //Public Variables
             constexpr static int YAW_MOTOR_MAX_SPEED = 1000; //TODO: Make this value relevent
+            constexpr static int YAW_MOTOR_MAX_VOLTAGE = 24000; //Should be the voltage of the battery. Unless the motor maxes out below that. //TODO: Check the datasheets
             constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177; //With the 2006, this should give 20Hz
             constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
             constexpr static int PITCH_MOTOR_MAX_SPEED = 1000; //TOOD: Make this value relevent
@@ -24,10 +26,8 @@ namespace ThornBots {
             tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
         
             constexpr static tap::algorithms::SmoothPidConfig pidControllerTurretMotorsConfig = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 69, 0 };
-            constexpr static tap::algorithms::SmoothPidConfig pidControllerYawConfig = { 180, 0, -30000, 0, 1000000, 1, 0, 1, 0, 0, 0 };    //{ 90, 10, -15000, 1, 1000000, 1, 0, 1, 0, 0, 0 };
             constexpr static tap::algorithms::SmoothPidConfig pidControllerPitchConfig = { 800, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0 };
             tap::algorithms::SmoothPid pidControllerTurretMotors = tap::algorithms::SmoothPid(pidControllerTurretMotorsConfig);
-            tap::algorithms::SmoothPid pidControllerYaw = tap::algorithms::SmoothPid(pidControllerYawConfig);
             tap::algorithms::SmoothPid pidControllerPitch = tap::algorithms::SmoothPid(pidControllerPitchConfig);
 
         public: //Public Methods
