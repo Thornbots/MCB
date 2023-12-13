@@ -6,20 +6,23 @@
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
 
+
 namespace ThornBots{
+    static tap::arch::PeriodicMilliTimer driveTrainMotorsTimer(2); //Don't ask me why. This only works as a global. #Certified Taproot Moment
     class DriveTrainController{
         public: //Public Variables
+            constexpr static double PI = 3.14159; //Everyone likes Pi!
+            constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt = { 120, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
+            constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret = {500, 0.5, 0, 0, 6000, 1, 0, 1, 0, 0, 0 }; //TODO: Tune this profile
         private: //Private Variables
-        tap::Drivers *drivers;
-        tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
-        tap::motor::DjiMotor motor_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "ID2", 0, 0);
-        tap::motor::DjiMotor motor_three = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, true, "ID3", 0, 0);
-        tap::motor::DjiMotor motor_four = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "ID4", 0, 0);
-        
-        constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt = { 120, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
-        constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret = {500, 0.5, 0, 0, 6000, 1, 0, 1, 0, 0, 0 }; //TODO: Tune this profile
-        tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
-        tap::algorithms::SmoothPid pidControllerDTFollowsT = tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
+            double motorOneSpeed, motorTwoSpeed, motorThreeSpeed, motorFourSpeed = 0;
+            tap::Drivers *drivers;
+            tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
+            tap::motor::DjiMotor motor_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "ID2", 0, 0);
+            tap::motor::DjiMotor motor_three = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, true, "ID3", 0, 0);
+            tap::motor::DjiMotor motor_four = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "ID4", 0, 0);
+            tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
+            tap::algorithms::SmoothPid pidControllerDTFollowsT = tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
 
         public: //Public Methods
             DriveTrainController(tap::Drivers* driver);
@@ -40,7 +43,7 @@ namespace ThornBots{
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void DriveTrainMovesTurretFollow();
+            void DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle);
 
             /*
             * Call this function when you want the drivetrain to be independent of the Turret.
@@ -50,7 +53,7 @@ namespace ThornBots{
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void TurretMoveDriveTrainFollow();
+            void TurretMoveDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
 
             /*
             * Call this function when you want the drivetrain and turret to move independently. 
@@ -60,7 +63,7 @@ namespace ThornBots{
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void TurretMoveDriveTrainIndependent();
+            void TurretMoveDriveTrainIndependent(double translationSpeed, double translationAngle);
 
             /*
             * Call this function to convert the desired RPM for all of motors in the DriveTrainController to a voltage level which

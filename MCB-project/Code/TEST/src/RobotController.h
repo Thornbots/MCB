@@ -3,6 +3,8 @@
 #include "TurretController.h"
 
 namespace ThornBots {
+    static tap::arch::PeriodicMilliTimer IMUTimer(2);
+
     class RobotController {
     public: //Public Variables
     constexpr static double TURN_RATIO = 0.5; //TODO: Make this number actualy relevent
@@ -10,6 +12,7 @@ namespace ThornBots {
     constexpr static double FAST_BEYBLADE_FACTOR = 0.7;
     constexpr static double SLOW_BEYBLADE_FACTOR = 0.35;
     constexpr static double MAX_SPEED = 10000; //TODO: Make this number actually relevent
+    constexpr static double PI = 3.14159;
 
     private: //Private Variables
         tap::Drivers* drivers;
@@ -20,6 +23,9 @@ namespace ThornBots {
         double driveTrainAngleRelativeToWorld;
         double turretAngleRelativeToWorld;
         double desiredAngleRelativeToWorld;
+        tap::communication::serial::Remote::SwitchState rightSwitchState = tap::communication::serial::Remote::SwitchState::DOWN;
+        tap::communication::serial::Remote::SwitchState leftSwitchState = tap::communication::serial::Remote::SwitchState::DOWN;
+
 
     public: //Public Methods
         RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
@@ -63,15 +69,5 @@ namespace ThornBots {
         * be enabled or not. It requires the pressing of CTRL + SHIFT + R to enable KBM mode.
         */
         bool toggleKeyboardAndMouse();
-
-        /*
-        * Will update the input variable DIRECTLY related to the left switch
-        */
-        int findLeftSwitchState();
-
-        /*
-        * Will update the input variable DIRECTLY related to the right switch
-        */
-        int findRighTSwitchState();
     };
 }

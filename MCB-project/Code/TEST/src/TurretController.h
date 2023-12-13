@@ -8,6 +8,7 @@
 #include "YawController.hpp"
 
 namespace ThornBots {
+    static tap::arch::PeriodicMilliTimer turretMotorsTimer(2); //Don't ask me why. This only works as a global. #Certified Taproot Moment
     class TurretController {
         public: //Public Variables
             constexpr static int YAW_MOTOR_MAX_SPEED = 1000; //TODO: Make this value relevent
