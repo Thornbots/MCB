@@ -34,6 +34,8 @@ namespace ThornBots{
             * If you want to know what initializing actually does, ping Teaney in discord, or just Google it. It's pretty cool.
             */
             void initialize();
+            
+            void driveTrainBeyBladeAndTranslate(double translationSpeed, double translationAngle, double beyBladeSpeed);
 
             /*
             * Call this function when you want the Turret to follow the DriveTrain
@@ -43,7 +45,7 @@ namespace ThornBots{
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle);
+            void driveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle);
 
             /*
             * Call this function when you want the drivetrain to be independent of the Turret.
@@ -53,7 +55,7 @@ namespace ThornBots{
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void TurretMoveDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
+            void turretMoveDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
 
             /*
             * Call this function when you want the drivetrain and turret to move independently. 
@@ -63,7 +65,7 @@ namespace ThornBots{
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void TurretMoveDriveTrainIndependent(double translationSpeed, double translationAngle);
+            void turretMoveDriveTrainIndependent(double translationSpeed, double translationAngle);
 
             /*
             * Call this function to convert the desired RPM for all of motors in the DriveTrainController to a voltage level which

@@ -60,7 +60,7 @@ namespace ThornBots {
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void turretMovesDriveTrainFollows();
+            void TurretMove();
 
             /*
             * Call this function to convert the desired RPM for all of motors in the TurretController to a voltage level which

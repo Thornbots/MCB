@@ -23,6 +23,8 @@ namespace ThornBots {
         double driveTrainAngleRelativeToWorld;
         double turretAngleRelativeToWorld;
         double desiredAngleRelativeToWorld;
+        double leftStickAngle, leftStickMagnitude, left_stick_horz, left_stick_vert = 0;
+        double rightStickAngle, rightStickMagnitude, right_stick_horz, right_stick_vert = 0;
         tap::communication::serial::Remote::SwitchState rightSwitchState = tap::communication::serial::Remote::SwitchState::DOWN;
         tap::communication::serial::Remote::SwitchState leftSwitchState = tap::communication::serial::Remote::SwitchState::DOWN;
 
@@ -63,6 +65,7 @@ namespace ThornBots {
 
     private: //Private Methods
         double getAngle(double x, double y);
+        double getMagnitude(double x, double y);
 
         /*
         * Reads inputs from the keyboard and mouse and checks to see if KBM(keyboard and Mouse) mode should

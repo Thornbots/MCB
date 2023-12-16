@@ -13,7 +13,7 @@ namespace ThornBots {
         //TODO
     }
 
-    void TurretController::turretMovesDriveTrainFollows() {
+    void TurretController::TurretMove() {
         //TODO
     }
 
