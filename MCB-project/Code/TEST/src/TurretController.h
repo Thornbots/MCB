@@ -2,102 +2,102 @@
 #include "tap/algorithms/smooth_pid.hpp"
 #include "tap/board/board.hpp"
 #include "drivers_singleton.hpp"
+#include <cmath>
+#include <iostream>
+#include <string>
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
-#include "YawController.hpp"
+#include <cmath>
+static tap::algorithms::SmoothPidConfig pid_conf_turret = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 69, 0 };
+static tap::algorithms::SmoothPidConfig pid_yaw_conf = { 180, 0, -30000, 0, 1000000, 1, 0, 1, 0, 0, 0 };    //{ 90, 10, -15000, 1, 1000000, 1, 0, 1, 0, 0, 0 };
+static tap::algorithms::SmoothPidConfig pid_pitch_conf = { 800, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0 };
+
+static constexpr int motor_yaw_max_speed = 500; //Not sure if this is the absolute maximum. Need to test. Motor documentation says 320, but it can def spin faster than taproot's 320 rpm.
+static constexpr int motor_indexer_max_speed = 6000;
+static constexpr int flywheel_max_speed = 5000;
+static constexpr int motor_pitch_max_speed = 900;
+static constexpr int YAW_MOTOR_SCALAR = 500;
 
 namespace ThornBots {
-    static tap::arch::PeriodicMilliTimer turretMotorsTimer(2); //Don't ask me why. This only works as a global. #Certified Taproot Moment
     class TurretController {
-        public: //Public Variables
-            constexpr static int YAW_MOTOR_MAX_SPEED = 1000; //TODO: Make this value relevent
-            constexpr static int YAW_MOTOR_MAX_VOLTAGE = 24000; //Should be the voltage of the battery. Unless the motor maxes out below that. //TODO: Check the datasheets
-            constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177; //With the 2006, this should give 20Hz
-            constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
-            constexpr static int PITCH_MOTOR_MAX_SPEED = 1000; //TOOD: Make this value relevent
+    public:
+        //Contructor and Destructor
+        TurretController(tap::Drivers* driver);
+        ~TurretController();
+
+        //----------------------------------Functions----------------------------------
+        /*
+        * This function will make the turret follow the drivetrain
+        */
+        void FollowDriveTrain();
+
+        /*
+        * Turret need yaw amd pitch angles of the turret
+        */
+        void TurretMovesDriveTrainFollows(double yawAngle, double pitchAngle, int16_t projectileMotorSpeed);
+
+        //TODO - Refactor these functions
+        void setMotorValues(bool useWASD, double angleOffset, double right_stick_vert, double right_stick_horz, int motor_one_speed, int motor_four_speed, int16_t wheel_value, bool isRightStickUp, bool isLeftStickUp, int rightSwitchValue, int leftSwitchValue);
+        void setMotorSpeeds(bool sendMotorTimeout);
+        void stopMotors(bool sendMotorTimeout);
+        void startShooting();
+        void stopShooting();
+        void reZero();
+        float getYawEncoderAngle();
         
-        private: //Private Variables
-            tap::Drivers* drivers;
-            //TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
-            tap::motor::DjiMotor motor_Yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Yaw", 0, 0);
-            tap::motor::DjiMotor motor_Pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS2, false, "Pitch", 0, 0);
-            tap::motor::DjiMotor motor_Indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0);
-            tap::motor::DjiMotor motor_Flywheel1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0);
-            tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
-        
-            constexpr static tap::algorithms::SmoothPidConfig pidControllerTurretMotorsConfig = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 69, 0 };
-            constexpr static tap::algorithms::SmoothPidConfig pidControllerPitchConfig = { 800, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0 };
-            tap::algorithms::SmoothPid pidControllerTurretMotors = tap::algorithms::SmoothPid(pidControllerTurretMotorsConfig);
-            tap::algorithms::SmoothPid pidControllerPitch = tap::algorithms::SmoothPid(pidControllerPitchConfig);
+    private:
 
-        public: //Public Methods
-            TurretController(tap::Drivers* driver);
-            ~TurretController() {} //Intentionally left blank
+        //----------------------------------Functions----------------------------------
 
-            /*
-            * Call this function once, outside of the main loop.
-            * This function will initalize all of the motors, timers, pidControllers, and any other used object.
-            * If you want to know what initializing actually does, ping Teaney in discord, or just Google it. It's pretty cool.
-            */
-            void initialize();
-            
-            /*
-            * Call this function when you want the Turret to follow the DriveTrain
-            * Should be called within the main loop, so called every time in the main loop when you want the described behavior.
-            * This will allow the drivetrain to translate with left stick, and turn with the right stick.
-            * This function should be called when the right switch is in the Up state.
-            * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
-            * and right stick will control pitch and yaw of the turret.
-            */
-            void driveTrainMovesTurretFollows();
+        /*
+        * This function will get the raw angle from the IMU and calculate the angle offset of the turret from the drivetrain
+        */
+        double getAngleOffset();
 
-            /*
-            * Call this function when you want the drivetrain to be independent of the Turret.
-            * Should be called within the main loop, so called every time in the main loop when you want the described behavior.
-            * This will allow the drivetrain to translate with the left stick, and the right stick is for the turret.
-            * This function should be called when the right switch is in the Down state.
-            * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
-            * and right stick will control pitch and yaw of the turret.
-            */
-            void TurretMove();
 
-            /*
-            * Call this function to convert the desired RPM for all of motors in the TurretController to a voltage level which
-            * would then be sent over CanBus to each of the motor controllers to actually set this voltage level on each of the motors.
-            * Should be placed inside of the main loop, and called every time through the loop, ONCE
-            */
-            void setMotorSpeeds();
+        //START getters and setters
+        inline int getMotorYawSpeed() { return motor_yaw_speed; }
+        inline int getMotorPitchSpeed() { return motor_pitch_speed; }
+        inline int getMotorIndexerSpeed() { return motor_indexer_speed; }
+        inline int getFlywheelSpeed() { return flywheel_speed; }
+        inline int getMotorPitchMaxSpeed() { return motor_pitch_max_speed; }
+        inline int getMotorYawMaxSpeed() { return motor_yaw_max_speed; }
+        inline int getFlywheelMaxSpeed() { return flywheel_max_speed; }
+        inline int getMotorIndeerMaxSpeed() { return motor_indexer_max_speed; }
+        inline void setMotorYawSpeed(int speed) { motor_yaw_speed = speed; }
+        inline void setMotorPitchSpeed(int speed) { motor_pitch_speed = speed; }
+        inline void setMotorIndexerSpeed(int speed) { motor_indexer_speed = speed; }
+        inline void setFlywheelSpeed(int speed) { flywheel_speed = speed; }
+        //STOP getters and setters
 
-            /*
-            * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in which to achieve this quickly
-            * and packages this information for the motors TO BE SENT over CanBus
-            */
-            void stopMotors();
+        bool isShooting = false;
+        int motor_yaw_speed = 0;
+        int flywheel_speed = 0;
+        int motor_indexer_speed = 0;
+        int motor_pitch_speed = 0;
+        double current_yaw_angle = 180;
+        float desiredAngle = 0.0f;
+        float desiredPitch = 0.0f;
+        double rawAngle = 0.0;
+        double AngleOffset = 0.0;
 
-            /*
-            * Call this function (any number of times) in order to ALLOW shooting. This does NOT mean that the turret WILL shoot.
-            * The idea of this function is to allow implementation of AI auto-shooting easily, by "giving control" of the turret to the
-            * communicatons received from the Jetson.
-            * This function is not intended to be used for control when the driver is manually aiming/deciding to shoot or not.
-            */
-            void enableShooting();
+        int tmp = 0;
 
-            /*
-            * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.
-            * The idea of this function is to allow implementation of AI auto-shooting easily, by "giving control" of the turret to the 
-            * communications received from the Jetson.
-            * This function is not intended to be used for conrtol when the driver is manually aiming/deciding to shoot or not.
-            */
-            void disableShooting();
-
-            /*
-            * Call this function (any number of times) to reZero the yaw motor location. This will be used when first turning on the robot
-            * and setting the Turret to where the front of the DriveTrain is. 
-            * This function should be called when either in the bootup sequence, or when some, undetermined button is pressed on the keyboard.
-            */
-            void reZeroYaw();
-
-        private: //Private Methods
+        static constexpr double PI = 3.14159; //Everyone likes Pi!
+        tap::Drivers *drivers;
+        int homemadePID(double value);
+        int getYawMotorSpeed(double actualAngle, int motor_one_speed, int motor_two_speed, bool isRightStickUp, bool isLeftStickUp, double right_stick_horz, double right_stick_vert, int rightSwitchValue);
+        int getPitchMotorSpeed(bool useWASD, double right_stick_vert, double angleOffSet);
+        int getIndexerMotorSpeed(int16_t wheel_value);
+        int getFlywheelsSpeed(int16_t wheel_value);
+        tap::motor::DjiMotor motor_yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Have you seen The Bee Movie?", 0, 0);
+        tap::motor::DjiMotor motor_pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS2, false, "Yellow black, yellow black. Ohhh lets spice things up a bit. Black yellow", 0, 0);
+        tap::motor::DjiMotor motor_indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "He has a pudding-bowl haircut, brown eyes and a sharp nose", 0, 0);
+        tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "right flywheel", 0, 0);
+        tap::motor::DjiMotor flywheel_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "left flywheel", 0, 0);
+        tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_turret);
+        tap::algorithms::SmoothPid yawPidController = tap::algorithms::SmoothPid(pid_yaw_conf);
+        tap::algorithms::SmoothPid pitchPidController = tap::algorithms::SmoothPid(pid_pitch_conf);    
     };
 }
