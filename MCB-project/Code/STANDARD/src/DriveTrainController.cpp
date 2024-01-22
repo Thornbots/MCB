@@ -2,7 +2,7 @@
 
 namespace ThornBots{
     static double motorOneSpeed, motorTwoSpeed, motorThreeSpeed, motorFourSpeed = 0;
-    double motorOneRPM = 0;
+    double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0;
     DriveTrainController::DriveTrainController(tap::Drivers* driver) {
         this->drivers = driver;
     }
@@ -42,10 +42,15 @@ namespace ThornBots{
 
     void DriveTrainController::setMotorSpeeds() {
         drivers->canRxHandler.pollCanData();
+        motorOneRPM = motor_one.getShaftRPM();
+        motorTwoRPM = motor_two.getShaftRPM();
+        motorThreeRPM = motor_three.getShaftRPM();
+        motorFourRPM = motor_four.getShaftRPM();
+
         // Motor1 (The driver's front wheel)
+        // pidController.runControllerDerivateError(motorOneSpeed - motor_one.getShaftRPM(), 1);
         pidController.runControllerDerivateError(motorOneSpeed - motor_one.getShaftRPM(), 1);
         motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        motorOneRPM = motor_one.getShaftRPM();
 
         // Motor2 (The passenger's front wheel)
         pidController.runControllerDerivateError(motorTwoSpeed - motor_two.getShaftRPM(), 1);

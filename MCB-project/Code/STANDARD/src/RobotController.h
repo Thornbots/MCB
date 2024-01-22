@@ -17,6 +17,7 @@ namespace ThornBots {
             static constexpr double PI = 3.14159;
             static constexpr double MAX_SPEED = 0;
             static constexpr double FAST_BEYBLADE_FACTOR = 0.7;
+            static constexpr double SLOW_BEYBLADE_FACTOR = 0.35;
             // static constexpr double 
         private: //Private Variables
             tap::Drivers *drivers;

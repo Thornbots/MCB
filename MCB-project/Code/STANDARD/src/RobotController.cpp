@@ -2,6 +2,7 @@
 #include <cmath>
 
 namespace ThornBots {
+    double stickLeftHorz, stickLeftVert, stickRightHorz, stickRightVert, stickLeftAngle, stickLeftMagn, stickRightAngle, stickRightMagn = 0.0;
     /*
     * Constructor for RobotController
     */
@@ -35,16 +36,27 @@ namespace ThornBots {
                 turretController->TurretMove();
                 break;
             case(tap::communication::serial::Remote::SwitchState::MID):
+                driveTrainController->driveTrainBeyBladeAndTranslate((leftStickMagnitude * MAX_SPEED), leftStickAngle, (SLOW_BEYBLADE_FACTOR * MAX_SPEED));
+                turretController->TurretMove();
                 //Left Switch is mid. So need to beyblade at slow speed, and let right stick control turret yaw and pitch
                 break;
             case(tap::communication::serial::Remote::SwitchState::DOWN):
                 //Left Switch is down. So need to not beyblade, and let right stick be decided on the right switch value
                 switch(rightSwitchState) {
                     case(tap::communication::serial::Remote::SwitchState::UP):
+                        //Left switch is down, and right is up. So driveTrainFollows Turret
+                        driveTrainController->turretMoveDriveTrainFollow(leftStickMagnitude * MAX_SPEED, leftStickAngle, 0);
+                        turretController->TurretMove();
                         break;
                     case(tap::communication::serial::Remote::SwitchState::MID):
+                        //Left switch is down, and right is mid. So move turret independently of drivetrain
+                        driveTrainController->turretMoveDriveTrainIndependent(leftStickMagnitude * MAX_SPEED, leftStickAngle);
+                        turretController->TurretMove();
                         break;
                     case(tap::communication::serial::Remote::SwitchState::DOWN):
+                        //Left switch is down, and right is mid. So move drivetrain and have turret follow.
+                        driveTrainController->turretMoveDriveTrainIndependent(leftStickMagnitude * MAX_SPEED, leftStickAngle);
+                        turretController->driveTrainMovesTurretFollows();
                         break;
                     default:
                         //Should not be in this state. So if we are, just tell robot to do nothing.
@@ -105,6 +117,15 @@ namespace ThornBots {
         //STOP Updating stick values
         
         wheelValue = drivers->remote.getWheel();
+
+        stickLeftHorz = left_stick_horz;
+        stickLeftVert = left_stick_vert;
+        stickRightHorz = right_stick_horz;
+        stickRightVert = right_stick_vert;
+        stickLeftAngle = leftStickAngle;
+        stickLeftMagn = leftStickMagnitude;
+        stickRightAngle = rightStickAngle;
+        stickRightMagn = rightStickMagnitude;
     }
 
     double RobotController::getAngle(double x, double y) {
