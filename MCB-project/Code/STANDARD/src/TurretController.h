@@ -14,7 +14,6 @@ namespace ThornBots {
             constexpr static int YAW_MOTOR_MAX_VOLTAGE = 24000; //Should be the voltage of the battery. Unless the motor maxes out below that. //TODO: Check the datasheets
             constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177; //With the 2006, this should give 20Hz
             constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
-            constexpr static int PITCH_MOTOR_MAX_SPEED = 1000; //TOOD: Make this value relevent
         
         private: //Private Variables
             tap::Drivers* drivers;
@@ -26,9 +25,13 @@ namespace ThornBots {
             tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
         
             constexpr static tap::algorithms::SmoothPidConfig pidControllerTurretMotorsConfig = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 69, 0 };
-            constexpr static tap::algorithms::SmoothPidConfig pidControllerPitchConfig = { 800, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0 };
+            constexpr static tap::algorithms::SmoothPidConfig pidControllerPitchConfig = {800, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0};;
             tap::algorithms::SmoothPid pidControllerTurretMotors = tap::algorithms::SmoothPid(pidControllerTurretMotorsConfig);
             tap::algorithms::SmoothPid pidControllerPitch = tap::algorithms::SmoothPid(pidControllerPitchConfig);
+            ThornBots::YawController yawController = YawController();
+            
+            double pitchMotorVoltage, yawMotorVoltage = 0.0;
+            double measuredYawMotorRPM, measuredYawMotorEncoderAngle = 0.0;
 
         public: //Public Methods
             TurretController(tap::Drivers* driver);
@@ -49,7 +52,7 @@ namespace ThornBots {
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void driveTrainMovesTurretFollows();
+            void driveTrainMovesTurretFollows(double angleError);
 
             /*
             * Call this function when you want the drivetrain to be independent of the Turret.
@@ -59,7 +62,7 @@ namespace ThornBots {
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void TurretMove();
+            void turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double dt);
 
             /*
             * Call this function to convert the desired RPM for all of motors in the TurretController to a voltage level which
@@ -98,5 +101,9 @@ namespace ThornBots {
             void reZeroYaw();
 
         private: //Private Methods
+            int getPitchVoltage(double targetAngle);
+
+            void updateYawVariables();
+            int getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt);
     };
 }

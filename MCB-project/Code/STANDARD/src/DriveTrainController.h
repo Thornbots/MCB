@@ -6,7 +6,6 @@
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
 
-
 namespace ThornBots{
     class DriveTrainController{
         public: //Public Variables
