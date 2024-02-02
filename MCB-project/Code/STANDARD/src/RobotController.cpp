@@ -118,11 +118,11 @@ namespace ThornBots {
         switch(leftSwitchState) {
             case(tap::communication::serial::Remote::SwitchState::UP): 
                 //Left Switch is up. So need to beyblade at fast speed, and let right stick control turret yaw and pitch
-                driveTrainController->driveTrainBeyBladeAndTranslate((leftStickMagnitude * MAX_SPEED), leftStickAngle, (FAST_BEYBLADE_FACTOR * MAX_SPEED));
+                driveTrainController->moveDriveTrain((FAST_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), leftStickAngle);
                 turretController->turretMove(0, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
                 break;
             case(tap::communication::serial::Remote::SwitchState::MID):
-                driveTrainController->driveTrainBeyBladeAndTranslate((leftStickMagnitude * MAX_SPEED), leftStickAngle, (SLOW_BEYBLADE_FACTOR * MAX_SPEED));
+                driveTrainController->moveDriveTrain((SLOW_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), leftStickAngle);
                 turretController->turretMove(0, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
                 //Left Switch is mid. So need to beyblade at slow speed, and let right stick control turret yaw and pitch
                 break;
@@ -131,18 +131,18 @@ namespace ThornBots {
                 switch(rightSwitchState) {
                     case(tap::communication::serial::Remote::SwitchState::UP):
                         //Left switch is down, and right is up. So driveTrainFollows Turret
-                        driveTrainController->turretMoveDriveTrainFollow(leftStickMagnitude * MAX_SPEED, leftStickAngle, 0);
+                        driveTrainController->followTurret(leftStickMagnitude * MAX_SPEED, leftStickAngle, 0);
                         turretController->turretMove(0, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
                         break;
                     case(tap::communication::serial::Remote::SwitchState::MID):
                         //Left switch is down, and right is mid. So move turret independently of drivetrain
-                        driveTrainController->turretMoveDriveTrainIndependent(leftStickMagnitude * MAX_SPEED, leftStickAngle);
+                        driveTrainController->moveDriveTrain(0, leftStickMagnitude * MAX_SPEED, leftStickAngle);
                         turretController->turretMove(0, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
                         break;
                     case(tap::communication::serial::Remote::SwitchState::DOWN):
                         //Left switch is down, and right is mid. So move drivetrain and have turret follow.
-                        driveTrainController->driveTrainMovesTurretFollow(right_stick_horz * MAX_SPEED * TURNING_CONSTANT, leftStickMagnitude * MAX_SPEED, leftStickAngle);
-                        turretController->driveTrainMovesTurretFollows(0);
+                        driveTrainController->moveDriveTrain(right_stick_horz * MAX_SPEED * TURNING_CONSTANT, leftStickMagnitude * MAX_SPEED, leftStickAngle);
+                        turretController->followDriveTrain(0);
                         break;
                     default:
                         //Should not be in this state. So if we are, just tell robot to do nothing.

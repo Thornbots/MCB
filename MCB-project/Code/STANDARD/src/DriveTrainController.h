@@ -32,17 +32,12 @@ namespace ThornBots{
             */
             void initialize();
             
-            void driveTrainBeyBladeAndTranslate(double translationSpeed, double translationAngle, double beyBladeSpeed);
-
             /*
             * Call this function when you want the Turret to follow the DriveTrain
             * Should be called within the main loop, so called every time in the main loop when you want the described behavior.
-            * This will allow the drivetrain to translate with left stick, and turn with the right stick.
-            * This function should be called when the right switch is in the Up state.
-            * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
-            * and right stick will control pitch and yaw of the turret.
+            * This will allow the drivetrain to translate with left stick, and turn with the right stick or beyblade depending how this is called.
             */
-            void driveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle);
+            void moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle);
 
             /*
             * Call this function when you want the drivetrain to be independent of the Turret.
@@ -52,17 +47,7 @@ namespace ThornBots{
             * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
             * and right stick will control pitch and yaw of the turret.
             */
-            void turretMoveDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
-
-            /*
-            * Call this function when you want the drivetrain and turret to move independently. 
-            * Should be called within the main loop, so called every time in the main loop when you want the described behavior.
-            * This will allow the drivetrain to translate with the left stick, and the right stick is for turning the drivetrain.
-            * The turret during this should remain at the same angle relative to world. (It stays stationary)
-            * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
-            * and right stick will control pitch and yaw of the turret.
-            */
-            void turretMoveDriveTrainIndependent(double translationSpeed, double translationAngle);
+            void followTurret(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
 
             /*
             * Call this function to convert the desired RPM for all of motors in the DriveTrainController to a voltage level which

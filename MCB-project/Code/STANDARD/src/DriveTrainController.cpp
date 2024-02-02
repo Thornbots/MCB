@@ -16,17 +16,12 @@ namespace ThornBots{
         //Nothing needs to be done to PID controllers
     }
 
-    void DriveTrainController::driveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle) {
+    void DriveTrainController::moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle) {
         convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
         adjustMotorSpeedWithTurnSpeed(turnSpeed);
     }
-    
-    void DriveTrainController::driveTrainBeyBladeAndTranslate(double translationSpeed, double translationAngle, double beyBladeSpeed) {
-        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
-        adjustMotorSpeedWithTurnSpeed(beyBladeSpeed);
-    }
 
-    void DriveTrainController::turretMoveDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
+    void DriveTrainController::followTurret(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
         //TODO: Check that this works
         convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
 
@@ -34,10 +29,6 @@ namespace ThornBots{
         double turnSpeed = ((double)pidController.getOutput());
         
         adjustMotorSpeedWithTurnSpeed(turnSpeed);
-    }
-
-    void DriveTrainController::turretMoveDriveTrainIndependent(double translationSpeed, double translationAngle) {
-        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
     }
 
     void DriveTrainController::setMotorSpeeds() {

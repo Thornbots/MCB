@@ -13,7 +13,7 @@ namespace ThornBots {
         //TODO: Finish the rest of these
     }
 
-    void TurretController::driveTrainMovesTurretFollows(double angleError) {
+    void TurretController::followDriveTrain(double angleError) {
         if(angleError > 0) {} //bye bye warnings
         //TODO
     }
