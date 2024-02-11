@@ -11,6 +11,7 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer driveTrainMotorsTimer(2);
     static tap::arch::PeriodicMilliTimer turretMotorsTimer(2);
     static tap::arch::PeriodicMilliTimer IMUTimer(2);
+    static tap::arch::PeriodicMilliTimer updateInputTimer(2);
 
     class RobotController {
         public: //Public Variables
@@ -20,7 +21,8 @@ namespace ThornBots {
             static constexpr double SLOW_BEYBLADE_FACTOR = 0.35;
             static constexpr double TURNING_CONSTANT = 0.5;
             static constexpr double PITCH_CONSTANT = -10.0;
-            static constexpr double dt = 0.0000001; //10us. So the regulation on our loop
+            static constexpr double dt = 0.002;
+            constexpr static double YAW_TURNING_PROPORTIONAL = -0.02;
             // static constexpr double 
         private: //Private Variables
             tap::Drivers *drivers;
@@ -32,6 +34,7 @@ namespace ThornBots {
             double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0;
             tap::communication::serial::Remote::SwitchState leftSwitchState, rightSwitchState = tap::communication::serial::Remote::SwitchState::MID;
             bool useKeyboardMouse = false;
+            double desiredYawAngleWorld, driveTrainEncoder = 0.0;
         public: //Public Methods
             RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
 

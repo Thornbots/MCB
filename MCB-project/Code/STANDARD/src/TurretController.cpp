@@ -1,8 +1,6 @@
 #include "TurretController.h"
 
 namespace ThornBots {
-    double yawAngle, yawRPM = 0.0;
-
     TurretController::TurretController(tap::Drivers* driver) {
         this->drivers = driver;
         //TODO: Complete this
@@ -10,22 +8,31 @@ namespace ThornBots {
     void TurretController::initialize() {
         motor_Pitch.initialize();
         motor_Yaw.initialize();
-        //TODO: Finish the rest of these
+        motor_Indexer.initialize();
+        motor_Flywheel1.initialize();
+        motor_Flywheel2.initialize();
+        drivers->pwm.init(); //For the servo we will be using
+        motor_Yaw.updateEncoderValue(0);
+
+        //Nothing needs to be done to drivers
+        //Nothing needs to be done to the controllers
     }
 
     void TurretController::followDriveTrain(double angleError) {
-        if(angleError > 0) {} //bye bye warnings
-        //TODO
+        //TODO: Test that this works and tune the constants
+        pidControllerTFollowsDT.runControllerDerivateError(angleError, 1);
+        yawMotorVoltage = pidControllerTFollowsDT.getOutput();
     }
 
     void TurretController::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double dt) {
-        if(dt > 0) {} //Bye bye warning
         pitchMotorVoltage = getPitchVoltage(desiredPitchAngle);
         updateYawVariables();
-            yawAngle = measuredYawMotorEncoderAngle;
-            yawRPM = measuredYawMotorRPM;
-        yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredYawAngle, dt);
+        if(turretControllerTimer.execute()) {
+            yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredYawAngle, dt);
+        }
         //TODO: Add flywheels, indexer, and servo
+        flyWheelVoltage = getFlywheelVoltage();
+        indexerVoltage = getIndexerVoltage();
     }
 
     void TurretController::setMotorSpeeds() {
@@ -57,7 +64,7 @@ namespace ThornBots {
     }
 
     int TurretController::getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt) {
-        return yawController.getDesiredVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredAngleWorld, dt);
+        return 1000 * yawController.calculate(yawAngleRelativeWorld, yawRPM, 0, desiredAngleWorld, dt); //1000 to convert to mV which taproot wants. DTrpm is 0, can calculate and pass in the future
     }
 
     int TurretController::getPitchVoltage(double targetAngle) {
@@ -68,5 +75,15 @@ namespace ThornBots {
         targetAngle += (double)270;
         pidControllerPitch.runControllerDerivateError(targetAngle - position, 1);
         return pidControllerPitch.getOutput();
+    }
+
+    int TurretController::getFlywheelVoltage() {
+        return 0;
+        //TODO
+    }
+
+    int TurretController::getIndexerVoltage() {
+        return 0;
+        //TODO
     }
 }

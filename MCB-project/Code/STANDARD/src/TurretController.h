@@ -5,9 +5,10 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
-#include "YawController.hpp"
+#include "ModeledTurretController.h"
 
 namespace ThornBots {
+    static tap::arch::PeriodicMilliTimer turretControllerTimer(2);
     class TurretController {
         public: //Public Variables
             constexpr static int YAW_MOTOR_MAX_SPEED = 1000; //TODO: Make this value relevent
@@ -24,13 +25,15 @@ namespace ThornBots {
             tap::motor::DjiMotor motor_Flywheel1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0);
             tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
         
-            constexpr static tap::algorithms::SmoothPidConfig pidControllerTurretMotorsConfig = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 69, 0 };
-            constexpr static tap::algorithms::SmoothPidConfig pidControllerPitchConfig = {800, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0};;
+            constexpr static tap::algorithms::SmoothPidConfig pidControllerTurretMotorsConfig = {20, 0, 0, 0, 8000, 1, 0, 1, 0, 69, 0};
+            constexpr static tap::algorithms::SmoothPidConfig pidControllerPitchConfig = {800, 0.06, 80, 1500, 1000000, 1, 0, 1, 0, 0, 0};
+            constexpr static tap::algorithms::SmoothPidConfig pidControllerTFollowsDTConfig = {20, 0.05, 80, 0, 8000, 1, 0, 1, 0, 69, 0}; //TODO: Tune these
             tap::algorithms::SmoothPid pidControllerTurretMotors = tap::algorithms::SmoothPid(pidControllerTurretMotorsConfig);
             tap::algorithms::SmoothPid pidControllerPitch = tap::algorithms::SmoothPid(pidControllerPitchConfig);
-            ThornBots::YawController yawController = YawController();
+            tap::algorithms::SmoothPid pidControllerTFollowsDT = tap::algorithms::SmoothPid(pidControllerTFollowsDTConfig);
+            ThornBots::ModeledTurretController yawController = ModeledTurretController();
             
-            double pitchMotorVoltage, yawMotorVoltage = 0.0;
+            double pitchMotorVoltage, yawMotorVoltage, flyWheelVoltage, indexerVoltage = 0.0;
             double measuredYawMotorRPM, measuredYawMotorEncoderAngle = 0.0;
 
         public: //Public Methods
@@ -55,7 +58,6 @@ namespace ThornBots {
             void followDriveTrain(double angleError);
 
             /*
-            * Call this function when you want the drivetrain to be independent of the Turret.
             * Should be called within the main loop, so called every time in the main loop when you want the described behavior.
             * This will allow the drivetrain to translate with the left stick, and the right stick is for the turret.
             * This function should be called when the right switch is in the Down state.
@@ -100,10 +102,13 @@ namespace ThornBots {
             */
             void reZeroYaw();
 
+            inline double getYawEncoderValue() {return motor_Yaw.getEncoderWrapped();}
+
         private: //Private Methods
             int getPitchVoltage(double targetAngle);
-
             void updateYawVariables();
             int getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt);
+            int getFlywheelVoltage();
+            int getIndexerVoltage();
     };
 }

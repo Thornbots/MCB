@@ -3,7 +3,7 @@
 
 namespace ThornBots {
     double stickLeftHorz, stickLeftVert, stickRightHorz, stickRightVert, stickLeftAngle, stickLeftMagn, stickRightAngle, stickRightMagn = 0.0;
-    
+    double yawEncoderValue, IMUAngle = 0.0;
     /*
     * Constructor for RobotController
     */
@@ -81,8 +81,8 @@ namespace ThornBots {
         //STOP Updating stick values
 
         driveTrainRPM = 0; //TODO: get this. Either power from DT motors, using yaw encoder and IMU, or something else
-        yawRPM = drivers->bmi088.getGx(); //TODO: Verify this is the correct axis, and units
-        yawAngleRelativeWorld = drivers->bmi088.getYaw(); //TODO: Verify this is the correct axis, and units
+        yawRPM = PI / 180 * drivers->bmi088.getGz();
+        yawAngleRelativeWorld = PI / 180 * drivers->bmi088.getYaw();
         
         wheelValue = drivers->remote.getWheel();
 
@@ -115,15 +115,23 @@ namespace ThornBots {
     }
 
     void RobotController::updateWithController() {
+        if(updateInputTimer.execute()) {
+            desiredYawAngleWorld = desiredYawAngleWorld + right_stick_horz * YAW_TURNING_PROPORTIONAL;
+            desiredYawAngleWorld = fmod(desiredYawAngleWorld, 2 * PI);
+            driveTrainEncoder = PI / 180 * PI / 180 * (turretController->getYawEncoderValue());
+        }
+        yawEncoderValue = driveTrainEncoder;
+        IMUAngle = yawAngleRelativeWorld;
+
         switch(leftSwitchState) {
             case(tap::communication::serial::Remote::SwitchState::UP): 
                 //Left Switch is up. So need to beyblade at fast speed, and let right stick control turret yaw and pitch
-                driveTrainController->moveDriveTrain((FAST_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), leftStickAngle);
-                turretController->turretMove(0, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+                driveTrainController->moveDriveTrain((FAST_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), yawAngleRelativeWorld - leftStickAngle);
+                turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
                 break;
             case(tap::communication::serial::Remote::SwitchState::MID):
-                driveTrainController->moveDriveTrain((SLOW_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), leftStickAngle);
-                turretController->turretMove(0, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+                driveTrainController->moveDriveTrain((SLOW_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), yawAngleRelativeWorld - leftStickAngle);
+                turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
                 //Left Switch is mid. So need to beyblade at slow speed, and let right stick control turret yaw and pitch
                 break;
             case(tap::communication::serial::Remote::SwitchState::DOWN):
@@ -131,18 +139,18 @@ namespace ThornBots {
                 switch(rightSwitchState) {
                     case(tap::communication::serial::Remote::SwitchState::UP):
                         //Left switch is down, and right is up. So driveTrainFollows Turret
-                        driveTrainController->followTurret(leftStickMagnitude * MAX_SPEED, leftStickAngle, 0);
-                        turretController->turretMove(0, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+                        driveTrainController->followTurret(leftStickMagnitude * MAX_SPEED, yawAngleRelativeWorld - leftStickAngle, 0);
+                        turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
                         break;
                     case(tap::communication::serial::Remote::SwitchState::MID):
                         //Left switch is down, and right is mid. So move turret independently of drivetrain
-                        driveTrainController->moveDriveTrain(0, leftStickMagnitude * MAX_SPEED, leftStickAngle);
-                        turretController->turretMove(0, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+                        driveTrainController->moveDriveTrain(0, leftStickMagnitude * MAX_SPEED, yawAngleRelativeWorld - leftStickAngle);
+                        turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
                         break;
                     case(tap::communication::serial::Remote::SwitchState::DOWN):
                         //Left switch is down, and right is mid. So move drivetrain and have turret follow.
-                        driveTrainController->moveDriveTrain(right_stick_horz * MAX_SPEED * TURNING_CONSTANT, leftStickMagnitude * MAX_SPEED, leftStickAngle);
-                        turretController->followDriveTrain(0);
+                        driveTrainController->moveDriveTrain(right_stick_horz * MAX_SPEED * TURNING_CONSTANT, leftStickMagnitude * MAX_SPEED, leftStickAngle + driveTrainEncoder);
+                        turretController->followDriveTrain(0); //TODO: Make this variable be the angle error from DT and T
                         break;
                     default:
                         //Should not be in this state. So if we are, just tell robot to do nothing.
