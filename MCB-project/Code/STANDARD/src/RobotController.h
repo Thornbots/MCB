@@ -16,11 +16,10 @@ namespace ThornBots {
     class RobotController {
         public: //Public Variables
             static constexpr double PI = 3.14159;
-            static constexpr double MAX_SPEED = 5000;
+            static constexpr double MAX_SPEED = 7000;
             static constexpr double FAST_BEYBLADE_FACTOR = 0.7;
             static constexpr double SLOW_BEYBLADE_FACTOR = 0.35;
             static constexpr double TURNING_CONSTANT = 0.5;
-            static constexpr double PITCH_CONSTANT = -10.0;
             static constexpr double dt = 0.002;
             constexpr static double YAW_TURNING_PROPORTIONAL = -0.02;
             // static constexpr double 
@@ -34,7 +33,9 @@ namespace ThornBots {
             double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0;
             tap::communication::serial::Remote::SwitchState leftSwitchState, rightSwitchState = tap::communication::serial::Remote::SwitchState::MID;
             bool useKeyboardMouse = false;
-            double desiredYawAngleWorld, driveTrainEncoder = 0.0;
+            double yawEncoderCache = 0;
+            double desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
+            double stickAccumulator = 0, targetYawAngleWorld = 0, targetDTVelocityWorld = 0;
         public: //Public Methods
             RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
 

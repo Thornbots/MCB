@@ -40,16 +40,6 @@ namespace ThornBots{
             void moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle);
 
             /*
-            * Call this function when you want the drivetrain to be independent of the Turret.
-            * Should be called within the main loop, so called every time in the main loop when you want the described behavior.
-            * This will allow the drivetrain to translate with the left stick, and the right stick is for the turret.
-            * This function should be called when the right switch is in the Down state.
-            * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
-            * and right stick will control pitch and yaw of the turret.
-            */
-            void followTurret(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
-
-            /*
             * Call this function to convert the desired RPM for all of motors in the DriveTrainController to a voltage level which
             * would then be sent over CanBus to each of the motor controllers to actually set this voltage level on each of the motors.
             * Should be placed inside of the main loop, and called periodically, every 

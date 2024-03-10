@@ -19,7 +19,7 @@ namespace ThornBots {
 
     double ModeledTurretController::calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double deltaT) {
         double positionError = targetPosition-currentPosition;
-        while(positionError > M_PI){
+        while (positionError > M_PI){
             positionError -= M_TWOPI;
         } 
         while (positionError < -M_PI){

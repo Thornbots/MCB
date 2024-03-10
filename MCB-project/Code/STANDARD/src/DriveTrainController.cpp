@@ -21,16 +21,6 @@ namespace ThornBots{
         adjustMotorSpeedWithTurnSpeed(turnSpeed);
     }
 
-    void DriveTrainController::followTurret(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
-        //TODO: Check that this works
-        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
-
-        pidControllerDTFollowsT.runControllerDerivateError(driveTrainAngleFromTurret, 1); //TODO: TUNE THE PID CONSTANTS!!!
-        double turnSpeed = ((double)pidController.getOutput());
-        
-        adjustMotorSpeedWithTurnSpeed(turnSpeed);
-    }
-
     void DriveTrainController::setMotorSpeeds() {
         drivers->canRxHandler.pollCanData();
         motorOneRPM = motor_one.getShaftRPM();
