@@ -20,11 +20,12 @@ RobotController::RobotController(
     this->turretController = turretController;
     this->uartBuf = malloc(RX_BUFFER_LEN * sizeof(uint8_t));
 
-    m_driver->uart.init<tap::communication::serial::Uart::UartPort::Uart1, 115200>();
     
 }
 
-RobotController::~RobotController() {}
+RobotController::~RobotController() {
+    free(this->uartBuf);
+}
 
 
 // Assumes buf has length >= RX_BUFFER_LEN

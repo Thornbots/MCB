@@ -12,7 +12,7 @@ namespace ThornBots {
         motor_Flywheel1.initialize();
         motor_Flywheel2.initialize();
         drivers->pwm.init(); //For the servo we will be using
-        motor_Yaw.updateEncoderValue(0);
+        // motor_Yaw.updateEncoderValue(0);
 
         //Nothing needs to be done to drivers
         //Nothing needs to be done to the controllers
