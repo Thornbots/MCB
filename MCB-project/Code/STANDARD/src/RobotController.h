@@ -44,10 +44,14 @@ namespace ThornBots {
 
             void stopRobot();
 
+            /*
+            * Checks if it needs to switch. Would rename, but lots of things to change.
+            */
             bool toggleKeyboardAndMouse();
 
         private: //Private Methods
-            void updateAllInputVariables();
+            void updateControllerVariables();
+            void updateKeyboardVariables();
 
             /*
             * Returns the angle (in radians) x and y form with 0 being straight ahead. atan2(x/y).

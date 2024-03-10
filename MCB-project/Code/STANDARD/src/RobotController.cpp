@@ -27,11 +27,14 @@ namespace ThornBots {
 
     void RobotController::update() {
         drivers->canRxHandler.pollCanData();
-        updateAllInputVariables();
+        
+        toggleKeyboardAndMouse(); //check if input switched
 
         if(useKeyboardMouse) {
+            updateKeyboardVariables();
             updateWithMouseKeyboard();
         } else {
+            updateControllerVariables();
             updateWithController();
         }
 
@@ -59,7 +62,7 @@ namespace ThornBots {
         turretController->stopMotors();
     }
 
-    void RobotController::updateAllInputVariables() {
+    void RobotController::updateControllerVariables() {
         drivers->remote.read();  // Reading the remote before we check if it is connected yet or not.
         if (IMUTimer.execute()) {
             drivers->bmi088.periodicIMUUpdate();
@@ -80,6 +83,7 @@ namespace ThornBots {
         rightStickMagnitude = getMagnitude(right_stick_horz, right_stick_vert);
         //STOP Updating stick values
 
+
         driveTrainRPM = 0; //TODO: get this. Either power from DT motors, using yaw encoder and IMU, or something else
         yawRPM = PI / 180 * drivers->bmi088.getGz();
         yawAngleRelativeWorld = PI / 180 * drivers->bmi088.getYaw();
@@ -96,6 +100,12 @@ namespace ThornBots {
         stickRightMagn = rightStickMagnitude;
     }
 
+    void RobotController::updateKeyboardVariables() {
+        //not checking if the keyboard exists. If it doesn't, every check returns false, so nothing will end up happening.
+
+
+    }
+
     double RobotController::getAngle(double x, double y) {
         //error handling to prevent runtime errors in atan2
         if(x == 0 && y == 0) {
@@ -106,19 +116,29 @@ namespace ThornBots {
     }
 
     double RobotController::getMagnitude(double x, double y) {
-        return sqrt(pow(x, 2) + pow(y, 2));
+        return hypot(x,y); //sqrt of (x squared plus y squared)
     }
 
     bool RobotController::toggleKeyboardAndMouse() {
-        //TODO
-        return false;
+        static bool hasBeenReleased = true; //only gets set to false the first time this funtion is called
+
+        if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL)
+        && drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT)
+        && drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)){
+            if(hasBeenReleased){
+                hasBeenReleased = false;
+                useKeyboardMouse = !useKeyboardMouse;
+            }
+        }
+
+        return useKeyboardMouse;
     }
 
     void RobotController::updateWithController() {
         if(updateInputTimer.execute()) {
             desiredYawAngleWorld = desiredYawAngleWorld + right_stick_horz * YAW_TURNING_PROPORTIONAL;
             desiredYawAngleWorld = fmod(desiredYawAngleWorld, 2 * PI);
-            driveTrainEncoder = PI / 180 * PI / 180 * (turretController->getYawEncoderValue());
+            driveTrainEncoder = PI / 180 * PI / 180 * (turretController->getYawEncoderValue()); //not sure why we have to convert twice
         }
         yawEncoderValue = driveTrainEncoder;
         IMUAngle = yawAngleRelativeWorld;
