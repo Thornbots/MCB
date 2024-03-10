@@ -33,7 +33,9 @@ namespace ThornBots {
         static constexpr double MAXIMUM_BEYBLADE_FACTOR = 0.7; //Change this to change the maximum factor of speed of the beyblading from: [0, 1]
         static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
         static constexpr double PI = 3.14159;
+        static constexpr int RX_BUFFER_LEN = 128;
 
+        uint8_t uartBuf[RX_BUFFER_LEN];
         double beybladeFactor = 0;
         bool keyboardAndMouseEnabled = false;
         int leftSwitchValue = 0;
