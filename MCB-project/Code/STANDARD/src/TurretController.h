@@ -36,6 +36,8 @@ namespace ThornBots {
             double pitchMotorVoltage, yawMotorVoltage, flyWheelVoltage, indexerVoltage = 0.0;
             double measuredYawMotorRPM, measuredYawMotorEncoderAngle = 0.0;
 
+            bool shootingSafety = false;
+
         public: //Public Methods
             TurretController(tap::Drivers* driver);
             ~TurretController() {} //Intentionally left blank

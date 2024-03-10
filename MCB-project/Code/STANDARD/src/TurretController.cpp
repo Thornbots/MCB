@@ -38,20 +38,29 @@ namespace ThornBots {
     void TurretController::setMotorSpeeds() {
         motor_Pitch.setDesiredOutput(pitchMotorVoltage);
         motor_Yaw.setDesiredOutput(yawMotorVoltage);
+
+        uint32_t voltageToSet = 0;
+        if(jetson){
+            volatileToSet = flyWheelVoltage;
+        }
+        motor_Flywheel1.setDesiredOutput(voltageToSet);
+        motor_Flywheel2.setDesiredOutput(voltageToSet);
     }
 
     void TurretController::stopMotors() {
         motor_Pitch.setDesiredOutput(0);
         motor_Yaw.setDesiredOutput(0);
+        motor_Flywheel1.setDesiredOutput(0);
+        motor_Flywheel2.setDesiredOutput(0);
         //TODO: Add the other motors
     }
 
     void TurretController::enableShooting() {
-        //TODO
+        this->shootingSafety = true;
     }
 
     void TurretController::disableShooting() {
-        //TODO
+        this->shootingSafety = false;
     }
 
     void TurretController::reZeroYaw() {
@@ -78,8 +87,11 @@ namespace ThornBots {
     }
 
     int TurretController::getFlywheelVoltage() {
-        return 0;
-        //TODO
+        if(shootingSafety){
+            return FLYWHEEL_MOTOR_MAX_SPEED;
+        }else{
+            return 0;
+        }
     }
 
     int TurretController::getIndexerVoltage() {

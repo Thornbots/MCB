@@ -11,17 +11,18 @@
 #include "tap/algorithms/smooth_pid.hpp"
 
 #include <cmath>
-#include <bits/stdc++.h>
 
 namespace ThornBots {
     ModeledTurretController::ModeledTurretController() {
+
     }
 
     double ModeledTurretController::calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double deltaT) {
         double positionError = targetPosition-currentPosition;
-        if(positionError > M_PI){
+        while(positionError > M_PI){
             positionError -= M_TWOPI;
-        } else if (positionError < -M_PI){
+        } 
+        while (positionError < -M_PI){
             positionError += M_TWOPI;
         }
 
@@ -45,9 +46,9 @@ namespace ThornBots {
         if(abs(pastOutput) < INT_THRESH || velocityError*buildup < 0){ //saturation detection
             if(velocityError*buildup < 0){ //overshooting
                 buildup*=(1-TAKEBACK); //take back not quite half
-            } else {
-                buildup+=velocityError*deltaT; //integrate normally
-            }
+            } 
+            buildup+=velocityError*deltaT; //integrate normally
+    
         }
         //calculation for setting target current aka velocity controller
         double targetCurrent = KVISC*targetRelativeVelocity+UK*signum(targetRelativeVelocity)+KA*targetAcceleration+KPV*velocityError+KIV*buildup;
