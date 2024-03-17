@@ -16,9 +16,24 @@ namespace ThornBots{
         //Nothing needs to be done to PID controllers
     }
 
+    static double TRANS_ACCEL_LIM = 80, ROT_ACCEL_LIM = 8;
+    double pastX = 0, pastY = 0, pastR, errX, errY, errR, errMag, errorAngle;
     void DriveTrainController::moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle) {
-        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
-        adjustMotorSpeedWithTurnSpeed(turnSpeed);
+
+        errX = translationSpeed*cos(translationAngle)-pastX;
+        errY = translationSpeed*sin(translationAngle)-pastY;
+        errMag = sqrt(errY*errY+errX*errX);
+        if(errMag > TRANS_ACCEL_LIM)
+            errMag = TRANS_ACCEL_LIM;
+        errorAngle = atan2(errY, errX);
+        pastX += errMag*cos(errorAngle);
+        pastY += errMag*sin(errorAngle);
+        convertTranslationSpeedToMotorSpeeds(sqrt(pastX*pastX+pastY*pastY), atan2(pastY, pastX));
+        
+        errR = turnSpeed-pastR;
+        errR = errR > ROT_ACCEL_LIM ? ROT_ACCEL_LIM : errR < -ROT_ACCEL_LIM ? -ROT_ACCEL_LIM : errR;
+        pastR += errR;
+        adjustMotorSpeedWithTurnSpeed(pastR);
     }
 
     void DriveTrainController::setMotorSpeeds() {

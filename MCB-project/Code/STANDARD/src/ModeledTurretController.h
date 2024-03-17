@@ -25,7 +25,7 @@ namespace ThornBots {
 
         // Physical constants
         const double C = 0.0169;               // kg-s/m^2
-        const double J = 0.0289;               // kg-m^2
+        const double J = 0.031;//289;               // kg-m^2
         const double UK = 0.07;                // N-m
         const double KB = 0.716;               // V-rad/s
         const double KT = 0.741;               // N-m/A
@@ -37,7 +37,7 @@ namespace ThornBots {
         const double KP = 11.3;                // sec^-1
 
         // Feedforward constants
-        const double A_SCALE = 0.8;            // unitless
+        const double A_SCALE = 0.9;//0.8            // unitless
         const double KSTATIC = (UK * RA) / (KT * RATIO);  // A
         const double KV = KB * RATIO;          // V-s/rad
         const double KA = J / (KT * RATIO);    // A-s^2/rad

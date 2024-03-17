@@ -40,12 +40,12 @@ namespace ThornBots {
         // Feedforward constants
         const double KSTATIC = 0.1;               // A
         const double KV = KB * RATIO;          // V-s/rad
-        const double KF = 0.1;//-0.001;                    // A
+        const double KF = 0.05;//-0.001;                    // A
 
 
         // Velocity feedback
-        const double KPV = 0.3;                  // A-s/rad
-        const double KIV = 2;                 // A/rad
+        const double KPV = 0.5; //0.3                  // A-s/rad
+        const double KIV = 6; //2                 // A/rad
         const double IV_MAX = 0.1;             // units TBD
         const double INT_THRESH = VOLT_MAX * 0.85;   // V
         const double TAKEBACK = 0.01;          // unitless
