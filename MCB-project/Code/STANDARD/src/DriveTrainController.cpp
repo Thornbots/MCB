@@ -37,6 +37,7 @@ namespace ThornBots{
     }
 
     void DriveTrainController::setMotorSpeeds() {
+        if (robotDisabled) return stopMotors();
         drivers->canRxHandler.pollCanData();
         motorOneRPM = motor_one.getShaftRPM();
         motorTwoRPM = motor_two.getShaftRPM();
@@ -64,10 +65,18 @@ namespace ThornBots{
     }
 
     void DriveTrainController::stopMotors() {
-        motorOneSpeed = 0;
-        motorTwoSpeed = 0;
-        motorThreeSpeed = 0;
-        motorFourSpeed = 0;
+        motor_one.setDesiredOutput(0);
+        motor_two.setDesiredOutput(0);
+        motor_three.setDesiredOutput(0);
+        motor_four.setDesiredOutput(0);
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
+    }
+
+    void DriveTrainController::disable(){
+        robotDisabled = true;
+    }
+    void DriveTrainController::enable(){
+        robotDisabled = false;
     }
 
     void DriveTrainController::convertTranslationSpeedToMotorSpeeds(double translationSpeed, double translationAngle) {

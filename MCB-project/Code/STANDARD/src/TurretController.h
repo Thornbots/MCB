@@ -34,6 +34,7 @@ namespace ThornBots {
 
 
             bool shootingSafety = false;
+            bool robotDisabled = false;
 
         public: //Public Methods
             TurretController(tap::Drivers* driver);
@@ -67,6 +68,8 @@ namespace ThornBots {
             * and packages this information for the motors TO BE SENT over CanBus
             */
             void stopMotors();
+            void disable();
+            void enable();
 
             /*
             * Call this function (any number of times) in order to ALLOW shooting. This does NOT mean that the turret WILL shoot.
@@ -75,6 +78,10 @@ namespace ThornBots {
             * This function is not intended to be used for control when the driver is manually aiming/deciding to shoot or not.
             */
             void enableShooting();
+
+            
+            void enableIndexer();
+            void disableIndexer();
 
             /*
             * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.

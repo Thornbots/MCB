@@ -20,8 +20,8 @@ namespace ThornBots {
             static constexpr double SLOW_SPEED = 1000;
             static constexpr double MED_SPEED = 4000;
             static constexpr double FAST_SPEED = 7000;
-            static constexpr double FAST_BEYBLADE_FACTOR = 0.7;
-            static constexpr double SLOW_BEYBLADE_FACTOR = 0.35;
+            static constexpr double FAST_BEYBLADE_FACTOR = 1.1; //0.7
+            static constexpr double SLOW_BEYBLADE_FACTOR = 0.7; //0.35
             static constexpr double TURNING_CONSTANT = 0.5;
             static constexpr double dt = 0.002;
             constexpr static double YAW_TURNING_PROPORTIONAL = -0.02;
@@ -39,6 +39,7 @@ namespace ThornBots {
             double yawEncoderCache = 0;
             double desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
             double stickAccumulator = 0, targetYawAngleWorld = 0, targetDTVelocityWorld = 0;
+            bool robotDisabled = false;
 
             tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid({ 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 });
             static constexpr int motor_indexer_max_speed = 6000;
@@ -55,6 +56,8 @@ namespace ThornBots {
             void update();
 
             void stopRobot();
+            void disableRobot();
+            void enableRobot();
 
             bool toggleKeyboardAndMouse();
 
@@ -72,7 +75,7 @@ namespace ThornBots {
             double getMagnitude(double x, double y);
 
             void updateWithController();
-            void updateWithMouseKeyboard();
+            void updateWithMouseKeyboard(ThornBots::TurretController* turretController);
 
     };
 }

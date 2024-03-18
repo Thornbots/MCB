@@ -37,20 +37,34 @@ void RobotController::initialize()
 
 void RobotController::update()
 {
+
     drivers->canRxHandler.pollCanData();
     updateAllInputVariables();
 
     toggleKeyboardAndMouse();
-    // useKeyboardMouse = drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R);
+
+
+    if(drivers->remote.isConnected())
+        enableRobot();
+    else
+        disableRobot();
+        
 
     if (useKeyboardMouse)
     {
-        updateWithMouseKeyboard();
+        if(robotDisabled) 
+            return;
+        turretController->enableShooting();
+        updateWithMouseKeyboard(turretController);
     }
     else
     {
+        if(robotDisabled) 
+            return;
+        turretController->disableShooting();
         updateWithController();
     }
+
 
     if (drivers->remote.isConnected())
     {
@@ -65,14 +79,8 @@ void RobotController::update()
     }
     else
     {
-        if (driveTrainMotorsTimer.execute())
-        {
-            driveTrainController->stopMotors();
-        }
-        if (turretMotorsTimer.execute())
-        {
-            turretController->stopMotors();
-        }
+        turretController->disableShooting();
+        stopRobot();
     }
 
     // drivers->djiMotorTxHandler.encodeAndSendCanData();  // Processes these motor speed changes
@@ -83,6 +91,21 @@ void RobotController::stopRobot()
 {
     driveTrainController->stopMotors();
     turretController->stopMotors();
+    robotDisabled = true;
+}
+
+void RobotController::disableRobot()
+{
+    stopRobot();
+    driveTrainController->disable();
+    turretController->disable();
+}
+
+void RobotController::enableRobot()
+{
+    robotDisabled = false;
+    driveTrainController->enable();
+    turretController->enable();
 }
 
 void RobotController::updateAllInputVariables()
@@ -147,8 +170,8 @@ double RobotController::getMagnitude(double x, double y) { return sqrt(pow(x, 2)
 
 bool RobotController::toggleKeyboardAndMouse()
 {
-    static bool hasBeenReleased =
-        true;  // only gets set to false the first time this funtion is called
+    // only gets set to false the first time this funtion is called
+    static bool hasBeenReleased = true;  
 
     if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::B))
     {  // B is furthest. Change later.
@@ -236,54 +259,105 @@ void RobotController::updateWithController()
         dt);
 }
 
-void RobotController::updateWithMouseKeyboard()
+void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turretController)
 {
     if (updateInputTimer.execute())
     {
+        //shooting
+        if(drivers->remote.getMouseL()){
+            turretController->enableIndexer();
+        } else {
+            turretController->disableIndexer();
+        }
+
+        //beyblade
+        static bool rHasBeenReleased = true; //r increases beyblade speed
+        static bool cHasBeenReleased = true; //c decreases 
+        static bool fHasBeenReleased = true; //f toggles 
+        static double currentBeybladeFactor = 0;
+        static bool doBeyblading = false;
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) { 
+            if (rHasBeenReleased){
+                rHasBeenReleased = false;
+                doBeyblading = true;
+                if(currentBeybladeFactor==0)
+                    currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
+                else
+                    currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
+            }
+        } else{
+            rHasBeenReleased = true;
+        }
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::C)){ 
+            if (cHasBeenReleased){
+                cHasBeenReleased = false;
+                doBeyblading = true;
+                if(currentBeybladeFactor==FAST_BEYBLADE_FACTOR)
+                    currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
+                else
+                    currentBeybladeFactor = 0;
+            }
+        } else {
+            cHasBeenReleased = true;
+        }
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::F)){ 
+            if (fHasBeenReleased){
+                fHasBeenReleased = false;
+                doBeyblading = !doBeyblading;
+
+                //if it the factor was zero and the player toggles beyblading, set it to slow and enable beyblading
+                if(currentBeybladeFactor==0){
+                    currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
+                    doBeyblading=true;
+                }
+            }
+        } else {
+            fHasBeenReleased = true;
+        }
+
+        if(doBeyblading)
+            targetDTVelocityWorld = (currentBeybladeFactor * MAX_SPEED);
+        else
+            targetDTVelocityWorld=0;
+
+
+        //movement
         int moveHorizonal = 0;
         int moveVertical = 0;
 
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::W))
-        {
             moveVertical++;
-        }
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::A))
-        {
             moveHorizonal--;
-        }
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::S))
-        {
             moveVertical--;
-        }
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::D))
-        {
             moveHorizonal++;
-        }
 
         double moveAngle = getAngle(moveHorizonal, moveVertical);
         double moveMagnitude = getMagnitude(moveHorizonal, moveVertical);
 
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT))
-        {  // slow
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT))  // slow
             moveMagnitude *= SLOW_SPEED;
-        }
-        else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL))
-        {  // fast
+        else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL))  // fast
             moveMagnitude *= FAST_SPEED;
-        }
-        else
-        {  // medium
+        else   // medium
             moveMagnitude *= MED_SPEED;
-        }
+    
+        driveTrainEncoder = turretController->getYawEncoderValue();
+        yawEncoderCache = driveTrainEncoder;
 
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,
             moveMagnitude,
-            driveTrainEncoder + moveAngle - 3 * PI / 4);
+            driveTrainEncoder + moveAngle - 3 * PI / 4); //driveTrainEncoder + moveAngle - 3 * PI / 4);
+            //also try targetYawAngleWorld, yawEncoderCache
+
 
         // mouse
-        // drivers->remote.getMouseL
-
         static int mouseXOffset = drivers->remote.getMouseX();
         static int mouseYOffset = drivers->remote.getMouseY();
         int mouseX = drivers->remote.getMouseX() - mouseXOffset;
@@ -294,11 +368,7 @@ void RobotController::updateWithMouseKeyboard()
         if(accumulatedMouseY>0.4) accumulatedMouseY=0.4;
         if(accumulatedMouseY<-0.3) accumulatedMouseY=-0.3;
 
-        // double temp = right_stick_horz * YAW_TURNING_PROPORTIONAL;
         targetYawAngleWorld -= mouseX / 10000.0;
-
-        // targetDTVelocityWorld = (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
-        yawEncoderCache = driveTrainEncoder;
 
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
         turretController->turretMove(
@@ -309,21 +379,7 @@ void RobotController::updateWithMouseKeyboard()
             yawRPM,
             dt);
 
-        int indexer_speed = 0;
-        if(drivers->remote.getMouseL()){
-            indexer_speed = motor_indexer_max_speed;
-        }
-
-        pidController.runControllerDerivateError(indexer_speed - motor_indexer.getShaftRPM(), 1);
-        motor_indexer.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-
-        pidController.runControllerDerivateError(flywheel_max_speed - flywheel_one.getShaftRPM(), 1);
-        flywheel_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
         
-        pidController.runControllerDerivateError(flywheel_max_speed - flywheel_two.getShaftRPM(), 1);
-        flywheel_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-        
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
     }
 }
 }  // namespace ThornBots

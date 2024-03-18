@@ -20,6 +20,7 @@ namespace ThornBots{
             tap::motor::DjiMotor motor_four = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "ID4", 0, 0);
             tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
             tap::algorithms::SmoothPid pidControllerDTFollowsT = tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
+            bool robotDisabled = false;
 
         public: //Public Methods
             DriveTrainController(tap::Drivers* driver);
@@ -50,6 +51,8 @@ namespace ThornBots{
             * Call this function to set all DriveTrain motors to 0 desired RPM. CALL setMotorSpeeds() FOR THIS TO WORK
             */
             void stopMotors();
+            void disable();
+            void enable();
 
         private: //Private Methods
             /*
