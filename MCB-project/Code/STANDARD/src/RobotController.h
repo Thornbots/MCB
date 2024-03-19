@@ -20,7 +20,7 @@ namespace ThornBots {
             static constexpr double SLOW_SPEED = 1000;
             static constexpr double MED_SPEED = 4000;
             static constexpr double FAST_SPEED = 8000;
-            static constexpr double FAST_BEYBLADE_FACTOR = 1; //0.7
+            static constexpr double FAST_BEYBLADE_FACTOR = 1.05; //0.7
             static constexpr double SLOW_BEYBLADE_FACTOR = 0.7; //0.35
             static constexpr double TURNING_CONSTANT = 0.5;
             static constexpr double dt = 0.002;

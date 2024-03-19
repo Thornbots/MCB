@@ -285,15 +285,6 @@ void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turre
             rHasBeenReleased = true;
         }
 
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::C)){ 
-            if (cHasBeenReleased){
-                cHasBeenReleased = false;
-                currentBeybladeFactor = 0;
-            }
-        } else {
-            cHasBeenReleased = true;
-        }
-
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::F)){ 
             if (fHasBeenReleased){
                 fHasBeenReleased = false;
@@ -301,6 +292,15 @@ void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turre
             }
         } else {
             fHasBeenReleased = true;
+        }
+        
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::C)){ 
+            if (cHasBeenReleased){
+                cHasBeenReleased = false;
+                currentBeybladeFactor = 0;
+            }
+        } else {
+            cHasBeenReleased = true;
         }
 
         if(currentBeybladeFactor!=0)
