@@ -54,7 +54,7 @@ void RobotController::update()
     {
         if(robotDisabled) 
             return;
-        turretController->enableShooting();
+        // turretController->enableShooting(); //temporarliy disabled
         updateWithMouseKeyboard(turretController);
     }
     else
@@ -271,20 +271,15 @@ void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turre
         }
 
         //beyblade
-        static bool rHasBeenReleased = true; //r increases beyblade speed
-        static bool cHasBeenReleased = true; //c decreases 
-        static bool fHasBeenReleased = true; //f toggles 
+        static bool rHasBeenReleased = true; //r sets fast 
+        static bool cHasBeenReleased = true; //c sets slow 
+        static bool fHasBeenReleased = true; //f sets off 
         static double currentBeybladeFactor = 0;
-        static bool doBeyblading = false;
 
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) { 
             if (rHasBeenReleased){
                 rHasBeenReleased = false;
-                doBeyblading = true;
-                if(currentBeybladeFactor==0)
-                    currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
-                else
-                    currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
+                currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
             }
         } else{
             rHasBeenReleased = true;
@@ -293,11 +288,7 @@ void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turre
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::C)){ 
             if (cHasBeenReleased){
                 cHasBeenReleased = false;
-                doBeyblading = true;
-                if(currentBeybladeFactor==FAST_BEYBLADE_FACTOR)
-                    currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
-                else
-                    currentBeybladeFactor = 0;
+                currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
             }
         } else {
             cHasBeenReleased = true;
@@ -306,22 +297,23 @@ void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turre
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::F)){ 
             if (fHasBeenReleased){
                 fHasBeenReleased = false;
-                doBeyblading = !doBeyblading;
-
-                //if it the factor was zero and the player toggles beyblading, set it to slow and enable beyblading
-                if(currentBeybladeFactor==0){
-                    currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
-                    doBeyblading=true;
-                }
+                currentBeybladeFactor = 0;
             }
         } else {
             fHasBeenReleased = true;
         }
 
-        if(doBeyblading)
+        if(currentBeybladeFactor!=0)
             targetDTVelocityWorld = (currentBeybladeFactor * MAX_SPEED);
-        else
+        else{
             targetDTVelocityWorld=0;
+            if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Q)){ //rotate left
+                targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+            }
+            if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::E)){ //rotate right
+                targetDTVelocityWorld += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+            }
+        }
 
 
         //movement
