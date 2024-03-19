@@ -54,7 +54,7 @@ void RobotController::update()
     {
         if(robotDisabled) 
             return;
-        // turretController->enableShooting(); //temporarliy disabled
+        turretController->enableShooting(); 
         updateWithMouseKeyboard(turretController);
     }
     else
@@ -272,8 +272,8 @@ void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turre
 
         //beyblade
         static bool rHasBeenReleased = true; //r sets fast 
-        static bool cHasBeenReleased = true; //c sets slow 
-        static bool fHasBeenReleased = true; //f sets off 
+        static bool fHasBeenReleased = true; //f sets slow 
+        static bool cHasBeenReleased = true; //c sets off 
         static double currentBeybladeFactor = 0;
 
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) { 
