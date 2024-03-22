@@ -41,13 +41,6 @@ namespace ThornBots {
             double stickAccumulator = 0, targetYawAngleWorld = 0, targetDTVelocityWorld = 0;
             bool robotDisabled = false;
 
-            tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid({ 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 });
-            static constexpr int motor_indexer_max_speed = 6000;
-            static constexpr int flywheel_max_speed = 11000;
-            
-            tap::motor::DjiMotor motor_indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "a", 0, 0);
-            tap::motor::DjiMotor flywheel_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "right flywheel", 0, 0);
-            tap::motor::DjiMotor flywheel_two = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "left flywheel", 0, 0);
         public: //Public Methods
             RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
 
