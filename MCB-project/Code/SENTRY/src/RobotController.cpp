@@ -13,11 +13,13 @@ double yawEncoderValue, IMUAngle = 0.0;
 RobotController::RobotController(
     tap::Drivers* driver,
     ThornBots::DriveTrainController* driveTrainController,
-    ThornBots::TurretController* turretController)
+    ThornBots::TurretController* turretController,
+    ThornBots::ShooterController* shooterController)
 {
     this->drivers = driver;
     this->driveTrainController = driveTrainController;
     this->turretController = turretController;
+    this->shooterController = shooterController;
 }
 
 void RobotController::initialize()
@@ -29,6 +31,7 @@ void RobotController::initialize()
     drivers->remote.initialize();
     driveTrainController->initialize();
     turretController->initialize();
+    shooterController->initialize();
     modm::delay_ms(
         2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
     // TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's
@@ -54,32 +57,30 @@ void RobotController::update()
     {
         if(robotDisabled) 
             return;
-        turretController->enableShooting(); 
+        shooterController->enableShooting(); 
         updateWithMouseKeyboard(turretController);
     }
     else
     {
         if(robotDisabled) 
             return;
-        turretController->disableShooting();
+        shooterController->disableShooting();
         updateWithController();
     }
 
 
     if (drivers->remote.isConnected())
     {
-        if (driveTrainMotorsTimer.execute())
+        if (motorsTimer.execute())
         {
             driveTrainController->setMotorSpeeds();
-        }
-        if (turretMotorsTimer.execute())
-        {
             turretController->setMotorSpeeds();
+            shooterController->setMotorSpeeds();
         }
     }
     else
     {
-        turretController->disableShooting();
+        shooterController->disableShooting();
         stopRobot();
     }
 
@@ -91,6 +92,7 @@ void RobotController::stopRobot()
 {
     driveTrainController->stopMotors();
     turretController->stopMotors();
+    shooterController->stopMotors();
     robotDisabled = true;
 }
 
@@ -99,6 +101,7 @@ void RobotController::disableRobot()
     stopRobot();
     driveTrainController->disable();
     turretController->disable();
+    shooterController->disable();
 }
 
 void RobotController::enableRobot()
@@ -106,6 +109,7 @@ void RobotController::enableRobot()
     robotDisabled = false;
     driveTrainController->enable();
     turretController->enable();
+    shooterController->enable();
 }
 
 void RobotController::updateAllInputVariables()
@@ -267,9 +271,9 @@ void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turre
     {
         //shooting
         if(drivers->remote.getMouseL()){
-            turretController->enableIndexer();
+            shooterController->enableIndexer();
         } else {
-            turretController->disableIndexer();
+            shooterController->disableIndexer();
         }
 
         //beyblade

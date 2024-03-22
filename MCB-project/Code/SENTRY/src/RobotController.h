@@ -5,11 +5,11 @@
 #include "drivers_singleton.hpp"
 #include "DriveTrainController.h"
 #include "TurretController.h"
+#include "ShooterController.h"
 
 namespace ThornBots {
     //Don't ask me why. Timers only work when global. #Certified taproot Moment
-    static tap::arch::PeriodicMilliTimer driveTrainMotorsTimer(2);
-    static tap::arch::PeriodicMilliTimer turretMotorsTimer(2);
+    static tap::arch::PeriodicMilliTimer motorsTimer(2);
     static tap::arch::PeriodicMilliTimer IMUTimer(2);
     static tap::arch::PeriodicMilliTimer updateInputTimer(2);
 
@@ -30,6 +30,7 @@ namespace ThornBots {
             tap::Drivers *drivers;
             ThornBots::DriveTrainController *driveTrainController;
             ThornBots::TurretController *turretController;
+            ThornBots::ShooterController *shooterController;
             double left_stick_horz, left_stick_vert, right_stick_horz, right_stick_vert = 0;
             double leftStickAngle, rightStickAngle, leftStickMagnitude, rightStickMagnitude = 0;
             double wheelValue = 0;
@@ -42,7 +43,7 @@ namespace ThornBots {
             bool robotDisabled = false;
             
         public: //Public Methods
-            RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
+            RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController, ThornBots::ShooterController* shooterController);
 
             void initialize();
 

@@ -15,25 +15,18 @@ namespace ThornBots {
             constexpr static double PI = 3.14159;
             constexpr static int YAW_MOTOR_MAX_SPEED = 1000; //TODO: Make this value relevent
             constexpr static int YAW_MOTOR_MAX_VOLTAGE = 24000; //Should be the voltage of the battery. Unless the motor maxes out below that. //TODO: Check the datasheets
-            constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177; //With the 2006, this should give 20Hz
-            constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
         
         private: //Private Variables
             tap::Drivers* drivers;
             //TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
             tap::motor::DjiMotor motor_Yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Yaw", 0, 0);
             tap::motor::DjiMotor motor_Pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS2, false, "Pitch", 0, 0);
-            tap::motor::DjiMotor motor_Indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0);
-            tap::motor::DjiMotor motor_Flywheel1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0);
-            tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
-        
+          
             ThornBots::ModeledTurretController yawController = ModeledTurretController();
             ThornBots::PitchController pitchController = PitchController();
 
-            double pitchMotorVoltage, yawMotorVoltage, flyWheelVoltage, indexerVoltage = 0.0;
+            double pitchMotorVoltage, yawMotorVoltage;
 
-
-            bool shootingSafety = false;
             bool robotDisabled = false;
 
         public: //Public Methods
@@ -72,26 +65,6 @@ namespace ThornBots {
             void enable();
 
             /*
-            * Call this function (any number of times) in order to ALLOW shooting. This does NOT mean that the turret WILL shoot.
-            * The idea of this function is to allow implementation of AI auto-shooting easily, by "giving control" of the turret to the
-            * communicatons received from the Jetson.
-            * This function is not intended to be used for control when the driver is manually aiming/deciding to shoot or not.
-            */
-            void enableShooting();
-
-            
-            void enableIndexer();
-            void disableIndexer();
-
-            /*
-            * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.
-            * The idea of this function is to allow implementation of AI auto-shooting easily, by "giving control" of the turret to the 
-            * communications received from the Jetson.
-            * This function is not intended to be used for conrtol when the driver is manually aiming/deciding to shoot or not.
-            */
-            void disableShooting();
-
-            /*
             * Call this function (any number of times) to reZero the yaw motor location. This will be used when first turning on the robot
             * and setting the Turret to where the front of the DriveTrain is. 
             * This function should be called when either in the bootup sequence, or when some, undetermined button is pressed on the keyboard.
@@ -105,7 +78,5 @@ namespace ThornBots {
         private: //Private Methods
             int getPitchVoltage(double targetAngle, double dt);
             int getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt);
-            int getFlywheelVoltage();
-            int getIndexerVoltage();
     };
 }
