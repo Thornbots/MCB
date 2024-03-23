@@ -5,34 +5,40 @@
 #include "drivers_singleton.hpp"
 #define RX_BUFFER_LEN 128
 uint8_t readBuff[RX_BUFFER_LEN];
-size_t readBuffNumBytes = 0;
-size_t read = 0;
+const size_t msg_size = sizeof(float)*2;
 
-char* processRx(src::Drivers *drivers) {
-    read = drivers->uart.read(
+// int getCords(src::Drivers *drivers, float *msg) {
+int getCords(src::Drivers *drivers, uint8_t *msg) {
+    int read_len = drivers->uart.read(
         tap::communication::serial::Uart::UartPort::Uart1,
-        &(readBuff[readBuffNumBytes]),
-        RX_BUFFER_LEN - readBuffNumBytes
+        // (uint8_t*)msg,
+        msg,
+        msg_size
     );
 
-    char *arr;// = new char[4];
+    if(read_len==0)
+        return -1;
+    else
+        return read_len;
+
+    // char *arr;// = new char[4];
     // char *arr = new char[read];
 
-    if(read>0){
-        arr = new char[read];
-        for (size_t i = 0; i < read; i++)
-        {
-            arr[i] = readBuff[readBuffNumBytes+i];
-        }
-        readBuffNumBytes += read;
+    // if(read>0){
+    //     arr = new char[read];
+    //     for (size_t i = 0; i < read; i++)
+    //     {
+    //         arr[i] = readBuff[readBuffNumBytes+i];
+    //     }
+    //     readBuffNumBytes += read;
         
-    }else{
-        return NULL;
-    }
-    if(readBuffNumBytes>=RX_BUFFER_LEN){
-        readBuffNumBytes=0;
-    }
-    return arr;
+    // }else{
+    //     return -1;
+    // }
+    // if(readBuffNumBytes>=RX_BUFFER_LEN){
+    //     readBuffNumBytes=0;
+    // }
+    // return 0;
 }
 
 int main()
@@ -52,29 +58,46 @@ int main()
     drivers->leds.init();
     while (1)
     {
+        //============================== receive ==============================  
         modm::delay_us(1000);
-        char *msg = processRx(drivers);
+        float cords[2];
+        uint8_t cords_bytes[sizeof(float)*2];
+        int read_len = getCords(drivers,cords_bytes);
         // char* msg = "asdf\n";
         // read = 6;
 
         // char msg[8] = "hello\n\0"; //to just send msg
-        if(msg==NULL)continue; //dont del
+        if(read_len==-1)continue; //dont del
 
-        char *ans = reinterpret_cast<char *>(msg);
-        int val = atoi(ans);
-        val++;
-        sprintf(ans,"%d",val%=100);
-        if(strcmp(ans,"bc\n\0") == 0)
-            drivers->leds.set(tap::gpio::Leds::Green, true);
-        drivers->leds.set(tap::gpio::Leds::Green, prev>50);
-        prev+=1;
-        prev%=100;
+        //============================== send==============================  
+
+        // char *ans = reinterpret_cast<char *>(msg);
+        // int val = atoi(ans);
+        // val++;
+        size_t buf_size = 62;
+        char send_buf[buf_size];
+        // sprintf(send_buf,"echo: %.001f, %.001f\n",cords[0], cords[1]);
+        sprintf(send_buf,"echo: %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x\n",cords_bytes[0],
+            cords_bytes[1],
+            cords_bytes[2],
+            cords_bytes[3],
+            cords_bytes[4],
+            cords_bytes[5],
+            cords_bytes[6],
+            cords_bytes[7]
+        );
+
+        // if(strcmp(ans,"bc\n\0") == 0)
+        //     drivers->leds.set(tap::gpio::Leds::Green, true);
+        // drivers->leds.set(tap::gpio::Leds::Green, prev>50);
 
         drivers->uart.write(
             tap::communication::serial::Uart::UartPort::Uart1,
             // reinterpret_cast<uint8_t*>(msg),
-            reinterpret_cast<uint8_t*>(ans),
-            read);
+            reinterpret_cast<uint8_t*>(send_buf),
+            //read);
+            buf_size);
+        while(!drivers->uart.isWriteFinished(tap::communication::serial::Uart::Uart1));
     }
     return 0;
 }
