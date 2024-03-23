@@ -16,7 +16,7 @@ namespace ThornBots{
         //Nothing needs to be done to PID controllers
     }
 
-    static double TRANS_ACCEL_LIM = 80, ROT_ACCEL_LIM = 24;
+    static double TRANS_ACCEL_LIM = 60, ROT_ACCEL_LIM = 12;
     double pastX = 0, pastY = 0, pastR, errX, errY, errR, errMag, errorAngle;
     void DriveTrainController::moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle) {
 

@@ -24,7 +24,7 @@ namespace ThornBots {
 
     void TurretController::setMotorSpeeds() {
         motor_Pitch.setDesiredOutput(pitchMotorVoltage);
-        motor_Yaw.setDesiredOutput(0); //yawMotorVoltage
+        motor_Yaw.setDesiredOutput(yawMotorVoltage);
 
     }
 

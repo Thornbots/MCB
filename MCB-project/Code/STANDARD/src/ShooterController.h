@@ -67,8 +67,7 @@ namespace ThornBots {
             void enableShooting();
 
             
-            void enableIndexer();
-            void disableIndexer();
+            void setIndexer(double val);
 
             /*
             * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.

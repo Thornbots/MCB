@@ -16,12 +16,12 @@ namespace ThornBots {
     class RobotController {
         public: //Public Variables
             static constexpr double PI = 3.14159;
-            static constexpr double MAX_SPEED = 7000; //controller //7000
+            static constexpr double MAX_SPEED = 11000; //controller //7000
             static constexpr double SLOW_SPEED = 1000;
-            static constexpr double MED_SPEED = 4000;
+            static constexpr double MED_SPEED = 7000;
             static constexpr double FAST_SPEED = 8000;
-            static constexpr double FAST_BEYBLADE_FACTOR = 1.05; //0.7
-            static constexpr double SLOW_BEYBLADE_FACTOR = 0.7; //0.35
+            static constexpr double FAST_BEYBLADE_FACTOR = 0.9 * 10000 / MAX_SPEED; //0.7
+            static constexpr double SLOW_BEYBLADE_FACTOR = 0.6 * 10000 / MAX_SPEED; //0.35
             static constexpr double TURNING_CONSTANT = 0.5;
             static constexpr double dt = 0.002;
             constexpr static double YAW_TURNING_PROPORTIONAL = -0.02;
@@ -69,7 +69,7 @@ namespace ThornBots {
             double getMagnitude(double x, double y);
 
             void updateWithController();
-            void updateWithMouseKeyboard(ThornBots::TurretController* turretController);
+            void updateWithMouseKeyboard();
 
     };
 }

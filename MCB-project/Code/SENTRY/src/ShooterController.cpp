@@ -34,14 +34,14 @@ namespace ThornBots {
     }
 
     void ShooterController::stopMotors() {
-        indexPIDController.runControllerDerivateError(0 - motor_Indexer.getShaftRPM(), 1);
-        motor_Indexer.setDesiredOutput(static_cast<int32_t>(indexPIDController.getOutput()));
+             //indexPIDController.runControllerDerivateError(0 - motor_Indexer.getShaftRPM(), 1);
+        motor_Indexer.setDesiredOutput(0);//static_cast<int32_t>(indexPIDController.getOutput()));
 
-        flywheelPIDController1.runControllerDerivateError(0 - motor_Flywheel1.getShaftRPM(), 1);
-        motor_Flywheel1.setDesiredOutput(static_cast<int32_t>(flywheelPIDController1.getOutput()));
+       // flywheelPIDController1.runControllerDerivateError(0 - motor_Flywheel1.getShaftRPM(), 1);
+        motor_Flywheel1.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController1.getOutput()));
 
-        flywheelPIDController2.runControllerDerivateError(0 - motor_Flywheel2.getShaftRPM(), 1);
-        motor_Flywheel2.setDesiredOutput(static_cast<int32_t>(flywheelPIDController2.getOutput()));
+       // flywheelPIDController2.runControllerDerivateError(0 - motor_Flywheel2.getShaftRPM(), 1);
+        motor_Flywheel2.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController2.getOutput()));
 
         drivers->djiMotorTxHandler.encodeAndSendCanData();
         //TODO: Add the other motors
@@ -73,13 +73,9 @@ namespace ThornBots {
         }
     }
 
-    void ShooterController::enableIndexer() {
-        indexerVoltage = INDEXER_MOTOR_MAX_SPEED;
+    void ShooterController::setIndexer(double val) {
+        indexerVoltage = val*INDEXER_MOTOR_MAX_SPEED;
         
-    }
-
-    void ShooterController::disableIndexer() {
-        indexerVoltage = 0;
     }
 
     void ShooterController::disable(){

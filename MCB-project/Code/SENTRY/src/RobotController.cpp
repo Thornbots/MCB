@@ -4,8 +4,8 @@
 
 namespace ThornBots
 {
-double stickLeftHorz, stickLeftVert, stickRightHorz, stickRightVert, stickLeftAngle, stickLeftMagn,
-    stickRightAngle, stickRightMagn = 0.0;
+// double stickLeftHorz, stickLeftVert, stickRightHorz, stickRightVert, stickLeftAngle, stickLeftMagn,
+//     stickRightAngle, stickRightMagn = 0.0;
 double yawEncoderValue, IMUAngle = 0.0;
 /*
  * Constructor for RobotController
@@ -57,14 +57,14 @@ void RobotController::update()
     {
         if(robotDisabled) 
             return;
-        shooterController->enableShooting(); 
-        updateWithMouseKeyboard(turretController);
+        //shooterController->enableShooting(); 
+        updateWithMouseKeyboard();
     }
     else
     {
         if(robotDisabled) 
             return;
-        shooterController->disableShooting();
+        //shooterController->disableShooting();
         updateWithController();
     }
 
@@ -148,14 +148,6 @@ void RobotController::updateAllInputVariables()
 
     wheelValue = drivers->remote.getWheel();
 
-    stickLeftHorz = left_stick_horz;
-    stickLeftVert = left_stick_vert;
-    stickRightHorz = right_stick_horz;
-    stickRightVert = right_stick_vert;
-    stickLeftAngle = leftStickAngle;
-    stickLeftMagn = leftStickMagnitude;
-    stickRightAngle = rightStickAngle;
-    stickRightMagn = rightStickMagnitude;
 }
 
 double RobotController::getAngle(double x, double y)
@@ -251,11 +243,20 @@ void RobotController::updateWithController()
                 break;
         }
     }
+    if(wheelValue > 0.3){
+        shooterController->enableShooting();
+        shooterController->setIndexer(0.5);
+    } else {
+        if(wheelValue < -0.3){
+            shooterController->disableShooting();
+        }
+        shooterController->setIndexer(0);
+    }
     targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
     driveTrainController->moveDriveTrain(
         targetDTVelocityWorld,
         (leftStickMagnitude * MAX_SPEED),
-        driveTrainEncoder + leftStickAngle - 3 * PI / 4);
+        driveTrainEncoder + leftStickAngle);
     turretController->turretMove(
         targetYawAngleWorld,
         0.1 * PI * right_stick_vert - 0.5 * PI,
@@ -263,18 +264,25 @@ void RobotController::updateWithController()
         yawAngleRelativeWorld,
         yawRPM,
         dt);
+    shooterController->setMotorSpeeds();
+
 }
 
-void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turretController)
+void RobotController::updateWithMouseKeyboard()
 {
     if (updateInputTimer.execute())
     {
         //shooting
         if(drivers->remote.getMouseL()){
-            shooterController->enableIndexer();
+            shooterController->setIndexer(0.8);
+            shooterController->enableShooting();
+        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
+            shooterController->disableShooting();
+            shooterController->setIndexer(-0.1);
         } else {
-            shooterController->disableIndexer();
+            shooterController->setIndexer(0);
         }
+        shooterController->setMotorSpeeds();
 
         //beyblade
         static bool rHasBeenReleased = true; //r sets fast 
@@ -351,8 +359,7 @@ void RobotController::updateWithMouseKeyboard(ThornBots::TurretController* turre
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,
             moveMagnitude,
-            driveTrainEncoder + moveAngle - 3 * PI / 4); //driveTrainEncoder + moveAngle - 3 * PI / 4);
-            //also try targetYawAngleWorld, yawEncoderCache
+            driveTrainEncoder + moveAngle); 
 
 
         // mouse
