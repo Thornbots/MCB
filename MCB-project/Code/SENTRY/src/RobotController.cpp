@@ -14,12 +14,16 @@ RobotController::RobotController(
     tap::Drivers* driver,
     ThornBots::DriveTrainController* driveTrainController,
     ThornBots::TurretController* turretController,
-    ThornBots::ShooterController* shooterController)
+    ThornBots::ShooterController* shooterController):
+    drivers(driver),
+    driveTrainController(driveTrainController),
+    turretController(turretController),
+    shooterController(shooterController)
 {
-    this->drivers = driver;
-    this->driveTrainController = driveTrainController;
-    this->turretController = turretController;
-    this->shooterController = shooterController;
+    // this->drivers = driver;
+    // this->driveTrainController = driveTrainController;
+    // this->turretController = turretController;
+    // this->shooterController = shooterController;
 }
 
 void RobotController::initialize()
@@ -272,17 +276,6 @@ void RobotController::updateWithMouseKeyboard()
 {
     if (updateInputTimer.execute())
     {
-        //shooting
-        if(drivers->remote.getMouseL()){
-            shooterController->setIndexer(0.8);
-            shooterController->enableShooting();
-        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
-            shooterController->disableShooting();
-            shooterController->setIndexer(-0.1);
-        } else {
-            shooterController->setIndexer(0);
-        }
-        shooterController->setMotorSpeeds();
 
         //beyblade
         static bool rHasBeenReleased = true; //r sets fast 
@@ -356,35 +349,53 @@ void RobotController::updateWithMouseKeyboard()
         driveTrainEncoder = turretController->getYawEncoderValue();
         yawEncoderCache = driveTrainEncoder;
 
-        driveTrainController->moveDriveTrain(
-            targetDTVelocityWorld,
-            moveMagnitude,
-            driveTrainEncoder + moveAngle); 
+        driveTrainController->moveDriveTrain(targetDTVelocityWorld, moveMagnitude, driveTrainEncoder + moveAngle); 
+
+        static int mouseXOffset = drivers->remote.getMouseX(), mouseYOffset = drivers->remote.getMouseY();
+        static bool shoot = false;
+        static double targetPitch = 0, targetYaw = 0;
+
+        int mouseX = drivers->remote.getMouseX() - mouseXOffset, mouseY = drivers->remote.getMouseY() - mouseYOffset;
+
+        if(drivers->remote.getMouseL()){
+            shoot = true;
+
+        if(drivers->remote.getMouseR()){
+             if(!jetsonCommunication.hasRead()) {                                
+                jetsonCommunication.iReadData();
+                //Need to add the angle from the jetsonCommunicator to our current angle and tell our turret to go to that ()
+                targetPitch = turretController->getPitchEncoderValue() - 0.5 * PI  + jetsonCommunication.getMsg()->pitch;
+                targetYaw = turretController->getYawEncoderValue() + jetsonCommunication.getMsg()->yaw;
+                
+            }
+            shoot = jetsonCommunication.getMsg()->shoot;
+        } else {
+            shoot = drivers->remote.getMouseL();
+            targetPitch += mouseY / 10000.0;
+            targetYaw -= mouseX / 10000.0;
+        }
 
 
+        if(targetPitch > 0.4) targetPitch=0.4;
+        if(targetPitch < -0.3) targetPitch=-0.3;
+        targetYaw = fmod(targetYaw, 2 * PI);
+
+
+        if(shoot){ 
+            shooterController->setIndexer(0.8);
+            shooterController->enableShooting();
+        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
+            shooterController->disableShooting();
+            shooterController->setIndexer(-0.1);
+        } else {
+            shooterController->setIndexer(0);
+        }
+        shooterController->setMotorSpeeds();
         // mouse
-        static int mouseXOffset = drivers->remote.getMouseX();
-        static int mouseYOffset = drivers->remote.getMouseY();
-        int mouseX = drivers->remote.getMouseX() - mouseXOffset;
-        int mouseY = drivers->remote.getMouseY() - mouseYOffset;
-        static double accumulatedMouseY=0;
-        accumulatedMouseY+=mouseY / 10000.0;
-
-        if(accumulatedMouseY>0.4) accumulatedMouseY=0.4;
-        if(accumulatedMouseY<-0.3) accumulatedMouseY=-0.3;
-
-        targetYawAngleWorld -= mouseX / 10000.0;
-
-        targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
-        turretController->turretMove(
-            targetYawAngleWorld,
-            (accumulatedMouseY) - 0.5 * PI,
-            driveTrainRPM,
-            yawAngleRelativeWorld,
-            yawRPM,
-            dt);
+        turretController->turretMove(targetYaw, targetPitch - 0.5 * PI, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
 
         
     }
+    }
+}  // namespace ThornBots 
 }
-}  // namespace ThornBots

@@ -6,6 +6,7 @@
 #include "DriveTrainController.h"
 #include "TurretController.h"
 #include "ShooterController.h"
+#include "JetsonCommunication.h"
 
 namespace ThornBots {
     //Don't ask me why. Timers only work when global. #Certified taproot Moment
@@ -31,6 +32,7 @@ namespace ThornBots {
             ThornBots::DriveTrainController *driveTrainController;
             ThornBots::TurretController *turretController;
             ThornBots::ShooterController *shooterController;
+            ThornBots::JetsonCommunication jetsonCommunication;
             double left_stick_horz, left_stick_vert, right_stick_horz, right_stick_vert = 0;
             double leftStickAngle, rightStickAngle, leftStickMagnitude, rightStickMagnitude = 0;
             double wheelValue = 0;
@@ -43,8 +45,12 @@ namespace ThornBots {
             bool robotDisabled = false;
             
         public: //Public Methods
-            RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController, ThornBots::ShooterController* shooterController);
-
+            RobotController(tap::Drivers* driver,
+                            ThornBots::DriveTrainController* driveTrainController,
+                            ThornBots::TurretController* turretController,
+                            ThornBots::ShooterController* shooterController);
+            RobotController()=default;
+            
             void initialize();
 
             void update();
