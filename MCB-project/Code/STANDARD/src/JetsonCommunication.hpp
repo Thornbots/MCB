@@ -15,6 +15,7 @@ public:
         float pitch;
         bool shoot;
     };
+
     JetsonCommunication(src::Drivers* drivers)
         : drivers(drivers),
           message({0, 0, 0}),
@@ -36,7 +37,8 @@ public:
             sizeof(cord_msg));
 
         return read_len == 0 ? -1 : read_len;
-    }
+    };
+
     cord_msg* getMsg(){return &message};
 
 private:
