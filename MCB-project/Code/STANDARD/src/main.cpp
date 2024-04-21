@@ -3,101 +3,69 @@
 #include "TurretController.h"
 #include "DriveTrainController.h"
 #include "drivers_singleton.hpp"
-#define RX_BUFFER_LEN 128
-uint8_t readBuff[RX_BUFFER_LEN];
-const size_t msg_size = sizeof(float)*2;
 
-// int getCords(src::Drivers *drivers, float *msg) {
-int getCords(src::Drivers *drivers, uint8_t *msg) {
+#define RECEIVE_BUFFER_LEN 128
+#define SEND_BUFFER_LEN 11
+
+uint8_t receive_buf[RECEIVE_BUFFER_LEN];//[sizeof(float)*2];
+char send_buf[SEND_BUFFER_LEN];
+
+
+const size_t msg_len = strlen("pilk x");
+int read_from_uart(src::Drivers *drivers, uint8_t *msg) {
     int read_len = drivers->uart.read(
         tap::communication::serial::Uart::UartPort::Uart1,
-        // (uint8_t*)msg,
         msg,
-        msg_size
+        msg_len
     );
 
     if(read_len==0)
         return -1;
     else
         return read_len;
+}
 
-    // char *arr;// = new char[4];
-    // char *arr = new char[read];
 
-    // if(read>0){
-    //     arr = new char[read];
-    //     for (size_t i = 0; i < read; i++)
-    //     {
-    //         arr[i] = readBuff[readBuffNumBytes+i];
-    //     }
-    //     readBuffNumBytes += read;
-        
-    // }else{
-    //     return -1;
-    // }
-    // if(readBuffNumBytes>=RX_BUFFER_LEN){
-    //     readBuffNumBytes=0;
-    // }
-    // return 0;
+void write_to_uart(src::Drivers *drivers, char *send_buf){
+    drivers->uart.write(
+        tap::communication::serial::Uart::UartPort::Uart1,
+        reinterpret_cast<uint8_t*>(send_buf),
+        SEND_BUFFER_LEN);
+
+    while(!drivers->uart.isWriteFinished(tap::communication::serial::Uart::Uart1));
 }
 
 int main()
 {
     src::Drivers *drivers = src::DoNotUse_getDrivers();
 
-    // ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
-    // ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
-    // ThornBots::RobotController *robotController = new ThornBots::RobotController(drivers, driveTrainController, turretController);
     Board::initialize();
-    // initializeIo(drivers);
-    // src::control::initSubsystemCommands(drivers);
     
     drivers->uart.init< tap::communication::serial::Uart::UartPort::Uart1,115200>();
-    int prev = 0;
 
-    drivers->leds.init();
     while (1)
     {
         //============================== receive ==============================  
-        modm::delay_us(1000);
-        float cords[2];
-        uint8_t cords_bytes[sizeof(float)*2];
-        int read_len = getCords(drivers,cords_bytes);
-        // char* msg = "asdf\n";
-        // read = 6;
+        modm::delay_us(1000); // sleep 1 sec
 
-        // char msg[8] = "hello\n\0"; //to just send msg
+        // int read_len = drivers->uart.read(
+        //     tap::communication::serial::Uart::UartPort::Uart1,
+        //     receive_buf,
+        //     msg_size
+        // );
+        int read_len = read_from_uart(drivers, receive_buf);
+
         if(read_len==-1)continue; //dont del
 
         //============================== send==============================  
+        char *ans = reinterpret_cast<char *>(receive_buf);
+        int val = atoi(&ans[4]);
+        val++;
 
-        // char *ans = reinterpret_cast<char *>(msg);
-        // int val = atoi(ans);
-        // val++;
-        size_t buf_size = 62;
-        char send_buf[buf_size];
-        // sprintf(send_buf,"echo: %.001f, %.001f\n",cords[0], cords[1]);
-        sprintf(send_buf,"echo: %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x\n",cords_bytes[0],
-            cords_bytes[1],
-            cords_bytes[2],
-            cords_bytes[3],
-            cords_bytes[4],
-            cords_bytes[5],
-            cords_bytes[6],
-            cords_bytes[7]
-        );
+        sprintf(send_buf,"echo: %d\n",val);
 
-        // if(strcmp(ans,"bc\n\0") == 0)
-        //     drivers->leds.set(tap::gpio::Leds::Green, true);
-        // drivers->leds.set(tap::gpio::Leds::Green, prev>50);
+        write_to_uart(drivers, send_buf);
 
-        drivers->uart.write(
-            tap::communication::serial::Uart::UartPort::Uart1,
-            // reinterpret_cast<uint8_t*>(msg),
-            reinterpret_cast<uint8_t*>(send_buf),
-            //read);
-            buf_size);
-        while(!drivers->uart.isWriteFinished(tap::communication::serial::Uart::Uart1));
     }
     return 0;
 }
