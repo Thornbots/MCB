@@ -10,6 +10,12 @@
 uint8_t receive_buf[RECEIVE_BUFFER_LEN];//[sizeof(float)*2];
 char send_buf[SEND_BUFFER_LEN];
 
+struct data_frame{
+    float theta; // rad
+    float omega; // rad
+    float confidence; // 0.0 to 1.0
+    float panel_dist; // meters
+};
 
 const size_t msg_len = strlen("pilk x");
 int read_from_uart(src::Drivers *drivers, uint8_t *msg) {
