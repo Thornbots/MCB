@@ -27,6 +27,7 @@ namespace ThornBots {
 
     void RobotController::update() {
         drivers->canRxHandler.pollCanData();
+        jetsonCommunication->update();  //updates the message we get later
         updateAllInputVariables();
 
         if(useKeyboardMouse) {
