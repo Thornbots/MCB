@@ -5,7 +5,7 @@
 #include "drivers_singleton.hpp"
 
 #define RECEIVE_BUFFER_LEN 128
-#define SEND_BUFFER_LEN 11
+#define SEND_BUFFER_LEN 29
 
 uint8_t receive_buf[RECEIVE_BUFFER_LEN];//[sizeof(float)*2];
 char send_buf[SEND_BUFFER_LEN];
@@ -17,7 +17,7 @@ struct data_frame{
     float panel_dist; // meters
 };
 
-const size_t msg_len = strlen("pilk x");
+const size_t msg_len = sizeof(struct data_frame);
 int read_from_uart(src::Drivers *drivers, uint8_t *msg) {
     int read_len = drivers->uart.read(
         tap::communication::serial::Uart::UartPort::Uart1,
@@ -60,15 +60,25 @@ int main()
         //     msg_size
         // );
         int read_len = read_from_uart(drivers, receive_buf);
+        struct data_frame* msg = (struct data_frame*) receive_buf;
 
         if(read_len==-1)continue; //dont del
 
         //============================== send==============================  
-        char *ans = reinterpret_cast<char *>(receive_buf);
-        int val = atoi(&ans[4]);
-        val++;
+        // char *ans = reinterpret_cast<char *>(receive_buf);
+        // int val = atoi(&ans[4]);
+        // val++;
 
-        sprintf(send_buf,"echo: %d\n",val);
+        double val1 = msg->confidence;
+        double val2 = msg->omega;
+        double val3 = msg->panel_dist;
+        double val4 = msg->theta;
+
+        memset(send_buf, 0, SEND_BUFFER_LEN);
+        
+        // sprintf(send_buf,"echo: %.2f | %.2f | %.2f | %.2f\n", val1, val2, val3, val4);
+        sprintf(send_buf,"echo: %d | %d | %d | %d\n", (int) val1, (int) val2, (int) val3, (int) val4);
+        sprintf(send_buf,"echo: %d\n", (int) val1);
 
         write_to_uart(drivers, send_buf);
 
