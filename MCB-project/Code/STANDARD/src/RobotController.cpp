@@ -4,13 +4,15 @@
 namespace ThornBots {
     double stickLeftHorz, stickLeftVert, stickRightHorz, stickRightVert, stickLeftAngle, stickLeftMagn, stickRightAngle, stickRightMagn = 0.0;
     double yawEncoderValue, IMUAngle = 0.0;
+    float pitch = 0;
     /*
     * Constructor for RobotController
     */
-    RobotController::RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController) {
+    RobotController::RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController, ThornBots::JetsonCommunication* jetsonCommunication) {
         this->drivers = driver;
         this->driveTrainController = driveTrainController;
         this->turretController = turretController;
+        this->jetsonCommunication = jetsonCommunication;
     }
 
     void RobotController::initialize() {
@@ -26,6 +28,10 @@ namespace ThornBots {
     }
 
     void RobotController::update() {
+        jetsonCommunication->update();
+        
+        pitch = jetsonCommunication->getMsg()->omega;
+
         drivers->canRxHandler.pollCanData();
         
         toggleKeyboardAndMouse(); //check if input switched
@@ -143,46 +149,48 @@ namespace ThornBots {
         yawEncoderValue = driveTrainEncoder;
         IMUAngle = yawAngleRelativeWorld;
 
-        switch(leftSwitchState) {
-            case(tap::communication::serial::Remote::SwitchState::UP): 
-                //Left Switch is up. So need to beyblade at fast speed, and let right stick control turret yaw and pitch
-                driveTrainController->moveDriveTrain((FAST_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), yawAngleRelativeWorld - leftStickAngle);
-                turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
-                break;
-            case(tap::communication::serial::Remote::SwitchState::MID):
-                driveTrainController->moveDriveTrain((SLOW_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), yawAngleRelativeWorld - leftStickAngle);
-                turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
-                //Left Switch is mid. So need to beyblade at slow speed, and let right stick control turret yaw and pitch
-                break;
-            case(tap::communication::serial::Remote::SwitchState::DOWN):
-                //Left Switch is down. So need to not beyblade, and let right stick be decided on the right switch value
-                switch(rightSwitchState) {
-                    case(tap::communication::serial::Remote::SwitchState::UP):
-                        //Left switch is down, and right is up. So driveTrainFollows Turret
-                        driveTrainController->followTurret(leftStickMagnitude * MAX_SPEED, yawAngleRelativeWorld - leftStickAngle, 0);
-                        turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
-                        break;
-                    case(tap::communication::serial::Remote::SwitchState::MID):
-                        //Left switch is down, and right is mid. So move turret independently of drivetrain
-                        driveTrainController->moveDriveTrain(0, leftStickMagnitude * MAX_SPEED, yawAngleRelativeWorld - leftStickAngle);
-                        turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
-                        break;
-                    case(tap::communication::serial::Remote::SwitchState::DOWN):
-                        //Left switch is down, and right is mid. So move drivetrain and have turret follow.
-                        driveTrainController->moveDriveTrain(right_stick_horz * MAX_SPEED * TURNING_CONSTANT, leftStickMagnitude * MAX_SPEED, leftStickAngle + driveTrainEncoder);
-                        turretController->followDriveTrain(0); //TODO: Make this variable be the angle error from DT and T
-                        break;
-                    default:
-                        //Should not be in this state. So if we are, just tell robot to do nothing.
-                        stopRobot();
-                        break;
-                }
-                break;
-            default:
-                //Should not be in this state. So if we are, just tell robot to do nothing.
-                stopRobot();
-                break;
-        }
+        turretController->turretMove(desiredYawAngleWorld, pitch, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+
+        // switch(leftSwitchState) {
+        //     case(tap::communication::serial::Remote::SwitchState::UP): 
+        //         //Left Switch is up. So need to beyblade at fast speed, and let right stick control turret yaw and pitch
+        //         driveTrainController->moveDriveTrain((FAST_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), yawAngleRelativeWorld - leftStickAngle);
+        //         turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+        //         break;
+        //     case(tap::communication::serial::Remote::SwitchState::MID):
+        //         driveTrainController->moveDriveTrain((SLOW_BEYBLADE_FACTOR * MAX_SPEED), (leftStickMagnitude * MAX_SPEED), yawAngleRelativeWorld - leftStickAngle);
+        //         turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+        //         //Left Switch is mid. So need to beyblade at slow speed, and let right stick control turret yaw and pitch
+        //         break;
+        //     case(tap::communication::serial::Remote::SwitchState::DOWN):
+        //         //Left Switch is down. So need to not beyblade, and let right stick be decided on the right switch value
+        //         switch(rightSwitchState) {
+        //             case(tap::communication::serial::Remote::SwitchState::UP):
+        //                 //Left switch is down, and right is up. So driveTrainFollows Turret
+        //                 driveTrainController->followTurret(leftStickMagnitude * MAX_SPEED, yawAngleRelativeWorld - leftStickAngle, 0);
+        //                 turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+        //                 break;
+        //             case(tap::communication::serial::Remote::SwitchState::MID):
+        //                 //Left switch is down, and right is mid. So move turret independently of drivetrain
+        //                 driveTrainController->moveDriveTrain(0, leftStickMagnitude * MAX_SPEED, yawAngleRelativeWorld - leftStickAngle);
+        //                 turretController->turretMove(desiredYawAngleWorld, right_stick_vert * PITCH_CONSTANT, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+        //                 break;
+        //             case(tap::communication::serial::Remote::SwitchState::DOWN):
+        //                 //Left switch is down, and right is mid. So move drivetrain and have turret follow.
+        //                 driveTrainController->moveDriveTrain(right_stick_horz * MAX_SPEED * TURNING_CONSTANT, leftStickMagnitude * MAX_SPEED, leftStickAngle + driveTrainEncoder);
+        //                 turretController->followDriveTrain(0); //TODO: Make this variable be the angle error from DT and T
+        //                 break;
+        //             default:
+        //                 //Should not be in this state. So if we are, just tell robot to do nothing.
+        //                 stopRobot();
+        //                 break;
+        //         }
+        //         break;
+        //     default:
+        //         //Should not be in this state. So if we are, just tell robot to do nothing.
+        //         stopRobot();
+        //         break;
+        // }
     }
 
     void RobotController::updateWithMouseKeyboard() {
