@@ -1,15 +1,18 @@
 #pragma once
 #include "drivers_singleton.hpp"
+#include "tap/communication/serial/dji_serial.hpp"
 
 struct cord_msg;
 
 namespace ThornBots {
-class JetsonCommunication{
+class JetsonCommunication: public tap::communication::serial::DJISerial{
     private:
         bool hasBeenRead = false;
         src::Drivers* drivers;
 
     public:
+        using tap::communication::serial::DJISerial::DJISerial;
+
         struct cord_msg
         {
             float theta; // rad
@@ -18,33 +21,34 @@ class JetsonCommunication{
             float panel_dist; // meters
         };
 
-        JetsonCommunication(src::Drivers* drivers)
-            : drivers(drivers),
-            message({0, 0, 0}),
-            hasBeenRead(false)
-        {
-            drivers->uart.init<tap::communication::serial::Uart::UartPort::Uart1, 115200>();
-        };
-
-        ~JetsonCommunication() = default;
 
         /*
         run this to read from the uart queue buffer to get the coordinates of the panal
         */
-        int update()
+        void messageReceiveCallback(const ReceivedSerialMessage &completeMessage)
         {
-            int read_len = drivers->uart.read(
-                tap::communication::serial::Uart::UartPort::Uart1,
-                (uint8_t*)&this->message,
-                sizeof(cord_msg));
+            message = (cord_msg*)completeMessage.data;
+            // constexpr int msg_len = 60;
+            // char buf[msg_len];
+            // // sprintf(buf, "rez: %04x\n", completeMessage.data[0]);
+            
+            // sprintf(buf,"theta: %1.1f, omega: %1.1f, confidence: %1.1f, dist: %1.1f\n",
+            // message->theta,message->omega,message->confidence,message->panel_dist);
 
-            return read_len == 0 ? -1 : read_len;
+            // uint8_t* msg = reinterpret_cast<uint8_t*>(buf);
+            // drivers->uart.write(tap::communication::serial::Uart::Uart1, msg,msg_len);
+            drivers->leds.set(tap::gpio::Leds::Blue, true);
         };
 
-        cord_msg* getMsg(){return &message;};
+        cord_msg* getMsg(){return message;};
+
+        // void sendToJetson(uint8_t){
+
+
+        // }
 
     private:
-        cord_msg message;
+        cord_msg *message;
     };
 
 }
