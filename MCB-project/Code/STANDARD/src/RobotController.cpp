@@ -1,4 +1,6 @@
 #include "RobotController.h"
+#include "JetsonCommunication.hpp"
+#include "tap/communication/serial/uart.hpp"
 #include <cmath>
 
 namespace ThornBots {
@@ -11,6 +13,7 @@ namespace ThornBots {
         this->drivers = driver;
         this->driveTrainController = driveTrainController;
         this->turretController = turretController;
+        this->jetsonCommunication = new JetsonCommunication(driver,tap::communication::serial::Uart::UartPort::Uart1);//TODO: move uart arg to jetson class
     }
 
     void RobotController::initialize() {
@@ -21,16 +24,21 @@ namespace ThornBots {
         drivers->remote.initialize();
         driveTrainController->initialize();
         turretController->initialize();
+        jetsonCommunication->initialize();
         modm::delay_ms(2500); //Delay 2.5s to allow the IMU to turn on and get working before we move it around
         //TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's reading correctly, ect)
     }
 
     void RobotController::update() {
+        jetsonCommunication->updateSerial();  //updates the message we get later
         drivers->canRxHandler.pollCanData();
-        jetsonCommunication->update();  //updates the message we get later
         updateAllInputVariables();
 
-        if(useKeyboardMouse) {
+        int use_jetson = 0;
+        if (use_jetson){
+            JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
+            turretController->turretMove(yawAngleRelativeWorld+msg->theta, pitchAngleRelativeWorld+msg->omega, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+        } else if(useKeyboardMouse) {
             updateWithMouseKeyboard();
         } else {
             updateWithController();
@@ -52,7 +60,7 @@ namespace ThornBots {
             }
         }
 
-        // drivers->djiMotorTxHandler.encodeAndSendCanData();  // Processes these motor speed changes into can signal
+        drivers->djiMotorTxHandler.encodeAndSendCanData();  // Processes these motor speed changes into can signal
     }
 
     void RobotController::stopRobot() {
@@ -84,6 +92,7 @@ namespace ThornBots {
         driveTrainRPM = 0; //TODO: get this. Either power from DT motors, using yaw encoder and IMU, or something else
         yawRPM = PI / 180 * drivers->bmi088.getGz();
         yawAngleRelativeWorld = PI / 180 * drivers->bmi088.getYaw();
+        pitchAngleRelativeWorld = PI / 180 * drivers->bmi088.getPitch();
         
         wheelValue = drivers->remote.getWheel();
 
