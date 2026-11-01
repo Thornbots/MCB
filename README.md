@@ -1,3 +1,7 @@
+# NOT IN USE ANY MORE
+
+NEW REPO [MCBv3](https://github.com/Thornbots/MCBV3)
+
 ## Getting Started
 
 First, **MAKE SURE TAPROOT IS PROPERLY INSTALLED**! If you haven't go ahead and check out our [software portal](https://thornbots-software.web.app) and 
